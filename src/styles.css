@@ -1,0 +1,18 @@
+@import "tailwindcss";
+
+/* Design system (ported from design_handoff) */
+@import "./styles/fonts.css";
+@import "./styles/tokens.css";
+@import "./styles/components.css";
+
+/* "Golden Hour" app layer (atmosphere, preloader, nav, journey layout) */
+@import "./styles/app.css";
+
+/* Bridge a few design tokens into Tailwind utilities (keep minimal). */
+@theme {
+  --font-sans: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Space Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --color-accent: #C9A24A;
+  --color-ink: #16140F;
+  --color-paper: #FBFAF7;
+}

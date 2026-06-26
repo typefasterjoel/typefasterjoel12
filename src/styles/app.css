@@ -1,0 +1,1147 @@
+/* ============================================================
+   typefasterjoel — "Golden Hour" app layer
+   Site-specific structure, atmosphere, and motion staging that
+   sits on top of the design-system tokens + components.
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  min-height: 100svh;
+  overflow-x: hidden;
+}
+
+/* Theme switch — briefly enables broad color transitions to prevent a jarring flash.
+   The class is added/removed by setTheme() in lib/theme.tsx. */
+@media (prefers-reduced-motion: no-preference) {
+  html.theme-transitioning,
+  html.theme-transitioning *,
+  html.theme-transitioning *::before,
+  html.theme-transitioning *::after {
+    transition:
+      background-color 0.5s var(--ease-out),
+      color 0.4s var(--ease-out),
+      border-color 0.4s var(--ease-out),
+      box-shadow 0.4s var(--ease-out) !important;
+    transition-delay: 0s !important;
+  }
+}
+
+/* Lenis owns scrolling; keep native smooth off to avoid double-easing. */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+button {
+  font: inherit;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--fg) 18%, transparent);
+  border-radius: var(--r-pill);
+  border: 3px solid var(--bg);
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 35%, transparent);
+  border-radius: var(--r-xs);
+}
+
+/* ---- Reduced-motion safeguard (design-system mandate) ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================
+   Layout helpers
+   ============================================================ */
+.container {
+  width: 100%;
+  max-width: var(--maxw);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+.section {
+  position: relative;
+  padding-block: clamp(var(--s-8), 11vh, var(--s-10));
+}
+.section-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  margin-bottom: var(--s-7);
+}
+.eyebrow {
+  color: var(--fg-2);
+}
+.measure {
+  max-width: 56ch;
+}
+.stack {
+  display: flex;
+  flex-direction: column;
+}
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+/* ============================================================
+   Atmosphere — the serene golden-hour field.
+   Pure-CSS base + the static fallback for the Phase-2 WebGL canvas.
+   ============================================================ */
+.atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .atmosphere::after {
+  opacity: 0.32;
+}
+
+@keyframes bloom-breathe {
+  from {
+    transform: translateY(0) scale(1);
+    opacity: 0.42;
+  }
+  to {
+    transform: translateY(-3vmax) scale(1.06);
+    opacity: 0.55;
+  }
+}
+
+/* The WebGL motes (Phase 2) lay over the CSS bloom; fade in once painted. */
+.atmosphere-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: block;
+  opacity: 0;
+  transition: opacity 1.4s var(--ease-out);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .atmosphere-canvas {
+    transition: none;
+  }
+}
+
+.side-rays {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* ============================================================
+   Section marker — fixed vertical label, lower-left.
+   Updates as the visitor scrolls between sections.
+   ============================================================ */
+.section-marker {
+  position: fixed;
+  left: var(--gutter);
+  bottom: var(--s-7);
+  z-index: 50;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity var(--dur-3) var(--ease-out);
+}
+.section-marker[data-hidden="true"] {
+  opacity: 0;
+}
+.section-marker-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+  white-space: nowrap;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  animation: marker-fade-in 0.5s var(--ease-out) both;
+}
+@keyframes marker-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (max-width: 760px) {
+  .section-marker {
+    display: none;
+  }
+}
+
+/* App content sits above the atmosphere. */
+.app-shell {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+}
+.app-main {
+  flex: 1 0 auto;
+}
+
+/* ============================================================
+   Reveal staging — armed only when motion is allowed (set by the
+   no-flash head script). No JS / reduced-motion => content visible.
+   ============================================================ */
+[data-motion="on"] .reveal {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* Hero "crest" elements are staged hidden until the preloader hands off. */
+[data-motion="on"] [data-crest] {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* ============================================================
+   Site nav — translucent on scroll
+   ============================================================ */
+.site-nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-5);
+  padding: var(--s-4) var(--gutter);
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition:
+    background var(--dur-3) var(--ease-out),
+    border-color var(--dur-3) var(--ease-out),
+    backdrop-filter var(--dur-3) var(--ease-out),
+    padding var(--dur-3) var(--ease-out);
+}
+.site-nav[data-scrolled="true"] {
+  background: color-mix(in oklab, var(--bg) 80%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom-color: var(--border);
+  padding-block: var(--s-3);
+}
+.nav-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+  color: var(--fg);
+}
+.nav-brand .logo {
+  color: var(--accent);
+  width: 30px;
+  height: auto;
+}
+.nav-wordmark {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: var(--s-5);
+}
+.nav-link {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-1);
+  position: relative;
+  transition: color var(--dur-1) var(--ease-out);
+}
+.nav-link:hover {
+  color: var(--fg);
+}
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+.icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--border);
+  background: color-mix(in oklab, var(--surface) 70%, transparent);
+  color: var(--fg-1);
+  cursor: pointer;
+  transition:
+    color var(--dur-1) var(--ease-out),
+    border-color var(--dur-1) var(--ease-out),
+    background var(--dur-1) var(--ease-out);
+}
+.icon-btn:hover {
+  color: var(--fg);
+  border-color: var(--border-strong);
+}
+.nav-burger {
+  display: none;
+}
+
+.nav-sheet {
+  position: absolute;
+  inset: 100% var(--gutter) auto var(--gutter);
+  margin-top: var(--s-2);
+  display: flex;
+  flex-direction: column;
+  background: color-mix(in oklab, var(--surface) 92%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+.nav-sheet-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--s-4) var(--s-5);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: 18px;
+  cursor: pointer;
+  transition:
+    padding-left var(--dur-2) var(--ease-out),
+    background var(--dur-1) var(--ease-out);
+}
+.nav-sheet-link:last-child {
+  border-bottom: none;
+}
+.nav-sheet-link:hover {
+  padding-left: calc(var(--s-5) + 8px);
+  background: var(--sunken);
+}
+.nav-sheet-link .arrow {
+  color: var(--accent-ink);
+}
+
+@media (max-width: 760px) {
+  .nav-links {
+    display: none;
+  }
+  .nav-burger {
+    display: inline-grid;
+  }
+}
+@media (min-width: 761px) {
+  .nav-sheet {
+    display: none;
+  }
+}
+
+/* ============================================================
+   Preloader — "first light"
+   ============================================================ */
+.preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  overflow: hidden;
+}
+.preloader[hidden] {
+  display: none;
+}
+.preloader-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-5);
+  text-align: center;
+}
+.preloader .logo {
+  width: 52px;
+  height: auto;
+  color: var(--accent);
+}
+.preloader-count {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  color: var(--fg-2);
+  font-variant-numeric: tabular-nums;
+}
+.preloader-coord {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+}
+/* "first light" — a fine warm ray draws across the horizon while a soft bloom
+   swells beneath it. The bloom mirrors .atmosphere::before so the preloader
+   dissolves seamlessly into the page's golden-hour glow. */
+.preloader-dawn {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    125% 75% at 50% 118%,
+    color-mix(in oklab, var(--gold-300) 55%, transparent) 0%,
+    color-mix(in oklab, var(--gold-300) 14%, transparent) 34%,
+    transparent 62%
+  );
+  opacity: 0;
+  will-change: opacity, transform;
+}
+.preloader-ray {
+  position: absolute;
+  left: 50%;
+  top: 64%;
+  width: min(640px, 72vw);
+  height: 1.5px;
+  translate: -50% 0;
+  transform-origin: center;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in oklab, var(--gold-300) 85%, transparent) 50%,
+    transparent 100%
+  );
+  box-shadow: 0 0 18px 1px color-mix(in oklab, var(--gold-300) 45%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+
+/* ============================================================
+   Hero — "arrival / crest the hill"
+   ============================================================ */
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-block: clamp(var(--s-9), 18vh, 200px) var(--s-9);
+}
+.hero-title {
+  max-width: 16ch;
+}
+.hero-title .accent {
+  color: var(--accent-ink);
+}
+.hero-sub {
+  margin-top: var(--s-6);
+  color: var(--fg-1);
+  max-width: 46ch;
+}
+.hero-actions {
+  margin-top: var(--s-7);
+}
+.scroll-cue {
+  position: absolute;
+  left: var(--gutter);
+  bottom: var(--s-7);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+  color: var(--fg-2);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.scroll-cue:hover {
+  color: var(--fg-1);
+}
+.scroll-cue .line {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(var(--accent), transparent);
+  transform-origin: top;
+  animation: cue-trail 2.4s var(--ease-out) infinite;
+}
+@keyframes cue-trail {
+  0% {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+  40% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 0;
+  }
+}
+
+/* ============================================================
+   Work — "points of interest"
+   ============================================================ */
+.work-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(var(--s-5), 3vw, var(--s-7));
+}
+.work-index {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  z-index: 1;
+}
+.principles {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(var(--s-5), 3vw, var(--s-7));
+}
+@media (max-width: 760px) {
+  .principles {
+    grid-template-columns: 1fr;
+  }
+}
+.work-thumb-art {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(
+      120% 90% at 50% 120%,
+      color-mix(in oklab, var(--gold-300) 40%, transparent),
+      transparent 60%
+    ),
+    var(--sunken);
+  color: color-mix(in oklab, var(--fg) 30%, transparent);
+}
+.work-card .arrow {
+  transition: transform var(--dur-2) var(--ease-out);
+  color: var(--accent-ink);
+}
+.work-card:hover .arrow {
+  transform: translateX(4px);
+}
+
+/* ============================================================
+   About — "the traveler"
+   ============================================================ */
+.about-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: clamp(var(--s-6), 5vw, var(--s-8));
+  align-items: start;
+}
+.portrait {
+  aspect-ratio: 4 / 5;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  background:
+    radial-gradient(
+      100% 70% at 50% 120%,
+      color-mix(in oklab, var(--gold-300) 45%, transparent),
+      transparent 60%
+    ),
+    var(--surface-2);
+  display: grid;
+  place-items: center;
+  color: var(--fg-2);
+  overflow: hidden;
+}
+
+/* ============================================================
+   Contact — "the send-off"
+   ============================================================ */
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: clamp(var(--s-6), 5vw, var(--s-8));
+  align-items: start;
+}
+.field-row {
+  display: grid;
+  gap: var(--s-2);
+  margin-bottom: var(--s-5);
+}
+.social-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+}
+.chip {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--fg-1);
+  border: 1px solid var(--border);
+  background: color-mix(in oklab, var(--surface) 70%, transparent);
+  padding: 8px 14px;
+  border-radius: var(--r-pill);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  transition:
+    color var(--dur-1) var(--ease-out),
+    border-color var(--dur-1) var(--ease-out);
+}
+.chip:hover {
+  color: var(--fg);
+  border-color: var(--border-strong);
+}
+
+/* ============================================================
+   Footer
+   ============================================================ */
+.site-footer {
+  border-top: 1px solid var(--border);
+  padding-block: var(--s-7);
+  margin-top: var(--s-9);
+  background: color-mix(in oklab, var(--bg) 80%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+}
+
+/* ============================================================
+   Case study — "arrival at a place"
+   ============================================================ */
+.case-hero {
+  padding-block: clamp(var(--s-9), 16vh, 180px) var(--s-7);
+}
+.case-grid {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  gap: clamp(var(--s-6), 5vw, var(--s-8));
+  align-items: start;
+}
+.case-aside {
+  position: sticky;
+  top: 96px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+  z-index: 2;
+  /* Frosted glass so the gallery drifts behind without a harsh block */
+  background: color-mix(in oklab, var(--bg) 60%, transparent);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-radius: var(--r-lg);
+  padding: var(--s-4);
+  margin-top: calc(-1 * var(--s-4));
+}
+.case-meta-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+.case-figure {
+  aspect-ratio: 16 / 9;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  background:
+    radial-gradient(
+      110% 80% at 50% 120%,
+      color-mix(in oklab, var(--gold-300) 38%, transparent),
+      transparent 60%
+    ),
+    var(--surface-2);
+  display: grid;
+  place-items: center;
+  color: var(--fg-2);
+  margin-block: var(--s-6);
+}
+.case-prose {
+  max-width: 68ch;
+}
+.case-prose p {
+  margin-block: var(--s-4);
+  color: var(--fg-1);
+}
+
+/* image figure — the img carries the frame, so the figure grows to fit a
+   caption. Must come after `.case-figure` to win on equal specificity. */
+.case-figure--img {
+  aspect-ratio: auto;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.case-figure--img img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+}
+.case-figure--img figcaption {
+  margin-top: var(--s-2);
+}
+
+/* pair: two images side-by-side, ideal for before/after */
+.case-figure-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-3);
+  margin-block: var(--s-6);
+}
+.case-figure-pair .case-figure,
+.case-figure-pair .case-figure--img {
+  margin-block: 0;
+}
+
+/* grid: 2–3 col responsive grid, ideal for token scales + component sheet */
+.case-figure-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--s-3);
+  margin-block: var(--s-6);
+}
+.case-figure-grid .case-figure,
+.case-figure-grid .case-figure--img {
+  margin-block: 0;
+}
+
+/* stack: default, single full-width figure (preserves existing spacing) */
+.case-figure-stack .case-figure,
+.case-figure-stack .case-figure--img {
+  margin-block: var(--s-6);
+}
+
+/* full-bleed image carousel — breaks out of the prose column to the viewport
+   edge. margin-left and width are set via JS in CaseGallery.tsx. */
+.case-gallery {
+  position: relative;
+  z-index: 0;
+  height: clamp(320px, 52vh, 560px);
+  overflow: hidden;
+  margin-block: var(--s-8);
+  border-radius: var(--r-lg);
+}
+
+.case-gallery-track {
+  display: flex;
+  height: 100%;
+  will-change: transform;
+}
+
+.case-gallery-slide {
+  position: relative;
+  min-width: 100vw;
+  height: 100%;
+  flex-shrink: 0;
+}
+
+.case-gallery-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.case-gallery-caption {
+  position: absolute;
+  bottom: var(--s-4);
+  left: var(--s-5);
+  color: color-mix(in oklab, var(--fg) 60%, transparent);
+}
+
+/* Left vignette — softens the edge that tucks behind the sidebar */
+.case-gallery::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 120px;
+  background: linear-gradient(to right, var(--bg) 0%, transparent 100%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Controls — sit in the bottom-right of the visible prose area */
+.case-gallery-controls {
+  position: absolute;
+  bottom: var(--s-4);
+  right: var(--s-5);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+.case-gallery-dots {
+  display: flex;
+  gap: var(--s-2);
+}
+
+.case-gallery-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  background: color-mix(in oklab, var(--fg) 22%, transparent);
+  transition: background 0.25s, transform 0.25s;
+}
+
+.case-gallery-dot[aria-selected="true"] {
+  background: var(--gold-400);
+  transform: scale(1.4);
+}
+
+.case-gallery-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: color-mix(in oklab, var(--bg) 70%, transparent);
+  color: var(--fg);
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.case-gallery-arrow:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.case-gallery-arrow:not(:disabled):hover {
+  background: color-mix(in oklab, var(--bg) 90%, transparent);
+}
+
+/* hero stat strip — punchy numbers, distinct from the sidebar facts */
+.case-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(var(--s-5), 4vw, var(--s-7));
+}
+.case-stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+.case-stat dd {
+  margin: 0;
+}
+.case-stat-value {
+  color: var(--fg);
+}
+
+/* featured differentiator callout (the AI angle) */
+.case-callout {
+  margin-block: var(--s-7);
+  padding: var(--s-6);
+  border-radius: var(--r-lg);
+  border: 1px solid color-mix(in oklab, var(--accent) 45%, transparent);
+  background: var(--accent-soft);
+}
+.case-callout p {
+  margin-top: var(--s-3);
+  margin-bottom: 0;
+}
+.case-callout-eyebrow {
+  color: var(--accent-ink);
+}
+
+/* ============================================================
+   404 / not found
+   ============================================================ */
+.center-screen {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: var(--gutter);
+}
+
+/* ============================================================
+   Career (home section) + Resume (full page)
+   ============================================================ */
+.timeline {
+  position: relative;
+}
+.timeline-rail {
+  position: relative;
+  padding-left: 28px;
+}
+.timeline-line {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--gold-500);
+  transform: scaleY(0);
+  transform-origin: top;
+  will-change: transform;
+}
+.timeline-node {
+  position: absolute;
+  left: -5px;
+  top: 6px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--gold-500);
+  box-shadow: 0 0 0 3px var(--bg);
+}
+.timeline-entry {
+  position: relative;
+  padding-left: var(--s-6);
+  padding-bottom: var(--s-7);
+}
+.timeline-entry:last-child {
+  padding-bottom: 0;
+}
+.timeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s-3);
+  flex-wrap: wrap;
+}
+.timeline-company {
+  font-weight: 600;
+  font-size: 17px;
+  color: var(--fg);
+}
+.timeline-company small {
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--ink-400);
+  margin-left: var(--s-2);
+}
+.timeline-dates {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-400);
+  white-space: nowrap;
+}
+.timeline-role {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--gold-600);
+  margin-top: var(--s-1);
+}
+.timeline-bullets {
+  list-style: none;
+  margin: var(--s-3) 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.timeline-bullets li {
+  position: relative;
+  padding-left: 14px;
+  font-size: 13.5px;
+  color: var(--fg-1);
+  line-height: 1.65;
+}
+.timeline-bullets li span {
+  position: absolute;
+  left: 0;
+  color: var(--gold-500);
+  font-family: var(--font-mono);
+}
+
+/* Career home section CTA */
+.career-cta {
+  margin-top: var(--s-7);
+}
+
+/* Resume page layout */
+.resume-page {
+  padding-block: clamp(var(--s-8), 12vh, 120px) var(--s-10);
+}
+.resume-header {
+  padding-bottom: var(--s-8);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--s-8);
+}
+.resume-back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+  margin-bottom: var(--s-7);
+  transition: color var(--dur-1) var(--ease-out);
+}
+.resume-back:hover {
+  color: var(--fg);
+}
+.resume-section {
+  padding-block: var(--s-8);
+  border-bottom: 1px solid var(--border);
+}
+.resume-section:last-child {
+  border-bottom: none;
+}
+.resume-section-label {
+  margin-bottom: var(--s-6);
+}
+.resume-print-btn {
+  margin-top: var(--s-6);
+}
+.skills-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(var(--s-5), 4vw, var(--s-8));
+  margin-top: var(--s-6);
+}
+.skill-group-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--gold-500);
+  margin-bottom: var(--s-3);
+}
+.skill-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 13px;
+  color: var(--fg-1);
+  line-height: 1.9;
+}
+
+/* Print — override GSAP-staged opacity and hide chrome */
+@media print {
+  .site-nav,
+  .site-footer,
+  .atmosphere,
+  .preloader,
+  .section-marker,
+  .resume-print-btn {
+    display: none !important;
+  }
+  body {
+    background: white !important;
+  }
+  .timeline-line {
+    transform: scaleY(1) !important;
+    background: #999 !important;
+  }
+  .timeline-node {
+    background: #999 !important;
+    box-shadow: none !important;
+  }
+  .timeline-role {
+    color: #555 !important;
+  }
+  .timeline-bullets li span {
+    color: #999 !important;
+  }
+  /* Force all scroll-staged elements visible regardless of scroll position */
+  .timeline-entry,
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+@media (max-width: 860px) {
+  .case-grid {
+    grid-template-columns: 1fr;
+  }
+  .case-aside {
+    position: static;
+  }
+  .case-figure-pair,
+  .case-figure-grid {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 760px) {
+  .work-grid {
+    grid-template-columns: 1fr;
+  }
+  .about-grid,
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+  .skills-grid {
+    grid-template-columns: 1fr;
+  }
+  .timeline-header {
+    flex-direction: column;
+    gap: 2px;
+  }
+}

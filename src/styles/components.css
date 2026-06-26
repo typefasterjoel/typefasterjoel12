@@ -1,0 +1,261 @@
+/* ============================================================
+   typefasterjoel — Components
+   Reusable, mostly-cosmetic classes built on the foundation
+   tokens in tokens.css. Load that file first.
+   ============================================================ */
+
+/* ---------- Buttons ---------- */
+.btn {
+	font-family: var(--font-sans);
+	font-weight: 500;
+	font-size: 14px;
+	letter-spacing: -0.01em;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 11px 18px;
+	border-radius: var(--r-sm);
+	border: 1px solid transparent;
+	cursor: pointer;
+	transition:
+		transform var(--dur-1) var(--ease-out),
+		background var(--dur-1) var(--ease-out),
+		border-color var(--dur-1) var(--ease-out),
+		color var(--dur-1) var(--ease-out);
+	user-select: none;
+	line-height: 1;
+	white-space: nowrap;
+}
+.btn:active {
+	transform: translateY(1px) scale(0.985);
+}
+.arrow {
+	display: inline-flex;
+	align-items: center;
+}
+.btn .arrow {
+	transition: transform var(--dur-2) var(--ease-out);
+}
+.btn:hover .arrow {
+	transform: translateX(3px);
+}
+
+.btn-primary {
+	background: var(--accent);
+	color: var(--on-accent);
+}
+.btn-primary:hover {
+	background: var(--accent-hover);
+}
+
+.btn-ink {
+	background: var(--fg);
+	color: var(--bg);
+}
+.btn-ink:hover {
+	background: var(--ink-800);
+}
+[data-theme="dark"] .btn-ink:hover {
+	background: #e7e3da;
+}
+
+/* ghost — no resting outline; reveals a soft fill on hover */
+.btn-ghost {
+	background: transparent;
+	color: var(--fg);
+	border-color: transparent;
+}
+.btn-ghost:hover {
+	background: var(--sunken);
+}
+
+/* outline — bordered alternative when a visible edge is wanted */
+.btn-outline {
+	background: transparent;
+	color: var(--fg);
+	border-color: var(--border-strong);
+}
+.btn-outline:hover {
+	background: var(--sunken);
+	border-color: var(--fg-2);
+}
+
+.btn-quiet {
+	background: transparent;
+	color: var(--fg-1);
+	padding-left: 6px;
+	padding-right: 6px;
+}
+.btn-quiet:hover {
+	color: var(--fg);
+}
+
+.btn-sm {
+	padding: 7px 12px;
+	font-size: 13px;
+}
+.btn-lg {
+	padding: 15px 26px;
+	font-size: 16px;
+}
+
+/* radius modifiers — buttons are squared (--r-sm) by default */
+.btn-square {
+	border-radius: var(--r-sm);
+} /* explicit alias, == default */
+.btn-pill {
+	border-radius: var(--r-pill);
+} /* opt back into a pill */
+
+/* ---------- Mono pill / tag ---------- */
+.tag {
+	font-family: var(--font-mono);
+	font-size: 11px;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: var(--fg-1);
+	border: 1px solid var(--border);
+	background: var(--surface);
+	padding: 5px 10px;
+	border-radius: var(--r-pill);
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	white-space: nowrap;
+}
+.tag-accent {
+	color: var(--accent-ink);
+	border-color: color-mix(in oklab, var(--accent) 45%, transparent);
+	background: var(--accent-soft);
+}
+.tag-dot::before {
+	content: "";
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: var(--accent);
+}
+
+/* available / status dot */
+.status {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	font-family: var(--font-mono);
+	font-size: 12px;
+	letter-spacing: 0.04em;
+	color: var(--fg-1);
+}
+.status .led {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--positive);
+	box-shadow: 0 0 0 4px color-mix(in oklab, var(--positive) 22%, transparent);
+}
+
+/* ---------- Inputs ---------- */
+.field {
+	font-family: var(--font-sans);
+	font-size: 15px;
+	color: var(--fg);
+	background: var(--surface);
+	border: 1px solid var(--border-strong);
+	border-radius: var(--r-sm);
+	padding: 12px 14px;
+	width: 100%;
+	box-sizing: border-box;
+	transition:
+		border-color var(--dur-1) var(--ease-out),
+		box-shadow var(--dur-1) var(--ease-out);
+}
+.field::placeholder {
+	color: var(--fg-2);
+}
+.field:focus {
+	outline: none;
+	border-color: var(--accent);
+	box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 25%, transparent);
+}
+.field-label {
+	font-family: var(--font-mono);
+	font-size: 11px;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	color: var(--fg-2);
+	display: block;
+	margin-bottom: 8px;
+}
+
+/* ---------- Card ---------- */
+.card {
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: var(--r-lg);
+	box-shadow: var(--shadow-sm);
+	overflow: hidden;
+}
+.card-pad {
+	padding: var(--s-5);
+}
+
+/* Project card (work index) */
+.work-card {
+	position: relative;
+	display: block;
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: var(--r-lg);
+	overflow: hidden;
+	transition:
+		transform var(--dur-2) var(--ease-out),
+		box-shadow var(--dur-2) var(--ease-out),
+		border-color var(--dur-2) var(--ease-out);
+}
+.work-card:hover {
+	transform: translateY(-4px);
+	box-shadow: var(--shadow-lg);
+	border-color: var(--border-strong);
+}
+.work-thumb {
+	aspect-ratio: 16 / 10;
+	background: var(--sunken);
+	position: relative;
+	overflow: hidden;
+}
+.work-meta {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 16px 18px;
+	gap: 12px;
+}
+
+/* ---------- Link with animated underline ---------- */
+.ulink {
+	position: relative;
+	color: var(--fg);
+}
+.ulink::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	bottom: -3px;
+	height: 1.5px;
+	width: 100%;
+	background: var(--accent);
+	transform: scaleX(0);
+	transform-origin: left;
+	transition: transform var(--dur-2) var(--ease-out);
+}
+.ulink:hover::after {
+	transform: scaleX(1);
+}
+
+/* ---------- Divider with index ---------- */
+.rule {
+	height: 1px;
+	background: var(--border);
+	border: none;
+	margin: 0;
+}
