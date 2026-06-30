@@ -78,7 +78,7 @@ export const projects: Project[] = [
 	// up `cover` + per-section `figures` (see the commented stubs).
 	{
 		slug: "blueprint",
-		title: "Blueprint design system",
+		title: "Blueprint",
 		year: "2025 – present",
 		role: "Senior design engineer · creator",
 		summary:

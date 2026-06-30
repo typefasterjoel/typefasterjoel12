@@ -45,12 +45,12 @@ export function Contact() {
       <div className="contact-grid">
         <div>
           <Reveal>
-            <h2 className="h2">Let's make something.</h2>
+            <h2 className="h2">Let's make something worth making.</h2>
           </Reveal>
-          <Reveal delay={0.12}>
+          <Reveal delay={0.14}>
             <p className="body-lg" style={{ marginTop: "var(--s-5)" }}>
-              Got a project, a role, or a half-formed idea worth chasing? Send a
-              note. I read every one, and I'm quick to reply.
+              Whether it's a new product, a stuck design system, or just a good
+              conversation — I'm easy to reach. I read every note and reply quickly.
             </p>
           </Reveal>
           <Reveal delay={0.18}>

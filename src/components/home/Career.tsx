@@ -13,7 +13,7 @@ export function Career() {
 		<section className="section container" id="career">
 			<div className="section-head">
 				<Reveal>
-					<h2 className="h2">A few places I've been.</h2>
+					<h2 className="h2">Where I've traveled.</h2>
 				</Reveal>
 				<Reveal delay={0.06}>
 					<p className="small">
@@ -27,7 +27,7 @@ export function Career() {
 			<Reveal delay={0.08}>
 				<div className="career-cta">
 					<Link to="/resume" className={btnClass({ variant: "outline" })}>
-						View full resume
+						See the full trail
 						<span className="arrow" aria-hidden="true">
 							<ArrowRight size={16} />
 						</span>

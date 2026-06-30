@@ -1,11 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowRight } from "lucide-react";
-import { btnClass } from "#/components/Button";
+import { ArrowUpRight } from "lucide-react";
 import { Reveal } from "#/components/Reveal";
-import { Tag } from "#/components/Tag";
 import { projects } from "#/data/projects";
 
-/** Points of interest — selected work as destinations along the trail. */
+/** Points of interest — selected work as an editorial list. */
 export function Work() {
 	return (
 		<section className="section container" id="work">
@@ -13,73 +11,41 @@ export function Work() {
 				<Reveal>
 					<h2 className="h2">Places worth stopping.</h2>
 				</Reveal>
-				<Reveal delay={0.12}>
-					<p className="small">
-						({String(projects.length).padStart(2, "0")}) destinations · tap one
-						to travel in
-					</p>
+				<Reveal delay={0.08}>
+					<p className="small">A selection of work worth the detour — tap any to travel in.</p>
 				</Reveal>
 			</div>
 
-			<div className="work-grid">
+			<ul className="work-list" role="list">
 				{projects.map((p, i) => (
-					<Reveal key={p.slug} delay={(i % 2) * 0.08}>
-						<Link
-							to="/work/$slug"
-							params={{ slug: p.slug }}
-							className="work-card"
-						>
-							<div className="work-thumb">
-								<span className="mono-label work-index">
-									{String(i + 1).padStart(2, "0")}
-								</span>
-								<div className="work-thumb-art">
-									<span
-										className="display"
-										style={{
-											fontSize: "clamp(56px, 9vw, 120px)",
-											opacity: 0.5,
-										}}
-									>
-										{p.title.charAt(0)}
+					<Reveal key={p.slug} delay={i * 0.06}>
+						<li className="work-list-item">
+							<Link
+								to="/work/$slug"
+								params={{ slug: p.slug }}
+								className="work-list-link"
+							>
+								<div className="work-list-row">
+									<span className="work-list-index mono-label">
+										{String(i + 1).padStart(2, "0")}
+									</span>
+									<span className="work-list-title">{p.title}</span>
+									<span className="work-list-summary">{p.summary}</span>
+									<span className="work-list-arrow" aria-hidden="true">
+										<ArrowUpRight size={15} />
 									</span>
 								</div>
-							</div>
-							<div className="work-meta" style={{ alignItems: "flex-start" }}>
-								<div className="stack" style={{ gap: "6px" }}>
-									<span className="h4">{p.title}</span>
-									<span className="small">{p.summary}</span>
-									<div
-										className="cluster"
-										style={{ gap: "var(--s-2)", marginTop: "4px" }}
-									>
-										{p.tags.slice(0, 2).map((t) => (
-											<Tag key={t}>{t}</Tag>
-										))}
-									</div>
+								{/* Wrapper enables smooth CSS grid height animation — no layout jump */}
+								<div className="work-list-desc-wrapper">
+									<p className="work-list-desc">
+										{p.intro.slice(0, 140).trimEnd()}…
+									</p>
 								</div>
-								<span className="cluster" style={{ gap: "var(--s-2)" }}>
-									<span className="mono-label">{p.year}</span>
-									<span className="arrow" aria-hidden="true">
-										<ArrowRight size={16} />
-									</span>
-								</span>
-							</div>
-						</Link>
+							</Link>
+						</li>
 					</Reveal>
 				))}
-			</div>
-
-			<Reveal delay={0.16}>
-				<div className="cluster" style={{ marginTop: "var(--s-6)" }}>
-					<Link to="/work" className={btnClass({ variant: "outline" })}>
-						See all work
-						<span className="arrow" aria-hidden="true">
-							<ArrowRight size={16} />
-						</span>
-					</Link>
-				</div>
-			</Reveal>
+			</ul>
 		</section>
 	);
 }
