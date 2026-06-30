@@ -1,8 +1,6 @@
 import { gsap } from "gsap";
-import { ArrowRight } from "lucide-react";
 import { useEffect, useRef } from "react";
-import { btnClass } from "#/components/Button";
-import { Status } from "#/components/Tag";
+import { Button } from "#/components/Button";
 import { useIntro } from "#/lib/intro";
 import {
 	prefersReducedMotion,
@@ -11,12 +9,17 @@ import {
 } from "#/lib/motion";
 
 /**
- * Arrival. The hero "crests the hill" — its elements rise into view once the
- * preloader hands off (`ready`). Under reduced-motion / no-JS it's just visible.
+ * Arrival. The hero "crests the hill" — elements rise into view once the
+ * preloader hands off, then the horizon rule draws in as the signature beat.
+ *
+ * Copy note: two headline options are commented below. Option A ("Design and
+ * code, / undivided.") is the live choice — tighter and specific to Joel's
+ * dual role. Swap to Option B to restore the original.
  */
 export function Hero() {
 	const { ready } = useIntro();
 	const rootRef = useRef<HTMLElement>(null);
+	const horizonRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
 		const root = rootRef.current;
@@ -29,7 +32,13 @@ export function Hero() {
 
 		const targets = root.querySelectorAll<HTMLElement>("[data-crest]");
 		gsap.set(targets, { y: 42, opacity: 0 });
-		if (!ready) return; // wait for the preloader to clear
+		gsap.set(horizonRef.current, {
+			scaleX: 0,
+			opacity: 0,
+			transformOrigin: "left center",
+		});
+
+		if (!ready) return;
 
 		const tl = gsap.timeline();
 		tl.to(targets, {
@@ -38,7 +47,17 @@ export function Hero() {
 			duration: 1.1,
 			ease: "power3.out",
 			stagger: 0.1,
-		});
+		}).to(
+			horizonRef.current,
+			{
+				scaleX: 1,
+				opacity: 1,
+				duration: 1.0,
+				ease: "power2.out",
+			},
+			"-=0.4",
+		);
+
 		return () => {
 			tl.kill();
 		};
@@ -46,34 +65,37 @@ export function Hero() {
 
 	return (
 		<section className="hero container" ref={rootRef} id="top">
+			{/* Option A (live): specific to Joel's dual role */}
 			<h1 className="display hero-title" data-crest>
-				Interfaces that <span className="accent">mean</span> something.
+				Design and code,
+				<br />
+				<span className="accent">undivided.</span>
 			</h1>
 
-			<p className="body-lg hero-sub" data-crest>
-				I'm Joel, a UX/UI designer and senior design engineer. This is a short walk
-				through the things I've made and the way I think.
+			{/* Option B: restore original copy in the new sparse layout
+			<h1 className="display hero-title" data-crest>
+				Interfaces that <span className="accent">mean</span> something.
+			</h1> */}
+
+			{/* The horizon — the signature beat. Draws in after elements crest. */}
+			<div className="hero-horizon" ref={horizonRef} aria-hidden="true" />
+
+			<p className="hero-byline" data-crest>
+				Senior design engineer. 20+ years.
+				<br />
+				Currently at Buildout. Designing product and building Blueprint.
+				<br />
+				Building interfaces that move people and solve things that matter.
 			</p>
 
-			<div className="cluster hero-actions" data-crest>
-				<button
-					type="button"
-					className={btnClass({ variant: "primary" })}
+			<div className="hero-cta" data-crest>
+				<Button
+					variant="ghost"
+					arrow
 					onClick={() => scrollToTarget("#work")}
 				>
-					Wander the work
-					<span className="arrow" aria-hidden="true">
-						<ArrowRight size={16} />
-					</span>
-				</button>
-				<button
-					type="button"
-					className={btnClass({ variant: "outline" })}
-					onClick={() => scrollToTarget("#contact")}
-				>
-					Say hi
-				</button>
-				<Status>available for work</Status>
+					See the work
+				</Button>
 			</div>
 
 			<button

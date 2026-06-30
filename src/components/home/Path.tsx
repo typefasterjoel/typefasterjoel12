@@ -1,39 +1,40 @@
 import { Reveal } from "#/components/Reveal";
 
-const PRINCIPLES = [
-	{ index: "(01)", label: "clarity", note: "say the true thing, plainly." },
-	{ index: "(02)", label: "restraint", note: "every element earns its place." },
-	{ index: "(03)", label: "wonder", note: "leave room for a little delight." },
-];
-
-/** The path — a short statement that sets you moving down the page. */
+/** The path — a manifesto block that sets you moving. */
 export function Path() {
 	return (
 		<section className="section container" id="path">
-			<div className="measure" style={{ maxWidth: "62ch" }}>
-				<Reveal>
-					<h2 className="h2">Design and build, in the same breath.</h2>
+			<div className="path-manifesto">
+				<Reveal delay={0.08}>
+					<h2 className="h2">Design and build,<br />in the same breath.</h2>
 				</Reveal>
-				<Reveal delay={0.12}>
-					<p className="body-lg" style={{ marginTop: "var(--s-5)" }}>
-						I live in the seam between design and engineering, close enough to
-						the pixels to sweat them, close enough to the code to ship them.
-						What follows is a short trail: a few places I've been, and the way I
-						tend to travel.
+
+				<Reveal delay={0.18}>
+					<p className="body-lg path-body">
+						I have spent twenty years in the seam between design and engineering.
+						Close enough to pixels to sweat them, close enough to code to ship them.
+						Not as a generalist hedge. As a conviction.
 					</p>
 				</Reveal>
-			</div>
 
-			<div className="principles" style={{ marginTop: "var(--s-8)" }}>
-				{PRINCIPLES.map((p, i) => (
-					<Reveal key={p.label} delay={i * 0.08}>
-						<div className="stack" style={{ gap: "var(--s-2)" }}>
-							<span className="mono-label">{p.index}</span>
-							<span className="h3">{p.label}</span>
-							<span className="small">{p.note}</span>
-						</div>
-					</Reveal>
-				))}
+				<Reveal delay={0.28}>
+					<p className="body-lg path-body">
+						What I am after is the moment something clicks. Not just functionally.
+						The kind of click that makes you feel something. Clarity that feels inevitable.
+						A flow that earns trust. Interfaces that solve real things without making the solving feel hard.
+					</p>
+				</Reveal>
+
+				<Reveal delay={0.38}>
+					<p className="body-lg path-body">
+						Three things guide the work:{" "}
+						<span className="accent-word">clarity</span>,{" "}
+						<span className="accent-word">restraint</span>,{" "}
+						<span className="accent-word">wonder</span>.
+						<br />
+						Not as rules. As instincts.
+					</p>
+				</Reveal>
 			</div>
 		</section>
 	);

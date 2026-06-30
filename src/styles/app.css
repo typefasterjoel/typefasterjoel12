@@ -392,7 +392,7 @@ button {
 }
 
 /* ============================================================
-   Preloader — "first light"
+   Preloader — "first light" (wordmark + ray; no counter)
    ============================================================ */
 .preloader {
   position: fixed;
@@ -414,24 +414,13 @@ button {
   gap: var(--s-5);
   text-align: center;
 }
-.preloader .logo {
-  width: 52px;
-  height: auto;
-  color: var(--accent);
-}
-.preloader-count {
+.preloader-wordmark {
   font-family: var(--font-mono);
   font-size: 12px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.18em;
+  text-transform: lowercase;
   color: var(--fg-2);
-  font-variant-numeric: tabular-nums;
-}
-.preloader-coord {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--fg-2);
+  will-change: opacity, transform;
 }
 /* "first light" — a fine warm ray draws across the horizon while a soft bloom
    swells beneath it. The bloom mirrors .atmosphere::before so the preloader
@@ -482,22 +471,41 @@ button {
   padding-block: clamp(var(--s-9), 18vh, 200px) var(--s-9);
 }
 .hero-title {
-  max-width: 16ch;
+  max-width: 14ch;
 }
 .hero-title .accent {
   color: var(--accent-ink);
 }
-.hero-sub {
-  margin-top: var(--s-6);
+
+/* The horizon — the signature element. A hairline of golden light that draws in
+   after the hero crests, echoing the preloader ray. This is the "crest of the
+   hill" — a literal horizon made of light. */
+.hero-horizon {
+  width: min(560px, 68vw);
+  height: 1px;
+  margin-block: var(--s-5);
+  background: linear-gradient(
+    90deg,
+    var(--gold-500) 0%,
+    color-mix(in oklab, var(--gold-300) 60%, transparent) 65%,
+    transparent 100%
+  );
+  transform-origin: left center;
+  will-change: transform, opacity;
+}
+
+.hero-byline {
+  font-size: clamp(16px, 1.4vw, 18px);
+  line-height: 1.75;
   color: var(--fg-1);
-  max-width: 46ch;
 }
-.hero-actions {
-  margin-top: var(--s-7);
+.hero-cta {
+  margin-top: var(--s-6);
 }
+
 .scroll-cue {
   position: absolute;
-  left: var(--gutter);
+  right: var(--gutter);
   bottom: var(--s-7);
   display: inline-flex;
   align-items: center;
@@ -534,50 +542,155 @@ button {
 }
 
 /* ============================================================
-   Work — "points of interest"
+   Path — "the way i work" manifesto
    ============================================================ */
-.work-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: clamp(var(--s-5), 3vw, var(--s-7));
+.path-manifesto {
+  max-width: 56ch;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
 }
-.work-index {
-  position: absolute;
-  top: 14px;
-  left: 16px;
-  z-index: 1;
+.path-manifesto h2 {
+  margin: 0;
 }
-.principles {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: clamp(var(--s-5), 3vw, var(--s-7));
+.path-body {
+  margin: 0;
+  color: var(--fg-1);
 }
-@media (max-width: 760px) {
-  .principles {
-    grid-template-columns: 1fr;
-  }
+.accent-word {
+  color: var(--accent-ink);
+  font-weight: 600;
 }
-.work-thumb-art {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  background:
-    radial-gradient(
-      120% 90% at 50% 120%,
-      color-mix(in oklab, var(--gold-300) 40%, transparent),
-      transparent 60%
-    ),
-    var(--sunken);
-  color: color-mix(in oklab, var(--fg) 30%, transparent);
+
+/* ============================================================
+   Work — "points of interest" editorial list
+   ============================================================ */
+.work-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-top: 1px solid var(--border);
 }
-.work-card .arrow {
-  transition: transform var(--dur-2) var(--ease-out);
+.work-list-item {
+  border-bottom: 1px solid var(--border);
+}
+.work-list-link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  border-left: 2px solid transparent;
+  padding-inline: var(--s-5);
+  transition:
+    border-left-color var(--dur-2) var(--ease-out),
+    background var(--dur-2) var(--ease-out);
+}
+.work-list-link:hover {
+  border-left-color: var(--gold-500);
+  background: var(--accent-soft);
+}
+.work-list-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-5);
+  padding-block: var(--s-5);
+}
+.work-list-index {
+  flex-shrink: 0;
+  width: 2ch;
+  color: var(--fg-2);
+}
+.work-list-title {
+  flex: 1;
+  font-size: clamp(20px, 2.6vw, 28px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  color: var(--fg);
+  transition: color var(--dur-2) var(--ease-out);
+}
+.work-list-link:hover .work-list-title {
   color: var(--accent-ink);
 }
-.work-card:hover .arrow {
-  transform: translateX(4px);
+.work-list-summary {
+  flex: 1.5;
+  font-size: 14px;
+  color: var(--fg-1);
+  line-height: 1.5;
 }
+.work-list-arrow {
+  color: var(--accent-ink);
+  opacity: 0;
+  transform: translate(-2px, 2px);
+  transition:
+    opacity var(--dur-2) var(--ease-out),
+    transform var(--dur-2) var(--ease-out);
+}
+.work-list-link:hover .work-list-arrow {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+/* Smooth height reveal via CSS grid — no layout jump, no display:none flash */
+.work-list-desc-wrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.32s var(--ease-out);
+}
+.work-list-link:hover .work-list-desc-wrapper {
+  grid-template-rows: 1fr;
+}
+.work-list-desc {
+  overflow: hidden;
+  padding: 0 0 0 calc(2ch + var(--s-5));
+  font-size: 14px;
+  color: var(--fg-1);
+  line-height: 1.6;
+  max-width: 60ch;
+  margin: 0;
+  opacity: 0;
+  transition: opacity 0.2s var(--ease-out) 0.1s, padding-bottom 0.32s var(--ease-out);
+}
+.work-list-link:hover .work-list-desc {
+  opacity: 1;
+  padding-bottom: var(--s-5);
+}
+
+/* ============================================================
+   About — "the traveler" editorial bio
+   ============================================================ */
+.about-prose {
+  max-width: 62ch;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+.about-prose h2 {
+  margin: 0;
+}
+.about-body {
+  margin: 0;
+}
+.skills-inline {
+  list-style: none;
+  padding: 0;
+  margin: var(--s-3) 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2) var(--s-5);
+}
+.skills-inline li {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  color: var(--fg-1);
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.skills-marker {
+  color: var(--gold-500);
+  font-family: var(--font-mono);
+}
+
 
 /* ============================================================
    About — "the traveler"
@@ -1130,10 +1243,6 @@ button {
   }
 }
 @media (max-width: 760px) {
-  .work-grid {
-    grid-template-columns: 1fr;
-  }
-  .about-grid,
   .contact-grid {
     grid-template-columns: 1fr;
   }
@@ -1143,5 +1252,26 @@ button {
   .timeline-header {
     flex-direction: column;
     gap: 2px;
+  }
+  /* Work list: collapse summary column, always show description */
+  .work-list-summary {
+    display: none;
+  }
+  .work-list-desc-wrapper {
+    grid-template-rows: 1fr;
+  }
+  .work-list-desc {
+    opacity: 1;
+    padding-bottom: var(--s-4);
+    padding-left: calc(2ch + var(--s-4));
+  }
+  .work-list-row {
+    gap: var(--s-3);
+  }
+  /* Hero: scroll cue below byline on small screens */
+  .scroll-cue {
+    position: static;
+    margin-top: var(--s-7);
+    align-self: flex-end;
   }
 }
