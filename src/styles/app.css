@@ -414,6 +414,12 @@ button {
   gap: var(--s-5);
   text-align: center;
 }
+.preloader-logo {
+  width: 40px;
+  height: auto;
+  color: var(--fg-2);
+  opacity: 0.7;
+}
 .preloader-wordmark {
   font-family: var(--font-mono);
   font-size: 12px;
@@ -437,25 +443,6 @@ button {
   );
   opacity: 0;
   will-change: opacity, transform;
-}
-.preloader-ray {
-  position: absolute;
-  left: 50%;
-  top: 64%;
-  width: min(640px, 72vw);
-  height: 1.5px;
-  translate: -50% 0;
-  transform-origin: center;
-  background: linear-gradient(
-    90deg,
-    transparent 0%,
-    color-mix(in oklab, var(--gold-300) 85%, transparent) 50%,
-    transparent 100%
-  );
-  box-shadow: 0 0 18px 1px color-mix(in oklab, var(--gold-300) 45%, transparent);
-  opacity: 0;
-  pointer-events: none;
-  will-change: transform, opacity;
 }
 
 
