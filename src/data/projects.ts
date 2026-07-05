@@ -65,13 +65,16 @@ export type Project = {
 	/** full-bleed carousel; rendered after sections[galleryAfterSection] */
 	gallery?: CaseFigure[];
 	galleryAfterSection?: number;
+	/** drafts are hidden everywhere (work list, /work index, direct URL) until real content lands */
+	draft?: boolean;
 };
 
 /**
- * Placeholder, on-brand content — real projects swap in later. Voice follows
- * the design system: sentence case, friendly, concise, lightly playful.
+ * Voice follows the design system: sentence case, friendly, concise, lightly
+ * playful. Draft entries stay `draft: true` until their questionnaire in
+ * design_handoff/project-content-questionnaire.md is answered.
  */
-export const projects: Project[] = [
+const allProjects: Project[] = [
 	// ── Blueprint ──────────────────────────────────────────────────────────
 	// TODO(joel): confirm the values flagged `TODO` below before publishing —
 	// real numbers only. Drop visuals into /public/work/blueprint/ and wire
@@ -118,10 +121,10 @@ export const projects: Project[] = [
 			},
 		],
 		cover: {
-			src: "/work/blueprint/cover.svg",
-			alt: "Blueprint component library overview",
-			width: 1600,
-			height: 900,
+			src: "/work/blueprint/cover.webp",
+			alt: "Blueprint mascot — an otter in a hard hat, alongside the Blueprint wordmark",
+			width: 1920,
+			height: 1080,
 		},
 		galleryAfterSection: 2,
 		gallery: [
@@ -299,118 +302,59 @@ export const projects: Project[] = [
 			},
 		],
 	},
+	// ── Gamer's Hive TV (draft) ───────────────────────────────────────────
+	// TODO(joel): answer design_handoff/project-content-questionnaire.md, then
+	// write real copy in the house voice and flip `draft` off. Imagery goes in
+	// /public/work/gamers-hive-tv/.
 	{
-		slug: "tidewater",
-		title: "Tidewater banking",
-		year: "2024",
-		role: "Product design · prototyping",
-		summary:
-			"A calmer money app. Rebuilt onboarding and the daily home screen around clarity.",
-		tags: ["Product", "Fintech", "Motion"],
-		intro:
-			"Tidewater is a consumer banking app that felt like a spreadsheet wearing a costume. We rebuilt the first-run experience and the home screen around a single idea: show people the one number they actually came to check.",
+		slug: "gamers-hive-tv",
+		title: "Gamer's Hive TV",
+		draft: true,
+		year: "TODO(joel)",
+		role: "TODO(joel)",
+		summary: "TODO(joel): one-line summary for the work list.",
+		tags: ["TODO(joel)"],
+		intro: "TODO(joel): case-study intro — the problem in one breath.",
 		facts: [
-			{ label: "Role", value: "Product designer" },
-			{ label: "Year", value: "2024" },
-			{ label: "Scope", value: "Onboarding · home · motion" },
-			{ label: "Platform", value: "iOS · Android" },
+			{ label: "Role", value: "TODO(joel)" },
+			{ label: "Year", value: "TODO(joel)" },
+			{ label: "Scope", value: "TODO(joel)" },
+			{ label: "Stack", value: "TODO(joel)" },
 		],
 		sections: [
-			{
-				heading: "The challenge",
-				body: [
-					"Onboarding asked for everything up front and explained nothing. Drop-off was steepest on the screen that mattered most.",
-				],
-			},
-			{
-				heading: "The approach",
-				body: [
-					"We sequenced setup so the payoff came early, then deferred the boring-but-necessary steps. Motion did the explaining where copy would have nagged.",
-				],
-			},
-			{
-				heading: "The outcome",
-				body: [
-					"Activation moved meaningfully, and support tickets about \"where is my balance\" quietly disappeared.",
-				],
-			},
+			{ heading: "The problem", body: ["TODO(joel)"] },
+			{ heading: "The approach", body: ["TODO(joel)"] },
+			{ heading: "The outcome", body: ["TODO(joel)"] },
 		],
 	},
+	// ── Yumu (draft) ──────────────────────────────────────────────────────
+	// TODO(joel): same drill — questionnaire, copy, imagery in
+	// /public/work/yumu/, then flip `draft` off.
 	{
-		slug: "lantern",
-		title: "Lantern reader",
-		year: "2024",
-		role: "Design + build",
-		summary:
-			"A focused reading app with a warm, paper-like interface and gentle, earned animation.",
-		tags: ["Design", "Build", "Typography"],
-		intro:
-			"Lantern is a reading app I designed and built end to end. The brief I gave myself: make a screen feel like paper at dusk, and never let an animation get in the way of a sentence.",
+		slug: "yumu",
+		title: "Yumu",
+		draft: true,
+		year: "TODO(joel)",
+		role: "TODO(joel)",
+		summary: "TODO(joel): one-line summary for the work list.",
+		tags: ["TODO(joel)"],
+		intro: "TODO(joel): case-study intro — the problem in one breath.",
 		facts: [
-			{ label: "Role", value: "Designer + developer" },
-			{ label: "Year", value: "2024" },
-			{ label: "Scope", value: "End-to-end" },
-			{ label: "Stack", value: "React · Canvas" },
+			{ label: "Role", value: "TODO(joel)" },
+			{ label: "Year", value: "TODO(joel)" },
+			{ label: "Scope", value: "TODO(joel)" },
+			{ label: "Stack", value: "TODO(joel)" },
 		],
 		sections: [
-			{
-				heading: "The challenge",
-				body: [
-					"Reading apps love to interrupt. I wanted the opposite: software that disappears once you start a paragraph.",
-				],
-			},
-			{
-				heading: "The approach",
-				body: [
-					"Type came first: measure, rhythm, and a warm palette tuned for long sessions. Every interaction had to earn its motion or get cut.",
-				],
-			},
-			{
-				heading: "The outcome",
-				body: [
-					"A small, devoted user base and the nicest thing anyone's said about my work: \"I forgot I was using an app.\"",
-				],
-			},
-		],
-	},
-	{
-		slug: "aurora",
-		title: "Aurora analytics",
-		year: "2023",
-		role: "Design engineering · data viz",
-		summary:
-			"A dashboard that makes a wall of metrics feel like a view, not a spreadsheet.",
-		tags: ["Data viz", "React", "Design systems"],
-		intro:
-			"Aurora is an analytics surface for an internal data platform. The goal was to turn an intimidating wall of numbers into something you could read at a glance and trust at depth.",
-		facts: [
-			{ label: "Role", value: "Design engineer" },
-			{ label: "Year", value: "2023" },
-			{ label: "Scope", value: "Charts · layout · theming" },
-			{ label: "Stack", value: "React · D3" },
-		],
-		sections: [
-			{
-				heading: "The challenge",
-				body: [
-					"Power users wanted everything; everyone else wanted the answer. The old dashboard served the first group and lost the second.",
-				],
-			},
-			{
-				heading: "The approach",
-				body: [
-					"Progressive disclosure, a restrained chart vocabulary, and a theming layer so the same components read cleanly in light and dark.",
-				],
-			},
-			{
-				heading: "The outcome",
-				body: [
-					"Time-to-answer dropped, and the dashboard stopped being the thing people screenshotted to ask what it meant.",
-				],
-			},
+			{ heading: "The problem", body: ["TODO(joel)"] },
+			{ heading: "The approach", body: ["TODO(joel)"] },
+			{ heading: "The outcome", body: ["TODO(joel)"] },
 		],
 	},
 ];
+
+/** Published projects only — drafts never reach the UI or the router. */
+export const projects: Project[] = allProjects.filter((p) => !p.draft);
 
 export function getProject(slug: string): Project | undefined {
 	return projects.find((p) => p.slug === slug);

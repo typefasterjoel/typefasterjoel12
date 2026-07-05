@@ -1,10 +1,18 @@
 import { Moon, Sun } from "lucide-react";
-import { useTheme } from "#/lib/theme";
+import { type Theme, useTheme } from "#/lib/theme";
 
-/** Day ↔ dusk toggle. Mirrors the design-system theme switch. */
+/**
+ * Day ↔ dusk toggle.
+ *
+ * Vocabulary convention: user-facing copy says "day"/"dusk" (golden hour has
+ * no plain night); everything internal — the `Theme` type, `data-theme`, the
+ * storage key — stays `light`/`dark`. This map is the only crossing point.
+ */
+const THEME_LABEL: Record<Theme, string> = { light: "day", dark: "dusk" };
+
 export function ThemeToggle() {
 	const { theme, toggleTheme } = useTheme();
-	const next = theme === "dark" ? "day" : "dusk";
+	const next = THEME_LABEL[theme === "dark" ? "light" : "dark"];
 	return (
 		<button
 			type="button"

@@ -11,7 +11,7 @@ export function Path() {
 
 				<Reveal delay={0.18}>
 					<p className="body-lg path-body">
-						I have spent twenty years in the seam between design and engineering.
+						I have spent fifteen years in the seam between design and engineering.
 						Close enough to pixels to sweat them, close enough to code to ship them.
 						Not as a generalist hedge. As a conviction.
 					</p>

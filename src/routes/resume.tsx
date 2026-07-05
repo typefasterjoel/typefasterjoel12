@@ -3,7 +3,7 @@ import { ArrowRight } from "lucide-react";
 import { btnClass } from "#/components/Button";
 import { Reveal } from "#/components/Reveal";
 import { Timeline } from "#/components/Timeline";
-import { roles, skills } from "#/data/resume";
+import { EXPERIENCE_LABEL, roles, skills } from "#/data/resume";
 
 export const Route = createFileRoute("/resume")({
 	component: ResumePage,
@@ -33,8 +33,9 @@ function ResumePage() {
 						className="body-lg"
 						style={{ maxWidth: "52ch", marginTop: "var(--s-4)" }}
 					>
-						Senior Design Engineer, at the seam between design and engineering.
-						15+ years shipping products, design systems, and production code.
+						Senior Design Engineer, at the seam between design and
+						engineering. {EXPERIENCE_LABEL} years shipping products, design
+						systems, and production code.
 					</p>
 				</Reveal>
 				<Reveal delay={0.14}>
@@ -44,7 +45,7 @@ function ResumePage() {
 							onClick={handlePrint}
 							className={btnClass({ variant: "outline", size: "sm" })}
 						>
-							Print / Download PDF
+							Print / Save as PDF
 							<span className="arrow" aria-hidden="true">
 								<ArrowRight size={16} />
 							</span>

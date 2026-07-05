@@ -1,4 +1,5 @@
 import { Reveal } from "#/components/Reveal";
+import { EXPERIENCE_LABEL } from "#/data/resume";
 
 const SKILLS = [
 	"Product design",
@@ -20,7 +21,7 @@ export function About() {
 
 				<Reveal delay={0.14}>
 					<p className="body-lg about-body">
-						Boricua, for the record. I've spent 20+ years at the seam between
+						Boricua, for the record. I've spent {EXPERIENCE_LABEL} years at the seam between
 						design and engineering: building design systems, shipping product
 						surfaces, and caring deeply about the details most people never
 						notice.

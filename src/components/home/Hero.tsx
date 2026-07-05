@@ -1,6 +1,8 @@
 import { gsap } from "gsap";
 import { useEffect, useRef } from "react";
 import { Button } from "#/components/Button";
+import { HeroConstellation } from "#/components/home/HeroConstellation";
+import { EXPERIENCE_LABEL } from "#/data/resume";
 import { useIntro } from "#/lib/intro";
 import {
 	prefersReducedMotion,
@@ -20,6 +22,7 @@ export function Hero() {
 	const { ready } = useIntro();
 	const rootRef = useRef<HTMLElement>(null);
 	const horizonRef = useRef<HTMLDivElement>(null);
+	const cueRef = useRef<HTMLButtonElement>(null);
 
 	useEffect(() => {
 		const root = rootRef.current;
@@ -65,6 +68,9 @@ export function Hero() {
 
 	return (
 		<section className="hero container" ref={rootRef} id="top">
+			{/* Stars that lean toward "wander down" when the cursor wanders */}
+			<HeroConstellation anchorRef={cueRef} />
+
 			{/* Option A (live): specific to Joel's dual role */}
 			<h1 className="display hero-title" data-crest>
 				Design and code,
@@ -81,7 +87,7 @@ export function Hero() {
 			<div className="hero-horizon" ref={horizonRef} aria-hidden="true" />
 
 			<p className="hero-byline" data-crest>
-				Senior design engineer. 20+ years.
+				Senior design engineer. {EXPERIENCE_LABEL} years.
 				<br />
 				Currently at Buildout. Designing product and building Blueprint.
 				<br />
@@ -89,11 +95,7 @@ export function Hero() {
 			</p>
 
 			<div className="hero-cta" data-crest>
-				<Button
-					variant="ghost"
-					arrow
-					onClick={() => scrollToTarget("#work")}
-				>
+				<Button variant="ghost" arrow onClick={() => scrollToTarget("#work")}>
 					See the work
 				</Button>
 			</div>
@@ -102,6 +104,7 @@ export function Hero() {
 				type="button"
 				className="scroll-cue"
 				data-crest
+				ref={cueRef}
 				onClick={() => scrollToTarget("#path")}
 				aria-label="Scroll down"
 			>

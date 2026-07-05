@@ -1,3 +1,9 @@
+/**
+ * Joel's chosen experience number (brief §1) — used verbatim everywhere the
+ * site states years of experience. Change it here, nowhere else.
+ */
+export const EXPERIENCE_LABEL = "15+"
+
 export type ResumeRole = {
 	company: string
 	suffix?: string

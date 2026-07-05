@@ -490,6 +490,24 @@ button {
   margin-top: var(--s-6);
 }
 
+/* The constellation layer — stars live behind the hero's content */
+.hero-constellation {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.hero-constellation-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+/* content above the canvas — but never touch .scroll-cue's positioning */
+.hero > :not(.hero-constellation, .scroll-cue) {
+  position: relative;
+  z-index: 1;
+}
 .scroll-cue {
   position: absolute;
   right: var(--gutter);
@@ -506,12 +524,31 @@ button {
 .scroll-cue:hover {
   color: var(--fg-1);
 }
+.hero > .scroll-cue {
+  z-index: 1;
+}
 .scroll-cue .line {
   width: 1px;
   height: 40px;
   background: linear-gradient(var(--accent), transparent);
   transform-origin: top;
-  animation: cue-trail 2.4s var(--ease-out) infinite;
+}
+/* The cue is the destination the constellation points at — it breathes.
+   Pulse + bob live on the label (not the button) so they never fight the
+   GSAP crest entrance, which animates the button's opacity and transform. */
+.scroll-cue .mono-label {
+  display: inline-block; /* transform needs a box for the bob */
+  animation: cue-pulse 4.2s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .scroll-cue .line {
+    animation: cue-trail 2.4s var(--ease-out) infinite;
+  }
+  .scroll-cue .mono-label {
+    animation:
+      cue-pulse 4.2s ease-in-out infinite,
+      cue-bob 4.2s ease-in-out infinite;
+  }
 }
 @keyframes cue-trail {
   0% {
@@ -525,6 +562,24 @@ button {
   100% {
     transform: scaleY(1);
     opacity: 0;
+  }
+}
+@keyframes cue-pulse {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes cue-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(3px);
   }
 }
 
@@ -718,6 +773,14 @@ button {
   display: grid;
   gap: var(--s-2);
   margin-bottom: var(--s-5);
+}
+/* Honeypot — off-screen for humans, present for bots */
+.hp-field {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 }
 .social-row {
   display: flex;
@@ -1179,38 +1242,125 @@ button {
   line-height: 1.9;
 }
 
-/* Print — override GSAP-staged opacity and hide chrome */
+/* Print — a clean one-page resume from either theme.
+   "Print / Save as PDF" on /resume is the intended path to a PDF. */
 @media print {
+  @page {
+    size: letter;
+    margin: 12mm;
+  }
   .site-nav,
   .site-footer,
   .atmosphere,
+  .atmosphere-canvas,
+  .side-rays,
   .preloader,
   .section-marker,
+  .scroll-cue,
+  .icon-btn,
+  .resume-back,
   .resume-print-btn {
     display: none !important;
   }
+  /* Force light ink on white regardless of data-theme */
+  html,
   body {
-    background: white !important;
+    background: #fff !important;
+    color: #111 !important;
+  }
+  .resume-page {
+    padding-block: 0 !important;
+    max-width: none !important;
+  }
+  .resume-page :is(h1, h2, h3, p, li, small, span, div) {
+    color: #111 !important;
+  }
+  .resume-page a {
+    color: #111 !important;
+    text-decoration: none !important;
+  }
+  .resume-page .h1 {
+    font-size: 17pt !important;
+  }
+  .resume-page .body-lg {
+    font-size: 10.5pt !important;
+    margin-top: 6pt !important;
+  }
+  .resume-header {
+    padding-bottom: 7pt !important;
+    margin-bottom: 7pt !important;
+    border-color: #ddd !important;
+  }
+  .resume-section {
+    padding-block: 5pt !important;
+    border-color: #ddd !important;
+  }
+  .resume-section-label {
+    font-size: 11pt !important;
+    margin-bottom: 5pt !important;
+    break-after: avoid;
   }
   .timeline-line {
     transform: scaleY(1) !important;
     background: #999 !important;
+    print-color-adjust: exact;
   }
   .timeline-node {
     background: #999 !important;
     box-shadow: none !important;
+    print-color-adjust: exact;
+  }
+  .timeline-entry {
+    padding-bottom: 5pt !important;
+    break-inside: avoid;
+  }
+  .timeline-company {
+    font-size: 11pt !important;
+  }
+  .timeline-dates,
+  .timeline-role {
+    font-size: 8pt !important;
   }
   .timeline-role {
     color: #555 !important;
   }
+  .timeline-bullets {
+    margin-top: 3pt !important;
+    gap: 2pt !important;
+  }
+  .timeline-bullets li {
+    font-size: 9pt !important;
+    line-height: 1.3 !important;
+  }
   .timeline-bullets li span {
     color: #999 !important;
+  }
+  .skills-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 8pt !important;
+    margin-top: 6pt !important;
+    break-inside: avoid;
+  }
+  .skill-group-label {
+    color: #555 !important;
+    margin-bottom: 3pt !important;
+  }
+  .skill-list {
+    font-size: 9pt !important;
+    line-height: 1.4 !important;
   }
   /* Force all scroll-staged elements visible regardless of scroll position */
   .timeline-entry,
   .reveal {
     opacity: 1 !important;
     transform: none !important;
+  }
+  /* One-page escape hatch: pre-2017 roles keep their header lines
+     (company / title / dates) but drop bullets in print. The full detail
+     stays on screen and in the live page. (Rail's first child is the
+     line, so n+5 = the 4th entry onward.) */
+  .timeline-entry:nth-child(n + 5) .timeline-bullets {
+    display: none !important;
   }
 }
 

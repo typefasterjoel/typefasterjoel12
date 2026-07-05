@@ -3,12 +3,9 @@ import { ArrowRight } from "lucide-react";
 import { btnClass } from "#/components/Button";
 import { Reveal } from "#/components/Reveal";
 import { Timeline } from "#/components/Timeline";
-import { getRecentRoles, roles } from "#/data/resume";
+import { EXPERIENCE_LABEL, getRecentRoles, roles } from "#/data/resume";
 
 export function Career() {
-	const startYear = roles[roles.length - 1].start.match(/\d{4}/)?.[0] ?? "2009";
-	const yearsSpan = new Date().getFullYear() - Number(startYear);
-
 	return (
 		<section className="section container" id="career">
 			<div className="section-head">
@@ -17,7 +14,7 @@ export function Career() {
 				</Reveal>
 				<Reveal delay={0.06}>
 					<p className="small">
-						{roles.length} roles · {yearsSpan}+ years of practice.
+						{roles.length} roles · {EXPERIENCE_LABEL} years of practice.
 					</p>
 				</Reveal>
 			</div>
