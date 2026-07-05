@@ -1,18 +1,30 @@
-import { gsap } from "gsap";
+import useEmblaCarousel from "embla-carousel-react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { prefersReducedMotion } from "#/lib/motion";
 import type { CaseFigure } from "#/data/projects";
+import { prefersReducedMotion } from "#/lib/motion";
+
+const AUTO_ADVANCE_MS = 4500;
 
 interface Props {
 	figures: CaseFigure[];
+	onSlideClick?: (index: number) => void;
 }
 
-export function CaseGallery({ figures }: Props) {
-	const wrapRef = useRef<HTMLDivElement>(null);
-	const trackRef = useRef<HTMLDivElement>(null);
-	const currentRef = useRef(0);
-	const [current, setCurrent] = useState(0);
+export function CaseGallery({ figures, onSlideClick }: Props) {
+	const wrapRef = useRef<HTMLElement>(null);
+	const pausedRef = useRef(false);
+	const [emblaRef, emblaApi] = useEmblaCarousel({
+		align: "start",
+		containScroll: "trimSnaps",
+		slidesToScroll: "auto",
+		loop: true,
+		watchDrag: true,
+	});
+	const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
+	const [selected, setSelected] = useState(0);
+	const [canPrev, setCanPrev] = useState(false);
+	const [canNext, setCanNext] = useState(false);
 
 	// Break out of the prose column to the full viewport width.
 	// Measure the element's left offset from the viewport and negate it.
@@ -32,99 +44,143 @@ export function CaseGallery({ figures }: Props) {
 		return () => window.removeEventListener("resize", bleed);
 	}, [bleed]);
 
-	const goTo = useCallback(
+	// Sync React state from Embla's own state.
+	useEffect(() => {
+		if (!emblaApi) return;
+		const sync = () => {
+			setScrollSnaps(emblaApi.scrollSnapList());
+			setSelected(emblaApi.selectedScrollSnap());
+			setCanPrev(emblaApi.canScrollPrev());
+			setCanNext(emblaApi.canScrollNext());
+		};
+		sync();
+		emblaApi.on("select", sync);
+		emblaApi.on("reInit", sync);
+		return () => {
+			emblaApi.off("select", sync);
+			emblaApi.off("reInit", sync);
+		};
+	}, [emblaApi]);
+
+	const scrollPrev = useCallback(() => {
+		emblaApi?.scrollPrev(prefersReducedMotion());
+	}, [emblaApi]);
+
+	const scrollNext = useCallback(() => {
+		emblaApi?.scrollNext(prefersReducedMotion());
+	}, [emblaApi]);
+
+	const scrollTo = useCallback(
 		(idx: number) => {
-			const track = trackRef.current;
-			if (!track) return;
-			const clamped = Math.max(0, Math.min(idx, figures.length - 1));
-			currentRef.current = clamped;
-			setCurrent(clamped);
-			const target = clamped * -window.innerWidth;
-			if (prefersReducedMotion()) {
-				gsap.set(track, { x: target });
-			} else {
-				gsap.to(track, { x: target, duration: 0.8, ease: "power3.inOut" });
-			}
+			emblaApi?.scrollTo(idx, prefersReducedMotion());
 		},
-		[figures.length],
+		[emblaApi],
 	);
 
-	// Auto-advance
+	// Auto-advance, paused on hover/focus, skipped under reduced motion.
 	useEffect(() => {
-		if (figures.length <= 1) return;
+		if (!emblaApi || figures.length <= 1 || prefersReducedMotion()) return;
 		const id = setInterval(() => {
-			const next = (currentRef.current + 1) % figures.length;
-			goTo(next);
-		}, 4500);
+			if (pausedRef.current) return;
+			if (emblaApi.canScrollNext()) emblaApi.scrollNext();
+			else emblaApi.scrollTo(0);
+		}, AUTO_ADVANCE_MS);
 		return () => clearInterval(id);
-	}, [figures.length, goTo]);
+	}, [emblaApi, figures.length]);
 
-	// Keyboard navigation
-	useEffect(() => {
-		const onKey = (e: KeyboardEvent) => {
-			if (e.key === "ArrowLeft") goTo(currentRef.current - 1);
-			if (e.key === "ArrowRight") goTo(currentRef.current + 1);
-		};
-		window.addEventListener("keydown", onKey);
-		return () => window.removeEventListener("keydown", onKey);
-	}, [goTo]);
+	// Keyboard navigation, scoped to the gallery (not global).
+	const onKeyDown = useCallback(
+		(e: React.KeyboardEvent<HTMLElement>) => {
+			if (e.key === "ArrowLeft") scrollPrev();
+			if (e.key === "ArrowRight") scrollNext();
+		},
+		[scrollPrev, scrollNext],
+	);
 
 	if (figures.length === 0) return null;
 
 	return (
-		<div ref={wrapRef} className="case-gallery" aria-label="Project screenshots">
-			<div ref={trackRef} className="case-gallery-track">
-				{figures.map((f, i) => (
-					<div
-						key={f.src}
-						className="case-gallery-slide"
-						aria-hidden={i !== current}
-					>
-						<img
-							src={f.src}
-							alt={f.alt}
-							loading={i === 0 ? "eager" : "lazy"}
-							decoding="async"
-						/>
-						{f.caption && (
-							<span className="case-gallery-caption mono-label">{f.caption}</span>
-						)}
-					</div>
-				))}
+		<section
+			ref={wrapRef}
+			className="case-gallery"
+			aria-roledescription="carousel"
+			aria-label="Project screenshots"
+			onKeyDown={onKeyDown}
+			onMouseEnter={() => {
+				pausedRef.current = true;
+			}}
+			onMouseLeave={() => {
+				pausedRef.current = false;
+			}}
+			onFocus={() => {
+				pausedRef.current = true;
+			}}
+			onBlur={() => {
+				pausedRef.current = false;
+			}}
+		>
+			<div ref={emblaRef} className="case-gallery-viewport">
+				<div className="case-gallery-container">
+					{figures.map((f, i) => (
+						<div key={f.src} className="case-gallery-slide">
+							<button
+								type="button"
+								className="case-gallery-slide-trigger"
+								onClick={() => onSlideClick?.(i)}
+								aria-label={`Open ${f.alt} full-screen`}
+							>
+								<img
+									src={f.src}
+									alt={f.alt}
+									loading={i === 0 ? "eager" : "lazy"}
+									decoding="async"
+								/>
+							</button>
+							{f.caption && (
+								<span className="case-gallery-caption mono-label">
+									{f.caption}
+								</span>
+							)}
+						</div>
+					))}
+				</div>
 			</div>
 
-			{figures.length > 1 && (
+			{scrollSnaps.length > 1 && (
 				<div className="case-gallery-controls">
 					<button
+						type="button"
 						className="case-gallery-arrow"
-						onClick={() => goTo(currentRef.current - 1)}
+						onClick={scrollPrev}
 						aria-label="Previous slide"
-						disabled={current === 0}
+						disabled={!canPrev}
 					>
 						<ArrowLeft size={16} />
 					</button>
 					<div className="case-gallery-dots" role="tablist">
-						{figures.map((_, i) => (
+						{scrollSnaps.map((snap, i) => (
 							<button
-								key={i}
+								key={snap}
+								type="button"
 								role="tab"
 								className="case-gallery-dot"
-								aria-selected={i === current}
+								aria-selected={i === selected}
 								aria-label={`Slide ${i + 1}`}
-								onClick={() => goTo(i)}
+								onClick={() => scrollTo(i)}
 							/>
 						))}
 					</div>
 					<button
+						type="button"
 						className="case-gallery-arrow"
-						onClick={() => goTo(currentRef.current + 1)}
+						onClick={scrollNext}
 						aria-label="Next slide"
-						disabled={current === figures.length - 1}
+						disabled={!canNext}
 					>
 						<ArrowRight size={16} />
 					</button>
 				</div>
 			)}
-		</div>
+		</section>
 	);
 }

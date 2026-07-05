@@ -904,6 +904,25 @@ button {
   margin-top: var(--s-2);
 }
 
+/* click-to-expand wrapper around an inline case-study image */
+.case-figure-trigger {
+  all: unset;
+  display: block;
+  width: 100%;
+  cursor: zoom-in;
+  border-radius: var(--r-lg);
+  transition: opacity 0.2s;
+}
+
+.case-figure-trigger:hover {
+  opacity: 0.88;
+}
+
+.case-figure-trigger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 /* pair: two images side-by-side, ideal for before/after */
 .case-figure-pair {
   display: grid;
@@ -935,7 +954,10 @@ button {
 }
 
 /* full-bleed image carousel — breaks out of the prose column to the viewport
-   edge. margin-left and width are set via JS in CaseGallery.tsx. */
+   edge. margin-left and width are set via JS in CaseGallery.tsx. Built on
+   Embla Carousel: .case-gallery-viewport is the overflow-hidden ref target,
+   .case-gallery-container is Embla's flex track, .case-gallery-slide sizing
+   below controls how many slides are visible per breakpoint. */
 .case-gallery {
   position: relative;
   z-index: 0;
@@ -945,17 +967,35 @@ button {
   border-radius: var(--r-lg);
 }
 
-.case-gallery-track {
+.case-gallery-viewport {
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+}
+
+.case-gallery-container {
   display: flex;
   height: 100%;
-  will-change: transform;
+  column-gap: var(--s-3);
 }
 
 .case-gallery-slide {
   position: relative;
-  min-width: 100vw;
+  flex: 0 0 100%;
+  min-width: 0;
   height: 100%;
-  flex-shrink: 0;
+}
+
+@media (min-width: 860px) {
+  .case-gallery-slide {
+    flex: 0 0 calc(50% - var(--s-3) / 2);
+  }
+}
+
+@media (min-width: 1200px) {
+  .case-gallery-slide {
+    flex: 0 0 calc(33.3334% - (2 * var(--s-3) / 3));
+  }
 }
 
 .case-gallery-slide img {
@@ -963,6 +1003,21 @@ button {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.case-gallery-slide-trigger {
+  all: unset;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  cursor: zoom-in;
+}
+
+.case-gallery-slide-trigger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
 }
 
 .case-gallery-caption {
@@ -1038,6 +1093,93 @@ button {
 
 .case-gallery-arrow:not(:disabled):hover {
   background: color-mix(in oklab, var(--bg) 90%, transparent);
+}
+
+/* full-screen image lightbox — portaled to document.body */
+.image-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--bg) 88%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: image-modal-in var(--dur-2) var(--ease-out);
+}
+
+@keyframes image-modal-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.image-modal-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-3);
+  max-width: min(90vw, 1200px);
+  padding-inline: var(--s-8);
+}
+
+.image-modal-stage img {
+  display: block;
+  max-width: 100%;
+  max-height: 86vh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+}
+
+.image-modal-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  color: color-mix(in oklab, var(--fg) 60%, transparent);
+}
+
+.image-modal-close {
+  position: absolute;
+  top: var(--s-5);
+  right: var(--s-5);
+  z-index: 1;
+}
+
+.image-modal-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+.image-modal-arrow--prev {
+  left: var(--s-5);
+}
+
+.image-modal-arrow--next {
+  right: var(--s-5);
+}
+
+@media (max-width: 760px) {
+  .image-modal-stage {
+    padding-inline: var(--s-9);
+  }
+
+  .image-modal-arrow--prev {
+    left: var(--s-2);
+  }
+
+  .image-modal-arrow--next {
+    right: var(--s-2);
+  }
 }
 
 /* hero stat strip — punchy numbers, distinct from the sidebar facts */

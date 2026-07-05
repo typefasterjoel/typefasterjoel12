@@ -38,7 +38,7 @@ function isRateLimited(ip: string): boolean {
 }
 
 export const sendContact = createServerFn({ method: "POST" })
-	.inputValidator(contactInput)
+	.validator(contactInput)
 	.handler(async ({ data }): Promise<ContactResult> => {
 		const apiKey = process.env.RESEND_API_KEY;
 		if (!apiKey) return { status: "fallback" };

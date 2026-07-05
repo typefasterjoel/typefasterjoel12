@@ -9,8 +9,10 @@ import {
 	type LucideIcon,
 	Sparkles,
 } from "lucide-react";
+import { useState } from "react";
 import { btnClass } from "#/components/Button";
 import { CaseGallery } from "#/components/CaseGallery";
+import { ImageModal } from "#/components/ImageModal";
 import { Reveal } from "#/components/Reveal";
 import { Tag } from "#/components/Tag";
 import {
@@ -67,17 +69,39 @@ function LinkChip({ link }: { link: CaseLink }) {
 }
 
 /** A real image with required alt text and an optional caption. */
-function Figure({ figure, priority }: { figure: CaseFigure; priority?: boolean }) {
+function Figure({
+	figure,
+	priority,
+	onClick,
+}: {
+	figure: CaseFigure;
+	priority?: boolean;
+	onClick?: () => void;
+}) {
+	const img = (
+		<img
+			src={figure.src}
+			alt={figure.alt}
+			width={figure.width}
+			height={figure.height}
+			loading={priority ? "eager" : "lazy"}
+			decoding="async"
+		/>
+	);
 	return (
 		<figure className="case-figure case-figure--img">
-			<img
-				src={figure.src}
-				alt={figure.alt}
-				width={figure.width}
-				height={figure.height}
-				loading={priority ? "eager" : "lazy"}
-				decoding="async"
-			/>
+			{onClick ? (
+				<button
+					type="button"
+					className="case-figure-trigger"
+					onClick={onClick}
+					aria-label={`Open ${figure.alt} full-screen`}
+				>
+					{img}
+				</button>
+			) : (
+				img
+			)}
 			{figure.caption && (
 				<figcaption className="mono-label">{figure.caption}</figcaption>
 			)}
@@ -91,6 +115,10 @@ function CaseStudy() {
 	const next = projects[(idx + 1) % projects.length];
 	const primaryLink =
 		project.links?.find((l) => l.kind === "docs") ?? project.links?.[0];
+	const [modal, setModal] = useState<{
+		figures: CaseFigure[];
+		index: number;
+	} | null>(null);
 
 	return (
 		<article>
@@ -199,17 +227,27 @@ function CaseStudy() {
 															: "case-figure-stack"
 												}
 											>
-												{s.figures.map((f) => (
-													<Figure key={f.src} figure={f} />
+												{s.figures.map((f, i) => (
+													<Figure
+														key={f.src}
+														figure={f}
+														onClick={() =>
+															setModal({ figures: s.figures ?? [], index: i })
+														}
+													/>
 												))}
 											</div>
 										)}
 									</div>
 								</Reveal>
-								{project.gallery &&
-									project.galleryAfterSection === i && (
-										<CaseGallery figures={project.gallery} />
-									)}
+								{project.gallery && project.galleryAfterSection === i && (
+									<CaseGallery
+										figures={project.gallery}
+										onSlideClick={(index) =>
+											setModal({ figures: project.gallery ?? [], index })
+										}
+									/>
+								)}
 							</div>
 						))}
 						{project.callout && (
@@ -222,16 +260,17 @@ function CaseStudy() {
 										{project.callout.heading}
 									</h2>
 									<p>{project.callout.body}</p>
-									{project.callout.links && project.callout.links.length > 0 && (
-										<div
-											className="cluster"
-											style={{ gap: "var(--s-2)", marginTop: "var(--s-4)" }}
-										>
-											{project.callout.links.map((l) => (
-												<LinkChip key={l.label} link={l} />
-											))}
-										</div>
-									)}
+									{project.callout.links &&
+										project.callout.links.length > 0 && (
+											<div
+												className="cluster"
+												style={{ gap: "var(--s-2)", marginTop: "var(--s-4)" }}
+											>
+												{project.callout.links.map((l) => (
+													<LinkChip key={l.label} link={l} />
+												))}
+											</div>
+										)}
 								</aside>
 							</Reveal>
 						)}
@@ -261,6 +300,15 @@ function CaseStudy() {
 					</Link>
 				</div>
 			</section>
+
+			{modal && (
+				<ImageModal
+					figures={modal.figures}
+					index={modal.index}
+					onIndexChange={(index) => setModal((m) => (m ? { ...m, index } : m))}
+					onClose={() => setModal(null)}
+				/>
+			)}
 		</article>
 	);
 }
