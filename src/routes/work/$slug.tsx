@@ -240,6 +240,31 @@ function CaseStudy() {
 										)}
 									</div>
 								</Reveal>
+								{project.galleryIntro && project.galleryAfterSection === i && (
+									<Reveal>
+										<div className="case-gallery-intro">
+											{project.galleryIntro.caption && (
+												<p className="mono-label case-gallery-intro-caption">
+													{project.galleryIntro.caption}
+												</p>
+											)}
+											<div className="case-figure-grid case-figure-grid--compact">
+												{project.galleryIntro.figures.map((f, fi) => (
+													<Figure
+														key={f.src}
+														figure={f}
+														onClick={() =>
+															setModal({
+																figures: project.galleryIntro?.figures ?? [],
+																index: fi,
+															})
+														}
+													/>
+												))}
+											</div>
+										</div>
+									</Reveal>
+								)}
 								{project.gallery && project.galleryAfterSection === i && (
 									<CaseGallery
 										figures={project.gallery}

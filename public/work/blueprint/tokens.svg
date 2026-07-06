@@ -1,12 +1,128 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="800" height="500">
   <defs>
-    <radialGradient id="glow" cx="50%" cy="110%" r="70%">
-      <stop offset="0%" stop-color="#c9a84c" stop-opacity="0.15"/>
-      <stop offset="100%" stop-color="#c9a84c" stop-opacity="0"/>
+    <linearGradient id="blueBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2042a7"/>
+      <stop offset="55%" stop-color="#203d88"/>
+      <stop offset="100%" stop-color="#182753"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="18%" cy="0%" r="75%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.12"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
     </radialGradient>
+    <filter id="cardShadow" x="-60%" y="-60%" width="220%" height="220%">
+      <feDropShadow dx="0" dy="1" stdDeviation="1.2" flood-color="#000000" flood-opacity="0.5"/>
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
   </defs>
-  <rect width="800" height="500" fill="#111"/>
+  <rect width="800" height="500" fill="url(#blueBg)"/>
   <rect width="800" height="500" fill="url(#glow)"/>
-  <text x="400" y="238" text-anchor="middle" fill="#444" font-family="monospace" font-size="13" letter-spacing="0.08em">// placeholder</text>
-  <text x="400" y="264" text-anchor="middle" fill="#666" font-family="monospace" font-size="16" letter-spacing="0.04em">token system · color · type · spacing</text>
+  <text x="20" y="30" fill="#f3f7ff" font-family="monospace" font-size="11" letter-spacing="0.1em">BLUEPRINT / TOKENS</text>
+  <text x="780" y="30" text-anchor="end" fill="#b9caf2" font-family="monospace" font-size="10" letter-spacing="0.06em">figma variables &#8594; scss/css</text>
+  <g>
+    <text x="112" y="80.5" text-anchor="end" fill="#c3d0f2" font-family="monospace" font-size="9" letter-spacing="0.02em">buildout-blue</text>
+    <rect x="120" y="64" width="62" height="26" rx="2" fill="#eff6ff" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="186" y="64" width="62" height="26" rx="2" fill="#dcebfd" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="252" y="64" width="62" height="26" rx="2" fill="#c0dcfd" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="318" y="64" width="62" height="26" rx="2" fill="#95c7fb" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="384" y="64" width="62" height="26" rx="2" fill="#63a8f7" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="450" y="64" width="62" height="26" rx="2" fill="#3f86f2" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="516" y="64" width="62" height="26" rx="2" fill="#2968e7" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="582" y="64" width="62" height="26" rx="2" fill="#2153d4" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="648" y="64" width="62" height="26" rx="2" fill="#2042a7" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="714" y="64" width="62" height="26" rx="2" fill="#182753" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <text x="112" y="112.5" text-anchor="end" fill="#c3d0f2" font-family="monospace" font-size="9" letter-spacing="0.02em">purple-heart</text>
+    <rect x="120" y="96" width="62" height="26" rx="2" fill="#f9f5ff" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="186" y="96" width="62" height="26" rx="2" fill="#f2e8ff" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="252" y="96" width="62" height="26" rx="2" fill="#e7d5ff" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="318" y="96" width="62" height="26" rx="2" fill="#d4b4fe" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="384" y="96" width="62" height="26" rx="2" fill="#b984fc" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="450" y="96" width="62" height="26" rx="2" fill="#9f55f7" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="516" y="96" width="62" height="26" rx="2" fill="#8833ea" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="582" y="96" width="62" height="26" rx="2" fill="#7422ce" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="648" y="96" width="62" height="26" rx="2" fill="#6321a8" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="714" y="96" width="62" height="26" rx="2" fill="#360764" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <text x="112" y="144.5" text-anchor="end" fill="#c3d0f2" font-family="monospace" font-size="9" letter-spacing="0.02em">seagull</text>
+    <rect x="120" y="128" width="62" height="26" rx="2" fill="#ebfeff" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="186" y="128" width="62" height="26" rx="2" fill="#cefaff" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="252" y="128" width="62" height="26" rx="2" fill="#a2f4ff" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="318" y="128" width="62" height="26" rx="2" fill="#63e9fd" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="384" y="128" width="62" height="26" rx="2" fill="#1cd4f4" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="450" y="128" width="62" height="26" rx="2" fill="#00b8d8" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="516" y="128" width="62" height="26" rx="2" fill="#0391b7" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="582" y="128" width="62" height="26" rx="2" fill="#0a7494" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="648" y="128" width="62" height="26" rx="2" fill="#125e78" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="714" y="128" width="62" height="26" rx="2" fill="#063346" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <text x="112" y="176.5" text-anchor="end" fill="#c3d0f2" font-family="monospace" font-size="9" letter-spacing="0.02em">harvest-gold</text>
+    <rect x="120" y="160" width="62" height="26" rx="2" fill="#fffcea" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="186" y="160" width="62" height="26" rx="2" fill="#fff3c5" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="252" y="160" width="62" height="26" rx="2" fill="#ffe785" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="318" y="160" width="62" height="26" rx="2" fill="#ffd346" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="384" y="160" width="62" height="26" rx="2" fill="#ffbf1b" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="450" y="160" width="62" height="26" rx="2" fill="#fd9a00" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="516" y="160" width="62" height="26" rx="2" fill="#e27400" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="582" y="160" width="62" height="26" rx="2" fill="#bb4e02" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="648" y="160" width="62" height="26" rx="2" fill="#983c08" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="714" y="160" width="62" height="26" rx="2" fill="#481800" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <text x="112" y="208.5" text-anchor="end" fill="#c3d0f2" font-family="monospace" font-size="9" letter-spacing="0.02em">mountain-meadow</text>
+    <rect x="120" y="192" width="62" height="26" rx="2" fill="#eafff5" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="186" y="192" width="62" height="26" rx="2" fill="#cdfee5" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="252" y="192" width="62" height="26" rx="2" fill="#a0fad1" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="318" y="192" width="62" height="26" rx="2" fill="#63f2b8" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="384" y="192" width="62" height="26" rx="2" fill="#25e29c" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="450" y="192" width="62" height="26" rx="2" fill="#00bc7d" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="516" y="192" width="62" height="26" rx="2" fill="#00a46d" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="582" y="192" width="62" height="26" rx="2" fill="#00835c" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="648" y="192" width="62" height="26" rx="2" fill="#00674a" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="714" y="192" width="62" height="26" rx="2" fill="#003024" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <text x="112" y="240.5" text-anchor="end" fill="#c3d0f2" font-family="monospace" font-size="9" letter-spacing="0.02em">solid-pink</text>
+    <rect x="120" y="224" width="62" height="26" rx="2" fill="#fff0f1" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="186" y="224" width="62" height="26" rx="2" fill="#ffdddf" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="252" y="224" width="62" height="26" rx="2" fill="#ffc1c4" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="318" y="224" width="62" height="26" rx="2" fill="#ff959a" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="384" y="224" width="62" height="26" rx="2" fill="#ff5961" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="450" y="224" width="62" height="26" rx="2" fill="#ff2630" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="516" y="224" width="62" height="26" rx="2" fill="#fc0612" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="582" y="224" width="62" height="26" rx="2" fill="#e7000b" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="648" y="224" width="62" height="26" rx="2" fill="#af050d" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="714" y="224" width="62" height="26" rx="2" fill="#500004" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <text x="112" y="272.5" text-anchor="end" fill="#c3d0f2" font-family="monospace" font-size="9" letter-spacing="0.02em">storm-grey</text>
+    <rect x="120" y="256" width="62" height="26" rx="2" fill="#f6f7f9" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="186" y="256" width="62" height="26" rx="2" fill="#eceef2" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="252" y="256" width="62" height="26" rx="2" fill="#d5dae2" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="318" y="256" width="62" height="26" rx="2" fill="#afb9ca" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="384" y="256" width="62" height="26" rx="2" fill="#8495ac" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="450" y="256" width="62" height="26" rx="2" fill="#62748e" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="516" y="256" width="62" height="26" rx="2" fill="#506079" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="582" y="256" width="62" height="26" rx="2" fill="#424e62" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="648" y="256" width="62" height="26" rx="2" fill="#394353" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+    <rect x="714" y="256" width="62" height="26" rx="2" fill="#22262f" stroke="rgba(255,255,255,0.25)" stroke-width="0.5"/>
+  </g>
+  <line x1="20" y1="284" x2="780" y2="284" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+  <text x="20" y="306" fill="#cbd8f5" font-family="monospace" font-size="9" letter-spacing="0.08em">TYPE (PROXIMA NOVA)</text>
+    <text x="20" y="334" font-family="monospace" font-weight="bold" font-size="30" fill="#ffffff">Aa</text>
+    <text x="90" y="334" font-family="monospace" font-size="9" fill="#9fb0d9">H1 · 50/50 · 900</text>
+    <text x="20" y="368" font-family="monospace" font-weight="bold" font-size="17" fill="#e3eaff">Aa</text>
+    <text x="90" y="368" font-family="monospace" font-size="9" fill="#9fb0d9">H6 · 20/27 · 600</text>
+    <text x="20" y="402" font-family="monospace" font-weight="normal" font-size="13" fill="#aebbe3">Aa</text>
+    <text x="90" y="402" font-family="monospace" font-size="9" fill="#9fb0d9">Body · 14 · 400</text>
+  <text x="300" y="306" fill="#cbd8f5" font-family="monospace" font-size="9" letter-spacing="0.08em">SPACING (4PX BASE)</text>
+    <rect x="300" y="324" width="13" height="8" rx="2" fill="#eaf1ff"/>
+    <text x="410" y="331" font-family="monospace" font-size="9" fill="#9fb0d9">spacing-2 · 8px</text>
+    <rect x="300" y="344" width="19" height="8" rx="2" fill="#eaf1ff"/>
+    <text x="410" y="351" font-family="monospace" font-size="9" fill="#9fb0d9">spacing-3 · 12px</text>
+    <rect x="300" y="364" width="26" height="8" rx="2" fill="#eaf1ff"/>
+    <text x="410" y="371" font-family="monospace" font-size="9" fill="#9fb0d9">spacing-4 · 16px</text>
+    <rect x="300" y="384" width="51" height="8" rx="2" fill="#eaf1ff"/>
+    <text x="410" y="391" font-family="monospace" font-size="9" fill="#9fb0d9">spacing-8 · 32px</text>
+    <rect x="300" y="404" width="90" height="8" rx="2" fill="#eaf1ff"/>
+    <text x="410" y="411" font-family="monospace" font-size="9" fill="#9fb0d9">spacing-14 · 56px</text>
+  <text x="560" y="306" fill="#cbd8f5" font-family="monospace" font-size="9" letter-spacing="0.08em">RADIUS + ELEVATION</text>
+    <rect x="560" y="324" width="46" height="46" rx="6" fill="none" stroke="#eaf1ff" stroke-width="1.5"/>
+    <text x="583" y="388" text-anchor="middle" font-family="monospace" font-size="8" fill="#9fb0d9">r-6</text>
+    <rect x="622" y="324" width="46" height="46" rx="16" fill="none" stroke="#eaf1ff" stroke-width="1.5"/>
+    <text x="645" y="388" text-anchor="middle" font-family="monospace" font-size="8" fill="#9fb0d9">r-2xl</text>
+    <rect x="684" y="324" width="46" height="46" rx="24" fill="none" stroke="#eaf1ff" stroke-width="1.5"/>
+    <text x="707" y="388" text-anchor="middle" font-family="monospace" font-size="8" fill="#9fb0d9">r-3xl</text>
+    <rect x="752" y="324" width="46" height="46" rx="6" fill="#f2f0e9" filter="url(#cardShadow)"/>
+    <text x="775" y="388" text-anchor="middle" font-family="monospace" font-size="8" fill="#9fb0d9">shadow/base</text>
 </svg>

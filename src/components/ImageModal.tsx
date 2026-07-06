@@ -103,7 +103,13 @@ export function ImageModal({ figures, index, onIndexChange, onClose }: Props) {
 			{/* biome-ignore lint/a11y/noStaticElementInteractions: click-catcher that only stops backdrop-close propagation, not a control itself */}
 			{/* biome-ignore lint/a11y/useKeyWithClickEvents: no keyboard-triggerable action of its own */}
 			<div className="image-modal-stage" onClick={(e) => e.stopPropagation()}>
-				<img src={figure.src} alt={figure.alt} decoding="async" />
+				<img
+					src={figure.src}
+					alt={figure.alt}
+					width={figure.width}
+					height={figure.height}
+					decoding="async"
+				/>
 				<div className="image-modal-meta">
 					<span className="mono-label image-modal-counter">
 						{index + 1} / {figures.length}

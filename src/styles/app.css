@@ -947,6 +947,23 @@ button {
   margin-block: 0;
 }
 
+/* gallery intro — small context grid shown just before the gallery carousel
+   (e.g. legacy vs V2 screens). Deliberately capped narrow so it reads as a
+   quiet aside rather than competing with the before/after pair layout or the
+   carousel that follows it. */
+.case-gallery-intro {
+  margin-block: var(--s-6) 0;
+}
+.case-gallery-intro-caption {
+  margin-bottom: var(--s-3);
+}
+.case-figure-grid--compact {
+  max-width: 420px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--s-2);
+  margin-block: 0;
+}
+
 /* stack: default, single full-width figure (preserves existing spacing) */
 .case-figure-stack .case-figure,
 .case-figure-stack .case-figure--img {
@@ -1124,14 +1141,14 @@ button {
   flex-direction: column;
   align-items: center;
   gap: var(--s-3);
-  max-width: min(90vw, 1200px);
+  max-width: min(94vw, 1600px);
   padding-inline: var(--s-8);
 }
 
 .image-modal-stage img {
   display: block;
   max-width: 100%;
-  max-height: 86vh;
+  max-height: 90vh;
   width: auto;
   height: auto;
   object-fit: contain;

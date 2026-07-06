@@ -1,10 +1,15 @@
 import useEmblaCarousel from "embla-carousel-react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CaseFigure } from "#/data/projects";
 import { prefersReducedMotion } from "#/lib/motion";
 
 const AUTO_ADVANCE_MS = 4500;
+// Embla only loops if there are more real slides than fit in view + 1 — with
+// as few as 4 slides at 3-up that threshold isn't met and loop silently
+// disables. Repeating the source figures pads the DOM with enough slides for
+// a genuinely seamless loop; dots/clicks still map back to the real indices.
+const MIN_LOOP_SLIDES = 6;
 
 interface Props {
 	figures: CaseFigure[];
@@ -16,15 +21,19 @@ export function CaseGallery({ figures, onSlideClick }: Props) {
 	const pausedRef = useRef(false);
 	const [emblaRef, emblaApi] = useEmblaCarousel({
 		align: "start",
-		containScroll: "trimSnaps",
 		slidesToScroll: "auto",
 		loop: true,
 		watchDrag: true,
 	});
-	const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
 	const [selected, setSelected] = useState(0);
 	const [canPrev, setCanPrev] = useState(false);
 	const [canNext, setCanNext] = useState(false);
+
+	const loopFigures = useMemo(() => {
+		if (figures.length === 0 || figures.length >= MIN_LOOP_SLIDES) return figures;
+		const copies = Math.ceil(MIN_LOOP_SLIDES / figures.length);
+		return Array.from({ length: copies }, () => figures).flat();
+	}, [figures]);
 
 	// Break out of the prose column to the full viewport width.
 	// Measure the element's left offset from the viewport and negate it.
@@ -48,8 +57,7 @@ export function CaseGallery({ figures, onSlideClick }: Props) {
 	useEffect(() => {
 		if (!emblaApi) return;
 		const sync = () => {
-			setScrollSnaps(emblaApi.scrollSnapList());
-			setSelected(emblaApi.selectedScrollSnap());
+			setSelected(emblaApi.selectedScrollSnap() % figures.length);
 			setCanPrev(emblaApi.canScrollPrev());
 			setCanNext(emblaApi.canScrollNext());
 		};
@@ -60,7 +68,7 @@ export function CaseGallery({ figures, onSlideClick }: Props) {
 			emblaApi.off("select", sync);
 			emblaApi.off("reInit", sync);
 		};
-	}, [emblaApi]);
+	}, [emblaApi, figures.length]);
 
 	const scrollPrev = useCallback(() => {
 		emblaApi?.scrollPrev(prefersReducedMotion());
@@ -121,12 +129,12 @@ export function CaseGallery({ figures, onSlideClick }: Props) {
 		>
 			<div ref={emblaRef} className="case-gallery-viewport">
 				<div className="case-gallery-container">
-					{figures.map((f, i) => (
-						<div key={f.src} className="case-gallery-slide">
+					{loopFigures.map((f, i) => (
+						<div key={`${f.src}-${i}`} className="case-gallery-slide">
 							<button
 								type="button"
 								className="case-gallery-slide-trigger"
-								onClick={() => onSlideClick?.(i)}
+								onClick={() => onSlideClick?.(i % figures.length)}
 								aria-label={`Open ${f.alt} full-screen`}
 							>
 								<img
@@ -146,7 +154,7 @@ export function CaseGallery({ figures, onSlideClick }: Props) {
 				</div>
 			</div>
 
-			{scrollSnaps.length > 1 && (
+			{figures.length > 1 && (
 				<div className="case-gallery-controls">
 					<button
 						type="button"
@@ -158,9 +166,9 @@ export function CaseGallery({ figures, onSlideClick }: Props) {
 						<ArrowLeft size={16} />
 					</button>
 					<div className="case-gallery-dots" role="tablist">
-						{scrollSnaps.map((snap, i) => (
+						{figures.map((f, i) => (
 							<button
-								key={snap}
+								key={f.src}
 								type="button"
 								role="tab"
 								className="case-gallery-dot"
