@@ -181,13 +181,6 @@ const allProjects: Project[] = [
       eyebrow: "// built for humans and machines",
       heading: "A Claude skill ships with the system",
       body: "Blueprint ships a Claude skill alongside the component library. Invoke it with /blueprint, mention a component, or describe a front-end task and it activates on its own. It looks up what is available, dispatches a sub-agent to pull the full component API, and makes sure whatever gets built is using Blueprint correctly. The system does not wait to be rediscovered in a docs tab. It shows up where the work is happening.",
-      links: [
-        {
-          label: "See the AI docs",
-          href: "https://buildoutinc.github.io/blueprint/llms.txt",
-          kind: "ai",
-        },
-      ],
     },
     sections: [
       {
@@ -266,15 +259,6 @@ const allProjects: Project[] = [
         body: [
           "All four products now speak the same language, the component library keeps absorbing the one-offs, and the launch shipped without a single fire. The plan to ease users in held.",
           "The quiet win: design and engineering stopped re-litigating the basics. We argue about the right things now.",
-        ],
-        figureLayout: "stack",
-        figures: [
-          {
-            src: "/work/blueprint/docs.svg",
-            alt: "Blueprint docs site — a component page with live examples",
-            width: 1600,
-            height: 900,
-          },
         ],
       },
     ],
