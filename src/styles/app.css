@@ -891,6 +891,7 @@ button {
   padding: 0;
   border: 0;
   background: none;
+  border-radius: var(--r-lg);
 }
 .case-figure--img img {
   display: block;
@@ -904,23 +905,76 @@ button {
   margin-top: var(--s-2);
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .case-figure--img img {
+    transition: transform var(--dur-3) var(--ease-out);
+  }
+  .case-figure-trigger:hover img,
+  .case-figure-trigger:focus-visible img {
+    transform: scale(1.06);
+  }
+}
+
 /* click-to-expand wrapper around an inline case-study image */
 .case-figure-trigger {
   all: unset;
+  position: relative;
   display: block;
   width: 100%;
+  overflow: hidden;
   cursor: zoom-in;
   border-radius: var(--r-lg);
-  transition: opacity 0.2s;
-}
-
-.case-figure-trigger:hover {
-  opacity: 0.88;
 }
 
 .case-figure-trigger:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+/* Glow ring — a ::before, not a box-shadow on the trigger itself: the img is
+   an in-flow child, so it paints on top of and fully hides any box-shadow
+   declared on its own parent. A positioned pseudo-element paints above
+   in-flow content instead, same as the sheen ::after below. Inset (not
+   outer) so it can't bleed into the figcaption below or get clipped by
+   Embla's overflow-hidden viewport in the gallery variant. */
+.case-figure-trigger::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: box-shadow var(--dur-3) var(--ease-out);
+}
+.case-figure-trigger:hover::before,
+.case-figure-trigger:focus-visible::before {
+  box-shadow:
+    inset 0 0 0 3px color-mix(in oklab, var(--gold-400) 55%, transparent),
+    inset 0 0 40px color-mix(in oklab, var(--gold-300) 40%, transparent);
+}
+
+/* Golden sheen — matches .case-gallery-slide-trigger's hover treatment so
+   inline case-study screenshots feel consistent with the gallery carousel. */
+.case-figure-trigger::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 42%,
+    color-mix(in oklab, var(--gold-300) 55%, transparent) 50%,
+    transparent 58%
+  );
+  transform: translateX(-160%);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .case-figure-trigger::after {
+    transition: transform 0.6s var(--ease-out);
+  }
+  .case-figure-trigger:hover::after,
+  .case-figure-trigger:focus-visible::after {
+    transform: translateX(160%);
+  }
 }
 
 /* pair: two images side-by-side, ideal for before/after */
@@ -1022,8 +1076,19 @@ button {
   object-fit: cover;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .case-gallery-slide img {
+    transition: transform var(--dur-3) var(--ease-out);
+  }
+  .case-gallery-slide-trigger:hover img,
+  .case-gallery-slide-trigger:focus-visible img {
+    transform: scale(1.06);
+  }
+}
+
 .case-gallery-slide-trigger {
   all: unset;
+  position: relative;
   display: block;
   width: 100%;
   height: 100%;
@@ -1035,6 +1100,51 @@ button {
 .case-gallery-slide-trigger:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: -2px;
+}
+
+/* Glow ring — a ::before, not a box-shadow on the trigger itself: the img is
+   an in-flow child, so it paints on top of and fully hides any box-shadow
+   declared on its own parent. A positioned pseudo-element paints above
+   in-flow content instead, same as the sheen ::after below. Inset (not
+   outer) so Embla's overflow-hidden viewport can't clip it away. */
+.case-gallery-slide-trigger::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: box-shadow var(--dur-3) var(--ease-out);
+}
+.case-gallery-slide-trigger:hover::before,
+.case-gallery-slide-trigger:focus-visible::before {
+  box-shadow:
+    inset 0 0 0 3px color-mix(in oklab, var(--gold-400) 55%, transparent),
+    inset 0 0 40px color-mix(in oklab, var(--gold-300) 40%, transparent);
+}
+
+/* Golden sheen — a diagonal gleam that sweeps once across the thumbnail on
+   hover/focus, echoing the site's golden-hour light motif. */
+.case-gallery-slide-trigger::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 42%,
+    color-mix(in oklab, var(--gold-300) 55%, transparent) 50%,
+    transparent 58%
+  );
+  transform: translateX(-160%);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .case-gallery-slide-trigger::after {
+    transition: transform 0.6s var(--ease-out);
+  }
+  .case-gallery-slide-trigger:hover::after,
+  .case-gallery-slide-trigger:focus-visible::after {
+    transform: translateX(160%);
+  }
 }
 
 .case-gallery-caption {
