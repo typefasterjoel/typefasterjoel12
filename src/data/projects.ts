@@ -374,30 +374,6 @@ const allProjects: Project[] = [
       { heading: "The outcome", body: ["TODO(joel)"] },
     ],
   },
-  // ── Yumu (draft) ──────────────────────────────────────────────────────
-  // TODO(joel): same drill — questionnaire, copy, imagery in
-  // /public/work/yumu/, then flip `draft` off.
-  {
-    slug: "yumu",
-    title: "Yumu",
-    draft: true,
-    year: "TODO(joel)",
-    role: "TODO(joel)",
-    summary: "TODO(joel): one-line summary for the work list.",
-    tags: ["TODO(joel)"],
-    intro: "TODO(joel): case-study intro — the problem in one breath.",
-    facts: [
-      { label: "Role", value: "TODO(joel)" },
-      { label: "Year", value: "TODO(joel)" },
-      { label: "Scope", value: "TODO(joel)" },
-      { label: "Stack", value: "TODO(joel)" },
-    ],
-    sections: [
-      { heading: "The problem", body: ["TODO(joel)"] },
-      { heading: "The approach", body: ["TODO(joel)"] },
-      { heading: "The outcome", body: ["TODO(joel)"] },
-    ],
-  },
 ];
 
 /** Published projects only — drafts never reach the UI or the router. */
