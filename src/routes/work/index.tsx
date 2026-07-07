@@ -91,7 +91,7 @@ function WorkIndex() {
 				</div>
 
 				{sideQuests.length > 0 && (
-					<div style={{ marginTop: "var(--s-9)" }}>
+					<div id="side-quests" style={{ marginTop: "var(--s-9)" }}>
 						<Reveal>
 							<p className="mono-label">{"// side quests"}</p>
 							<h2 className="h3" style={{ marginTop: "var(--s-2)" }}>
