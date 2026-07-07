@@ -231,6 +231,79 @@
 	gap: 12px;
 }
 
+/* ---------- Side quest card ---------- */
+.side-quest-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: var(--s-5);
+	margin-top: var(--s-6);
+}
+/* Reveal wraps each card in a `.reveal` div, which is the actual flex
+   child of `.side-quest-row` — flex-basis on `.side-quest-card` alone
+   never applies. Size the wrapper, and let the card fill it. */
+.side-quest-row > .reveal {
+	flex: 1 1 260px;
+}
+.side-quest-card {
+	flex: 1 1 260px;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	text-align: left;
+	appearance: none;
+	font: inherit;
+	color: inherit;
+	padding: 0;
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: var(--r-lg);
+	overflow: hidden;
+	cursor: pointer;
+	transition:
+		transform var(--dur-2) var(--ease-out),
+		box-shadow var(--dur-2) var(--ease-out),
+		border-color var(--dur-2) var(--ease-out);
+}
+.side-quest-card:hover {
+	transform: translateY(-4px);
+	box-shadow: var(--shadow-lg);
+	border-color: var(--border-strong);
+}
+.side-quest-thumb {
+	aspect-ratio: 16 / 10;
+	background: var(--sunken);
+	overflow: hidden;
+	display: block;
+}
+.side-quest-thumb img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+.side-quest-meta {
+	display: flex;
+	flex-direction: column;
+	gap: var(--s-2);
+	padding: var(--s-4) var(--s-5);
+}
+.side-quest-title {
+	font-size: 16px;
+	font-weight: 500;
+	letter-spacing: -0.01em;
+	color: var(--fg);
+}
+.side-quest-blurb {
+	font-size: 13px;
+	color: var(--fg-1);
+	line-height: 1.5;
+}
+.side-quest-arrow {
+	align-self: flex-end;
+	margin: 0 var(--s-5) var(--s-4);
+	color: var(--accent-ink);
+}
+
 /* ---------- Link with animated underline ---------- */
 .ulink {
 	position: relative;
