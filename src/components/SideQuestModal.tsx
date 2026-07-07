@@ -22,6 +22,7 @@ export function SideQuestModal({ quest, originRect, onClose }: Props) {
 	const stageRef = useRef<HTMLDivElement>(null);
 	const triggerRef = useRef<Element | null>(null);
 	const closingRef = useRef(false);
+	const targetRectRef = useRef<DOMRect | null>(null);
 
 	// Zoom in: measure the stage's natural (final) rect, then tween from a
 	// translate/scale that makes it overlay the origin card down to identity.
@@ -31,6 +32,7 @@ export function SideQuestModal({ quest, originRect, onClose }: Props) {
 		registerGsap();
 
 		const target = stage.getBoundingClientRect();
+		targetRectRef.current = target;
 		const { x, y, scaleX, scaleY } = computeFlipTransform(originRect, target);
 
 		gsap.fromTo(
@@ -45,12 +47,12 @@ export function SideQuestModal({ quest, originRect, onClose }: Props) {
 		closingRef.current = true;
 
 		const stage = stageRef.current;
-		if (!stage || prefersReducedMotion()) {
+		const target = targetRectRef.current;
+		if (!stage || !target || prefersReducedMotion()) {
 			onClose();
 			return;
 		}
 
-		const target = stage.getBoundingClientRect();
 		const { x, y, scaleX, scaleY } = computeFlipTransform(originRect, target);
 		gsap.to(stage, {
 			x,

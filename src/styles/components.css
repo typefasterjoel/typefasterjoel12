@@ -238,8 +238,15 @@
 	gap: var(--s-5);
 	margin-top: var(--s-6);
 }
+/* Reveal wraps each card in a `.reveal` div, which is the actual flex
+   child of `.side-quest-row` — flex-basis on `.side-quest-card` alone
+   never applies. Size the wrapper, and let the card fill it. */
+.side-quest-row > .reveal {
+	flex: 1 1 260px;
+}
 .side-quest-card {
 	flex: 1 1 260px;
+	width: 100%;
 	display: flex;
 	flex-direction: column;
 	text-align: left;
