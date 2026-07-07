@@ -15,13 +15,13 @@ describe("computeFlipTransform", () => {
 	it("computes the translate/scale to make a large centered target look like a small card", () => {
 		// a small card near the top-left...
 		const origin = { top: 40, left: 20, width: 100, height: 60 };
-		// ...zooming into a larger, centered modal stage
-		const target = { top: 200, left: 400, width: 600, height: 360 };
+		// ...zooming into a larger, centered modal stage (different aspect ratio to catch axis swaps)
+		const target = { top: 200, left: 400, width: 500, height: 360 };
 		const result = computeFlipTransform(origin, target);
-		// origin center: (70, 70); target center: (700, 380)
-		expect(result.x).toBeCloseTo(70 - 700);
+		// origin center: (70, 70); target center: (650, 380)
+		expect(result.x).toBeCloseTo(70 - 650);
 		expect(result.y).toBeCloseTo(70 - 380);
-		expect(result.scaleX).toBeCloseTo(100 / 600);
+		expect(result.scaleX).toBeCloseTo(100 / 500);
 		expect(result.scaleY).toBeCloseTo(60 / 360);
 	});
 });
