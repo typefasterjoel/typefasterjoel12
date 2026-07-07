@@ -1,8 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
+import { useState } from "react";
 import { Reveal } from "#/components/Reveal";
+import { SideQuestCard } from "#/components/SideQuestCard";
+import { SideQuestModal } from "#/components/SideQuestModal";
 import { Tag } from "#/components/Tag";
 import { projects } from "#/data/projects";
+import { type SideQuest, sideQuests } from "#/data/side-quests";
 
 export const Route = createFileRoute("/work/")({
 	component: WorkIndex,
@@ -12,6 +16,10 @@ export const Route = createFileRoute("/work/")({
 });
 
 function WorkIndex() {
+	const [open, setOpen] = useState<{ quest: SideQuest; rect: DOMRect } | null>(
+		null,
+	);
+
 	return (
 		<article>
 			<section className="section container">
@@ -81,7 +89,36 @@ function WorkIndex() {
 						</Reveal>
 					))}
 				</div>
+
+				{sideQuests.length > 0 && (
+					<div style={{ marginTop: "var(--s-9)" }}>
+						<Reveal>
+							<p className="mono-label">{"// side quests"}</p>
+							<h2 className="h3" style={{ marginTop: "var(--s-2)" }}>
+								A few smaller detours.
+							</h2>
+						</Reveal>
+						<div className="side-quest-row">
+							{sideQuests.map((q) => (
+								<Reveal key={q.slug}>
+									<SideQuestCard
+										quest={q}
+										onOpen={(quest, rect) => setOpen({ quest, rect })}
+									/>
+								</Reveal>
+							))}
+						</div>
+					</div>
+				)}
 			</section>
+
+			{open && (
+				<SideQuestModal
+					quest={open.quest}
+					originRect={open.rect}
+					onClose={() => setOpen(null)}
+				/>
+			)}
 		</article>
 	);
 }
