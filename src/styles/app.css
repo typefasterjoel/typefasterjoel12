@@ -1199,6 +1199,56 @@ button {
   }
 }
 
+/* ============================================================
+   Side quest modal — zoom-in from the card
+   ============================================================ */
+.side-quest-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--bg) 88%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  animation: image-modal-in var(--dur-2) var(--ease-out);
+}
+
+.side-quest-modal-stage {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  max-width: min(92vw, 720px);
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.side-quest-modal-stage img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.side-quest-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: var(--s-5) var(--s-6) var(--s-6);
+}
+
+.side-quest-modal-close {
+  position: absolute;
+  top: var(--s-4);
+  right: var(--s-4);
+  z-index: 1;
+}
+
 /* hero stat strip — punchy numbers, distinct from the sidebar facts */
 .case-stats {
   display: flex;
