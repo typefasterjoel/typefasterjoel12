@@ -1,26 +1,13 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import {
-	ArrowRight,
-	ArrowUpRight,
-	BookOpen,
-	Frame,
-	GitBranch,
-	Globe,
-	type LucideIcon,
-	Sparkles,
-} from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { useState } from "react";
 import { btnClass } from "#/components/Button";
 import { CaseGallery } from "#/components/CaseGallery";
 import { ImageModal } from "#/components/ImageModal";
+import { LinkChip } from "#/components/LinkChip";
 import { Reveal } from "#/components/Reveal";
 import { Tag } from "#/components/Tag";
-import {
-	type CaseFigure,
-	type CaseLink,
-	getProject,
-	projects,
-} from "#/data/projects";
+import { type CaseFigure, getProject, projects } from "#/data/projects";
 
 export const Route = createFileRoute("/work/$slug")({
 	component: CaseStudy,
@@ -39,34 +26,6 @@ export const Route = createFileRoute("/work/$slug")({
 		],
 	}),
 });
-
-const LINK_ICON: Record<NonNullable<CaseLink["kind"]>, LucideIcon> = {
-	docs: BookOpen,
-	figma: Frame,
-	ai: Sparkles,
-	repo: GitBranch,
-	site: Globe,
-};
-
-/** External-artifact pill — mirrors the `.chip` pattern used in Contact. */
-function LinkChip({ link }: { link: CaseLink }) {
-	const Icon = link.kind ? LINK_ICON[link.kind] : Globe;
-	const external = link.href.startsWith("http");
-	return (
-		<a
-			className="chip"
-			href={link.href}
-			target={external ? "_blank" : undefined}
-			rel={external ? "noreferrer" : undefined}
-		>
-			<Icon size={16} aria-hidden="true" />
-			{link.label}
-			<span className="arrow" aria-hidden="true">
-				<ArrowUpRight size={16} />
-			</span>
-		</a>
-	);
-}
 
 /** A real image with required alt text and an optional caption. */
 function Figure({
