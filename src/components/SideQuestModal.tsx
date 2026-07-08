@@ -35,11 +35,22 @@ export function SideQuestModal({ quest, originRect, onClose }: Props) {
 		targetRectRef.current = target;
 		const { x, y, scaleX, scaleY } = computeFlipTransform(originRect, target);
 
-		gsap.fromTo(
+		const tween = gsap.fromTo(
 			stage,
 			{ x, y, scaleX, scaleY },
 			{ x: 0, y: 0, scaleX: 1, scaleY: 1, duration: 0.5, ease: "power3.out" },
 		);
+
+		// Dev-mode double-invokes this effect on the same DOM node. Without a
+		// cleanup, the second pass would measure the stage's rect *after* the
+		// first pass's transform was already applied — collapsing target to
+		// ~originRect and producing a near-identity FLIP that overwrites the
+		// real one (silently "snapping" both this animation and requestClose's,
+		// since targetRectRef would end up holding the corrupted rect too).
+		return () => {
+			tween.kill();
+			gsap.set(stage, { clearProps: "transform" });
+		};
 	}, [originRect]);
 
 	const requestClose = () => {

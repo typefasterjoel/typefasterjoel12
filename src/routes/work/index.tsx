@@ -53,17 +53,20 @@ function WorkIndex() {
 									<span className="mono-label work-index">
 										{String(i + 1).padStart(2, "0")}
 									</span>
-									<div className="work-thumb-art">
-										<span
-											className="display"
-											style={{
-												fontSize: "clamp(56px, 9vw, 120px)",
-												opacity: 0.5,
-											}}
-										>
-											{p.title.charAt(0)}
-										</span>
-									</div>
+									{p.cover ? (
+										<img
+											src={p.cover.src}
+											alt=""
+											width={p.cover.width}
+											height={p.cover.height}
+											loading="lazy"
+											decoding="async"
+										/>
+									) : (
+										<div className="work-thumb-placeholder">
+											<span className="mono-label">figure · coming soon</span>
+										</div>
+									)}
 								</div>
 								<div className="work-meta" style={{ alignItems: "flex-start" }}>
 									<div className="stack" style={{ gap: "6px" }}>

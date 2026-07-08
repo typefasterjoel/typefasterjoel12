@@ -199,7 +199,15 @@
 	padding: var(--s-5);
 }
 
-/* Project card (work index) */
+/* Project card (work index) — grid was previously unstyled, which let
+   cards stack full-bleed and blow the 16/10 thumb up to full-viewport
+   height. Capped column width keeps thumbs a sane size at any count. */
+.work-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+	gap: var(--s-5);
+	margin-top: var(--s-6);
+}
 .work-card {
 	position: relative;
 	display: block;
@@ -223,6 +231,50 @@
 	position: relative;
 	overflow: hidden;
 }
+.work-thumb img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	display: block;
+}
+@media (prefers-reduced-motion: no-preference) {
+	.work-thumb img {
+		transition: transform var(--dur-3) var(--ease-out);
+	}
+	.work-card:hover .work-thumb img {
+		transform: scale(1.05);
+	}
+}
+/* same warm-gradient treatment as .case-figure's "coming soon" state,
+   so an un-covered project reads as intentional, not broken */
+.work-thumb-placeholder {
+	width: 100%;
+	height: 100%;
+	display: grid;
+	place-items: center;
+	background:
+		radial-gradient(
+			110% 80% at 50% 120%,
+			color-mix(in oklab, var(--gold-300) 38%, transparent),
+			transparent 60%
+		),
+		var(--surface-2);
+	color: var(--fg-2);
+}
+/* index badge — translucent pill, same recipe as .case-gallery-arrow,
+   so it stays legible over an arbitrary cover image */
+.work-index {
+	position: absolute;
+	top: var(--s-3);
+	left: var(--s-3);
+	z-index: 1;
+	padding: 4px 9px;
+	border-radius: var(--r-pill);
+	background: color-mix(in oklab, var(--bg) 70%, transparent);
+	backdrop-filter: blur(8px);
+	-webkit-backdrop-filter: blur(8px);
+	color: var(--fg);
+}
 .work-meta {
 	display: flex;
 	align-items: center;
@@ -240,9 +292,13 @@
 }
 /* Reveal wraps each card in a `.reveal` div, which is the actual flex
    child of `.side-quest-row` — flex-basis on `.side-quest-card` alone
-   never applies. Size the wrapper, and let the card fill it. */
+   never applies. Size the wrapper, and let the card fill it. Capped at
+   max-width so a row with fewer than 3 cards (e.g. only one published
+   side quest) doesn't stretch a single card — and its aspect-ratio
+   thumb — to the full row width. */
 .side-quest-row > .reveal {
 	flex: 1 1 260px;
+	max-width: 340px;
 }
 .side-quest-card {
 	flex: 1 1 260px;
@@ -274,12 +330,59 @@
 	background: var(--sunken);
 	overflow: hidden;
 	display: block;
+	position: relative;
 }
 .side-quest-thumb img {
 	width: 100%;
 	height: 100%;
 	object-fit: cover;
 	display: block;
+}
+/* Same glow ring + gold sheen as .case-figure-trigger (app.css), so the
+   card thumbnail feels consistent with in-case-study imagery. Triggered
+   off the card's hover/focus state — the card keeps its own lift/shadow
+   transition untouched. */
+.side-quest-thumb::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	transition: box-shadow var(--dur-3) var(--ease-out);
+}
+.side-quest-card:hover .side-quest-thumb::before,
+.side-quest-card:focus-visible .side-quest-thumb::before {
+	box-shadow:
+		inset 0 0 0 3px color-mix(in oklab, var(--gold-400) 55%, transparent),
+		inset 0 0 40px color-mix(in oklab, var(--gold-300) 40%, transparent);
+}
+.side-quest-thumb::after {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(
+		115deg,
+		transparent 42%,
+		color-mix(in oklab, var(--gold-300) 55%, transparent) 50%,
+		transparent 58%
+	);
+	transform: translateX(-160%);
+	pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+	.side-quest-thumb img {
+		transition: transform var(--dur-3) var(--ease-out);
+	}
+	.side-quest-card:hover .side-quest-thumb img,
+	.side-quest-card:focus-visible .side-quest-thumb img {
+		transform: scale(1.06);
+	}
+	.side-quest-thumb::after {
+		transition: transform 0.6s var(--ease-out);
+	}
+	.side-quest-card:hover .side-quest-thumb::after,
+	.side-quest-card:focus-visible .side-quest-thumb::after {
+		transform: translateX(160%);
+	}
 }
 .side-quest-meta {
 	display: flex;

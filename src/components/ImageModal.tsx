@@ -1,7 +1,9 @@
+import { gsap } from "gsap";
 import { ArrowLeft, ArrowRight, X } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import type { CaseFigure } from "#/data/projects";
+import { prefersReducedMotion, registerGsap } from "#/lib/motion";
 
 const FOCUSABLE =
 	'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
@@ -15,10 +17,49 @@ interface Props {
 
 export function ImageModal({ figures, index, onIndexChange, onClose }: Props) {
 	const dialogRef = useRef<HTMLDivElement>(null);
+	const stageRef = useRef<HTMLDivElement>(null);
 	const triggerRef = useRef<Element | null>(null);
+	const closingRef = useRef(false);
 
 	const canPrev = index > 0;
 	const canNext = index < figures.length - 1;
+
+	// Zoom/fade pop on mount — same easing/duration family as SideQuestModal's
+	// stage animation, scoped to mount only (deps: []) so prev/next navigation
+	// swapping `index` doesn't re-trigger it. Cleanup kills the tween and
+	// clears the transform so a dev-mode double-invoke re-measures cleanly
+	// instead of compounding on an already-animated state.
+	useLayoutEffect(() => {
+		const stage = stageRef.current;
+		if (!stage || prefersReducedMotion()) return;
+		registerGsap();
+		const tween = gsap.fromTo(
+			stage,
+			{ scale: 0.92, opacity: 0 },
+			{ scale: 1, opacity: 1, duration: 0.4, ease: "power3.out" },
+		);
+		return () => {
+			tween.kill();
+			gsap.set(stage, { clearProps: "transform,opacity" });
+		};
+	}, []);
+
+	const requestClose = () => {
+		if (closingRef.current) return;
+		closingRef.current = true;
+		const stage = stageRef.current;
+		if (!stage || prefersReducedMotion()) {
+			onClose();
+			return;
+		}
+		gsap.to(stage, {
+			scale: 0.92,
+			opacity: 0,
+			duration: 0.3,
+			ease: "power2.in",
+			onComplete: onClose,
+		});
+	};
 
 	// Body scroll lock, focus capture/restore, and the focus trap itself.
 	useEffect(() => {
@@ -60,7 +101,7 @@ export function ImageModal({ figures, index, onIndexChange, onClose }: Props) {
 	const goNext = () => canNext && onIndexChange(index + 1);
 
 	const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-		if (e.key === "Escape") onClose();
+		if (e.key === "Escape") requestClose();
 		if (e.key === "ArrowLeft") goPrev();
 		if (e.key === "ArrowRight") goNext();
 	};
@@ -74,13 +115,13 @@ export function ImageModal({ figures, index, onIndexChange, onClose }: Props) {
 			role="dialog"
 			aria-modal="true"
 			aria-label="Image viewer"
-			onClick={onClose}
+			onClick={requestClose}
 			onKeyDown={onKeyDown}
 		>
 			<button
 				type="button"
 				className="icon-btn image-modal-close"
-				onClick={onClose}
+				onClick={requestClose}
 				aria-label="Close"
 			>
 				<X size={18} />
@@ -102,7 +143,11 @@ export function ImageModal({ figures, index, onIndexChange, onClose }: Props) {
 
 			{/* biome-ignore lint/a11y/noStaticElementInteractions: click-catcher that only stops backdrop-close propagation, not a control itself */}
 			{/* biome-ignore lint/a11y/useKeyWithClickEvents: no keyboard-triggerable action of its own */}
-			<div className="image-modal-stage" onClick={(e) => e.stopPropagation()}>
+			<div
+				ref={stageRef}
+				className="image-modal-stage"
+				onClick={(e) => e.stopPropagation()}
+			>
 				<img
 					src={figure.src}
 					alt={figure.alt}

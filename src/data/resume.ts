@@ -123,8 +123,8 @@ export const skills: SkillGroup[] = [
 			"TypeScript",
 			"HTML · CSS · JS",
 			"Next.js",
+			"React Router 7 · TanStack Start",
 			"PHP · Laravel",
-			"WordPress · WP REST API",
 		],
 	},
 	{
