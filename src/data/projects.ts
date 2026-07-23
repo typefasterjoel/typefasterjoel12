@@ -98,7 +98,7 @@ const allProjects: Project[] = [
       "One design language for four Buildout products: tokens, components, docs, a private registry, and pages built for AI agents.",
     tags: ["Design systems", "React", "Tokens", "AI tooling"],
     intro:
-      "Before Blueprint there was V2. A design system built to unify Buildout's products that powered Prospect but never made it across the finish line. The tech gap between where the platform was and where V2 needed it to be was too wide. So I took everything that attempt taught me and started over, this time with a plan for how to actually ship it.",
+      "Before Blueprint there was V2 — a design system meant to unify Buildout's products. It powered Prospect and stalled everywhere else. The gap between where the platform was and where V2 needed it to be was just too wide. So I took everything that failure taught me and started over, this time with an actual plan for shipping it.",
     stats: [
       { value: "4", label: "products, one language" },
       { value: "68", label: "components shipped" },
@@ -180,29 +180,29 @@ const allProjects: Project[] = [
     callout: {
       eyebrow: "// built for humans and machines",
       heading: "A Claude skill ships with the system",
-      body: "Blueprint ships a Claude skill alongside the component library. Invoke it with /blueprint, mention a component, or describe a front-end task and it activates on its own. It looks up what is available, dispatches a sub-agent to pull the full component API, and makes sure whatever gets built is using Blueprint correctly. The system does not wait to be rediscovered in a docs tab. It shows up where the work is happening.",
+      body: "Blueprint ships a Claude skill alongside the component library. Invoke it with /blueprint, mention a component, or describe a front-end task and it activates on its own. It looks up what's available, dispatches a sub-agent to pull the full component API, and makes sure whatever gets built actually uses Blueprint — not a copy-paste from somewhere else. The system doesn't wait to be rediscovered in a docs tab. It shows up where the work is happening.",
     },
     sections: [
       {
         heading: "The problem",
         body: [
-          "Buildout had four products: Manage and Close, Showcase, Prospect, and the CRM. Each had grown its own idea of what the UI should look like. Buttons had different colors across apps. Heading sizes and page typography were inconsistent from product to product. Custom colors kept getting added whenever a designer needed something that didn't exist in the system they were working in.",
-          "Nothing was intentionally broken. It just grew that way. Four teams, four codebases, four reasonable decisions made in isolation that added up to four products that looked like they came from different companies.",
+          "Buildout had four products — Manage and Close, Showcase, Prospect, and the CRM — and each one had quietly invented its own idea of what a button should look like. Different colors, different heading sizes, different type scales from product to product. Every time a designer needed a color that didn't exist yet, they just added one.",
+          "None of that was anyone being careless. It's just what happens. Four teams, four codebases, four reasonable decisions made in isolation — and the sum of all those good decisions was four products that looked like they'd come from four different companies.",
         ],
       },
       {
         heading: "What V2 taught",
         body: [
           "V2 was the first attempt. It was built on Bootstrap 5.3 while the main platform was still on Bootstrap 3, and that gap turned out to be the whole problem. Something as simple as a new body font size would cascade into broken layouts across dozens of pages. We tried allocating 10% of the week to slowly converting pages over, but it was never going to be a clean swap. The foundations were too different.",
-          "What V2 taught me was that you cannot design a system without also designing the migration. The components are the easy part. Getting four teams to adopt them without stopping their roadmaps is the real job.",
+          "What V2 taught me was that you can't design a system without also designing the migration. The components are the easy part. Getting four teams to adopt them without stopping their roadmaps — that's the real job.",
         ],
       },
       {
         heading: "The system",
         body: [
-          "Blueprint ships as three packages. Tokens come first, a JSON file synced directly from Figma that generates the SCSS and CSS variables everything else builds on. The theme package is a custom Bootstrap 5.3 that consumes those tokens. The React component library sits on top of that. Change a token in Figma, and it flows through to the theme and into every component.",
-          "To keep adoption honest, Blueprint ships a lint rule alongside the components. When a developer reaches for a button or input from another UI library, the rule flags it and points to the Blueprint equivalent. No relying on developers to remember. The tooling does it for them.",
-          "For AI-assisted development, there is a Claude skill. Invoke it with /blueprint or mention a component or front-end task in conversation and it activates automatically. It looks up the available components, then dispatches a sub-agent to fetch the full API for whichever component is needed before writing a single line of code.",
+          "Blueprint ships as three packages. Tokens come first — a JSON file synced directly from Figma that generates the SCSS and CSS variables everything else builds on. The theme package is a custom Bootstrap 5.3 that consumes those tokens. The React component library sits on top of that. Change a token in Figma, and it flows through to the theme and into every component.",
+          "To keep adoption honest, Blueprint ships a lint rule alongside the components. When a developer reaches for a button or input from another UI library, the rule flags it and points to the Blueprint equivalent. No relying on developers to remember — the tooling does that for them.",
+          "For AI-assisted development, there's a Claude skill. Invoke it with /blueprint, or just mention a component or front-end task in conversation and it activates on its own. It looks up the available components, then dispatches a sub-agent to fetch the full API for whichever one is needed before writing a single line of code.",
         ],
         figureLayout: "grid",
         figures: [
@@ -225,16 +225,16 @@ const allProjects: Project[] = [
       {
         heading: "The proof",
         body: [
-          "Prospect was the first product converted to Blueprint. It made sense. It was the most modern codebase we had, and it was where the early thinking that led to Blueprint first took shape. It was also the real test. If Blueprint was as easy to adopt as it needed to be, Prospect would show that.",
-          "It was. The swap was clean. No cascading layout breaks, no weeks of one-off fixes. That was the moment Blueprint stopped being a proposal and became the plan for everything else.",
+          "Prospect was the first product converted to Blueprint. That made sense — it was the most modern codebase we had, and it's where the early thinking behind Blueprint first took shape. It was also the real test. If Blueprint was as easy to adopt as it needed to be, Prospect would show it.",
+          "It was. The swap was clean. No cascading layout breaks, no weeks of one-off fixes. That's the moment Blueprint stopped being a proposal and became the plan for everything else.",
         ],
       },
       {
         heading: "The rollout",
         body: [
-          "With Prospect as proof, the rollout to the other three products could happen with confidence. The strategy was the same one V2 never got to use: start with the theme layer. Push the tokens across all four apps in a single coordinated release. Keep the visual change gentle enough that users notice the consistency without noticing the change.",
-          "That went live in 2026. Components migrate incrementally from there, app by app, as teams touch features. There is no flag day, no frozen roadmap. A lint rule quietly keeps everyone honest in the meantime.",
-          "The deal pipeline from the opening screen is a good measure of how far that migration went.",
+          "With Prospect as proof, the rollout to the other three products could happen with confidence. The strategy was the one V2 never got to use: start with the theme layer, push the tokens across all four apps in a single coordinated release, and keep the visual change gentle enough that users would notice the consistency without noticing the change.",
+          "That went live in 2026. Components migrate incrementally from there, app by app, as teams touch features. No flag day, no frozen roadmap — a lint rule quietly keeps everyone honest in the meantime.",
+          "Look back at the deal pipeline from the top of this case study. That's the clearest measure of how far the migration's come.",
         ],
         figureLayout: "pair",
         figures: [

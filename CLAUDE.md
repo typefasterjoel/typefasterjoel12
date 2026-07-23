@@ -44,6 +44,8 @@ Figure layouts supported on `CaseSection`:
 
 Placeholder images live in `public/work/[slug]/` as SVGs until real exports are ready.
 
+**Voice**: when drafting or revising case study copy, read `design_handoff/voice-guide.md` first — it's a reference built from Joel's own writing (blunt opinions, concrete metaphors over abstractions, short punchy closers, no corporate softeners) so drafts sound like him, not generic AI copy.
+
 ## Design tokens
 
 Single gold accent, editorial type scale (Space Grotesk + Space Mono), light "studio" + dark "terminal" themes. Everything via CSS custom properties — no hardcoded colors in components.
