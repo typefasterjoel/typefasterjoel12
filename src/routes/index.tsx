@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { SectionMarker } from "#/components/SectionMarker";
 import { About } from "#/components/home/About";
 import { Career } from "#/components/home/Career";
 import { Contact } from "#/components/home/Contact";
@@ -17,7 +16,6 @@ export const Route = createFileRoute("/")({
 function Home() {
 	return (
 		<>
-			<SectionMarker />
 			<Hero />
 			<Path />
 			<Work />

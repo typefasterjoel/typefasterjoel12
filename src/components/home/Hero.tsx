@@ -109,7 +109,7 @@ export function Hero() {
 				aria-label="Scroll down"
 			>
 				<span className="line" aria-hidden="true" />
-				<span className="mono-label">wander down</span>
+				<span className="marker-label">wander down</span>
 			</button>
 		</section>
 	);

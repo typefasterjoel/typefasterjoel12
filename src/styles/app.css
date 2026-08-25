@@ -469,6 +469,10 @@ button {
 	margin-bottom: var(--s-2);
 }
 
+.section-horizon {
+	margin-bottom: var(--s-6);
+}
+
 /* The hero's horizon keeps its GSAP draw-in — the signature arrival beat.
    It is now the first instance of a system rather than a one-off. */
 .hero-horizon {
@@ -540,7 +544,7 @@ button {
 /* The cue is the destination the constellation points at — it breathes.
    Pulse + bob live on the label (not the button) so they never fight the
    GSAP crest entrance, which animates the button's opacity and transform. */
-.scroll-cue .mono-label {
+.scroll-cue .marker-label {
   display: inline-block; /* transform needs a box for the bob */
   animation: cue-pulse 4.2s ease-in-out infinite;
 }
@@ -548,7 +552,7 @@ button {
   .scroll-cue .line {
     animation: cue-trail 2.4s var(--ease-out) infinite;
   }
-  .scroll-cue .mono-label {
+  .scroll-cue .marker-label {
     animation:
       cue-pulse 4.2s ease-in-out infinite,
       cue-bob 4.2s ease-in-out infinite;

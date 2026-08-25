@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
 import { useState } from "react";
 import { Reveal } from "#/components/Reveal";
+import { SectionHorizon } from "#/components/SectionHorizon";
 import { SideQuestCard } from "#/components/SideQuestCard";
 import { SideQuestModal } from "#/components/SideQuestModal";
 import { projects } from "#/data/projects";
@@ -15,6 +16,7 @@ export function Work() {
 
 	return (
 		<section className="section container" id="work">
+			<SectionHorizon label="selected work" distance="near" />
 			<div className="section-head">
 				<Reveal>
 					<h2 className="h2">Places worth stopping.</h2>
@@ -62,8 +64,8 @@ export function Work() {
 							className="cluster"
 							style={{ justifyContent: "space-between", alignItems: "baseline" }}
 						>
-							<p className="mono-label">{"// a few side quests"}</p>
-							<Link to="/work" hash="side-quests" className="mono-label">
+							<p className="marker-label">a few side quests</p>
+							<Link to="/work" hash="side-quests" className="marker-label">
 								See all
 								<span className="arrow" aria-hidden="true">
 									<ArrowUpRight size={14} />

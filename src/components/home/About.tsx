@@ -1,4 +1,5 @@
 import { Reveal } from "#/components/Reveal";
+import { SectionHorizon } from "#/components/SectionHorizon";
 import { EXPERIENCE_LABEL } from "#/data/resume";
 
 const SKILLS = [
@@ -14,6 +15,7 @@ const SKILLS = [
 export function About() {
 	return (
 		<section className="section container" id="about">
+			<SectionHorizon label="the traveler" distance="mid" />
 			<div className="about-prose">
 				<Reveal delay={0.08}>
 					<h2 className="h2">Hi, I'm Joel.</h2>

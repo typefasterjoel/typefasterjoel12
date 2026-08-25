@@ -2,12 +2,14 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { btnClass } from "#/components/Button";
 import { Reveal } from "#/components/Reveal";
+import { SectionHorizon } from "#/components/SectionHorizon";
 import { Timeline } from "#/components/Timeline";
 import { EXPERIENCE_LABEL, getRecentRoles, roles } from "#/data/resume";
 
 export function Career() {
 	return (
 		<section className="section container" id="career">
+			<SectionHorizon label="the road taken" distance="mid" />
 			<div className="section-head">
 				<Reveal>
 					<h2 className="h2">Where I've traveled.</h2>
