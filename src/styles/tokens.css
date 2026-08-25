@@ -1,60 +1,83 @@
 /* ============================================================
-   typefasterjoel — Foundations: Color + Type tokens
+   typefasterjoel — Foundations
    ------------------------------------------------------------
-   Monochrome warm-ink scale + one punchy gold accent (pulled
-   from the logo). Light-first with a dark "terminal" mode.
-   Body/display: Space Grotesk. Mono accents: Space Mono.
+   There is no fixed accent colour in this file, and no per-theme
+   block. Every colour arrives from `sky-palette.ts` at runtime,
+   derived from the visitor's local clock: the accent IS the light
+   source, so it is white-gold at noon, amber at dusk and
+   moon-silver at night.
 
-   Fonts are self-hosted — see ./fonts.css.
+   The values below are FALLBACKS ONLY — the pre-hydration paint,
+   and the floor if JS never runs. They are the noon state.
+
+   Fonts: ./fonts.css
+   Derivation: ../lib/sky-palette.ts
    ============================================================ */
+
+/* Registered so they interpolate. font-variation-settings will not
+   animate through an unregistered custom property, and --light-angle
+   has to be a real <angle> for the sin()/cos() shadow maths. */
+@property --display-wght {
+	syntax: "<number>";
+	inherits: true;
+	initial-value: 300;
+}
+@property --display-opsz {
+	syntax: "<number>";
+	inherits: true;
+	initial-value: 72;
+}
+@property --body-wght {
+	syntax: "<number>";
+	inherits: true;
+	initial-value: 400;
+}
+@property --light-angle {
+	syntax: "<angle>";
+	inherits: true;
+	initial-value: 0deg;
+}
+@property --shadow-dist {
+	syntax: "<length>";
+	inherits: true;
+	initial-value: 8px;
+}
 
 :root {
 	/* ---- Font families ---- */
-	--font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+	--font-display: "Newsreader Variable", ui-serif, Georgia, serif;
+	--font-body: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
 	--font-mono: "Space Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
-	/* ---- Brand accent (gold, from the logo) ---- */
-	--gold-300: #e7cd8e;
-	--gold-400: #d8b477; /* logo gradient top */
-	--gold-500: #c9a24a; /* signature gold */
-	--gold-600: #9b7844; /* logo gradient bottom */
-	--gold-700: #7a5e32;
+	/* ---- Sky (written by sky-time.tsx; noon fallback) ---- */
+	--sky-high: #7e9bb4;
+	--sky-low: #efe6d2;
+	--light: #fff7e0;
 
-	/* ---- Neutral warm-ink ramp (light surfaces -> dark ink) ---- */
-	--ink-0: #f2f0e9; /* page paper */
-	--ink-50: #f4f2ec; /* raised surface */
-	--ink-100: #edeae1; /* sunken / hover */
-	--ink-200: #e4e0d6; /* hairline border */
-	--ink-300: #cfc9bb; /* strong border */
-	--ink-400: #a8a294; /* disabled text */
-	--ink-500: #8c8678; /* tertiary text */
-	--ink-600: #57534a; /* secondary text */
-	--ink-800: #2a2720; /* near-black warm */
-	--ink-900: #16140f; /* primary ink */
+	/* ---- Ground and ink ---- */
+	--ground: #ede7da;
+	--surface: #e6dfd0;
+	--surface-2: #ded7c7;
+	--border: #d2cbba;
+	--border-strong: #bab3a2;
 
-	/* ---- Semantic — LIGHT (default) ---- */
-	--bg: var(--ink-0);
-	--surface: #ffffff;
-	--surface-2: var(--ink-50);
-	--sunken: var(--ink-100);
+	--ink: #1a1815;
+	--ink-1: #4a463f;
+	--ink-2: #6f6a61;
 
-	--fg: var(--ink-900);
-	--fg-1: var(--ink-600);
-	--fg-2: var(--ink-500);
-	--fg-disabled: var(--ink-400);
+	/* ---- Accent: the light source, made legible ---- */
+	--accent: #7a6320;
+	--accent-strong: #9c8030;
+	--on-accent: #ffffff;
 
-	--border: var(--ink-200);
-	--border-strong: var(--ink-300);
+	/* ---- Light direction ---- */
+	--light-angle: 0deg;
+	--shadow-dist: 8px;
 
-	--accent: var(--gold-500);
-	--accent-hover: var(--gold-600);
-	--accent-ink: #8c6a2e; /* accent that passes contrast as text on light */
-	--on-accent: #1a1408; /* text on a gold fill */
-	--accent-soft: #f6edd8; /* tinted gold surface */
-
-	/* status — used sparingly */
-	--positive: #4f7a3a;
-	--negative: #b3452f;
+	/* ---- Type axes (driven by sky luminance) ---- */
+	--display-opsz: 72;
+	--display-wght: 300;
+	--body-wght: 400;
 
 	/* ---- Radii ---- */
 	--r-xs: 4px;
@@ -76,14 +99,22 @@
 	--s-9: 96px;
 	--s-10: 128px;
 
-	/* ---- Elevation (warm, low, soft) ---- */
-	--shadow-sm:
-		0 1px 2px rgba(22, 20, 15, 0.06), 0 1px 1px rgba(22, 20, 15, 0.04);
-	--shadow-md:
-		0 4px 14px rgba(22, 20, 15, 0.08), 0 2px 6px rgba(22, 20, 15, 0.05);
-	--shadow-lg:
-		0 18px 50px rgba(22, 20, 15, 0.14), 0 6px 16px rgba(22, 20, 15, 0.07);
-	--shadow-glow: 0 0 0 1px var(--gold-500), 0 8px 30px rgba(201, 162, 74, 0.28);
+	/* ---- Layout. Not colour, so the clock never touches these —
+	       they belong with the spacing scale, not the palette. ---- */
+	--maxw: 1200px;
+	--gutter: clamp(20px, 5vw, 64px);
+
+	/* ---- Elevation: offsets follow the sun, so every shadow on the
+	       page points away from wherever the light actually is. ---- */
+	--shadow-x: calc(-1 * sin(var(--light-angle)) * var(--shadow-dist));
+	--shadow-y: calc(max(cos(var(--light-angle)), 0.25) * var(--shadow-dist));
+
+	--shadow-sm: calc(var(--shadow-x) * 0.25) calc(var(--shadow-y) * 0.25) 3px
+		rgb(0 0 0 / 0.08);
+	--shadow-md: calc(var(--shadow-x) * 0.5) calc(var(--shadow-y) * 0.5) 12px
+		rgb(0 0 0 / 0.1);
+	--shadow-lg: var(--shadow-x) var(--shadow-y) 40px rgb(0 0 0 / 0.16);
+	--shadow-glow: 0 0 0 1px var(--accent-strong);
 
 	/* ---- Motion ---- */
 	--ease-out: cubic-bezier(0.2, 0.7, 0.2, 1);
@@ -92,102 +123,100 @@
 	--dur-2: 0.26s;
 	--dur-3: 0.5s;
 
-	/* ---- Layout ---- */
-	--maxw: 1200px;
-	--gutter: clamp(20px, 5vw, 64px);
+	/* Palette changes crossfade rather than snapping. The clock ticks once a
+	   minute, so this is only ever seen on scrubber input. */
+	--dur-sky: 1.2s;
 }
 
-/* ---- Semantic — DARK ("terminal" / dusk) ---- */
-[data-theme="dark"] {
-	--bg: #07080b;
-	--surface: #0d0e12;
-	--surface-2: #121317;
-	--sunken: #16171b;
-
-	--fg: #f0ede6;
-	--fg-1: #b0aaa0;
-	--fg-2: #7a746c;
-	--fg-disabled: #56524d;
-
-	--border: #1f2025;
-	--border-strong: #2a2b31;
-
-	--accent: var(--gold-400);
-	--accent-hover: var(--gold-300);
-	--accent-ink: var(--gold-400);
-	--on-accent: #1a1408;
-	--accent-soft: #211a0e;
-
-	--positive: #87c06a;
-	--negative: #e0775f;
-
-	--shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-	--shadow-md: 0 6px 18px rgba(0, 0, 0, 0.5);
-	--shadow-lg: 0 22px 60px rgba(0, 0, 0, 0.6);
-	--shadow-glow: 0 0 0 1px var(--gold-400), 0 8px 34px rgba(216, 180, 119, 0.3);
+/* Browsers without CSS trig get a fixed light direction rather than a
+   broken calc(). */
+@supports not (width: calc(sin(1rad) * 1px)) {
+	:root {
+		--shadow-x: 0px;
+		--shadow-y: var(--shadow-dist);
+	}
 }
 
 /* ============================================================
-   Base element styling — opt in by wrapping content in
-   .tfj or applying to <body>.
+   Base element styling
    ============================================================ */
 .tfj {
-	font-family: var(--font-sans);
-	color: var(--fg);
-	background: var(--bg);
+	font-family: var(--font-body);
+	font-variation-settings: "wght" var(--body-wght);
+	color: var(--ink);
+	background: var(--ground);
 	font-size: 16px;
 	line-height: 1.6;
-	font-feature-settings: "ss01", "ss02";
 	-webkit-font-smoothing: antialiased;
 	text-rendering: optimizeLegibility;
+	/* The ground switches state hard at each terminator — a smooth
+	   luminance crossfade would park the page in a band where no ink
+	   colour is readable. This transition is what makes that switch
+	   read as a fade rather than a flash. It is not decoration. */
+	transition:
+		background-color var(--dur-sky) var(--ease-out),
+		color var(--dur-sky) var(--ease-out);
 }
 
-/* ---- Type scale ---- */
+/* ---- Type scale ----
+   Display face for headings, body face for prose. Two voices, not one
+   voice at different sizes. */
 .tfj h1,
 .h1 {
-	font-family: var(--font-sans);
-	font-weight: 600;
+	font-family: var(--font-display);
+	font-variation-settings:
+		"opsz" var(--display-opsz),
+		"wght" var(--display-wght);
 	font-size: clamp(40px, 7vw, 76px);
-	line-height: 1.02;
-	letter-spacing: -0.03em;
+	line-height: 1.04;
+	letter-spacing: -0.02em;
 	text-wrap: balance;
 }
 .tfj h2,
 .h2 {
-	font-weight: 600;
+	font-family: var(--font-display);
+	font-variation-settings:
+		"opsz" var(--display-opsz),
+		"wght" calc(var(--display-wght) + 40);
 	font-size: clamp(30px, 4.5vw, 46px);
-	line-height: 1.06;
-	letter-spacing: -0.025em;
+	line-height: 1.1;
+	letter-spacing: -0.015em;
 	text-wrap: balance;
 }
 .tfj h3,
 .h3 {
-	font-weight: 600;
+	font-family: var(--font-display);
+	font-variation-settings:
+		"opsz" 32,
+		"wght" calc(var(--display-wght) + 100);
 	font-size: clamp(22px, 2.6vw, 28px);
-	line-height: 1.15;
-	letter-spacing: -0.015em;
+	line-height: 1.2;
+	letter-spacing: -0.01em;
 }
 .tfj h4,
 .h4 {
-	font-weight: 500;
+	font-family: var(--font-body);
+	font-variation-settings: "wght" calc(var(--body-wght) + 150);
 	font-size: 18px;
-	line-height: 1.3;
-	letter-spacing: -0.01em;
+	line-height: 1.35;
 }
 
-/* Oversized display — hero only */
+/* Oversized display — hero only. This is where the opsz axis earns its
+   keep: at these sizes the stroke contrast is the whole personality. */
 .display {
-	font-family: var(--font-sans);
-	font-weight: 500;
-	font-size: clamp(64px, 13vw, 168px);
-	line-height: 0.92;
-	letter-spacing: -0.045em;
+	font-family: var(--font-display);
+	font-variation-settings:
+		"opsz" var(--display-opsz),
+		"wght" var(--display-wght);
+	font-size: clamp(64px, 12vw, 152px);
+	line-height: 0.94;
+	letter-spacing: -0.03em;
 }
 
 .body-lg {
 	font-size: clamp(18px, 1.4vw, 20px);
 	line-height: 1.6;
-	color: var(--fg-1);
+	color: var(--ink-1);
 }
 .body {
 	font-size: 16px;
@@ -196,19 +225,11 @@
 .small {
 	font-size: 14px;
 	line-height: 1.5;
-	color: var(--fg-1);
+	color: var(--ink-1);
 }
 
-/* Mono label — the workhorse "design-engineer" detail.
-   Uppercase, letterspaced, often with a leading // or index. */
-.mono-label {
-	font-family: var(--font-mono);
-	font-size: 12px;
-	font-weight: 400;
-	letter-spacing: 0.14em;
-	text-transform: uppercase;
-	color: var(--fg-2);
-}
+/* The old .mono-label is gone. Section names and eyebrows are set in the
+   display face, italic — see .marker-label in app.css. Mono is code only. */
 .mono {
 	font-family: var(--font-mono);
 	font-size: 13px;
@@ -220,7 +241,7 @@ a {
 	text-decoration: none;
 }
 .link {
-	color: var(--accent-ink);
+	color: var(--accent);
 	text-decoration: none;
 	border-bottom: 1px solid color-mix(in oklab, var(--accent) 40%, transparent);
 	transition: border-color var(--dur-1) var(--ease-out);
@@ -230,6 +251,6 @@ a {
 }
 
 ::selection {
-	background: var(--gold-500);
-	color: #1a1408;
+	background: var(--accent);
+	color: var(--on-accent);
 }

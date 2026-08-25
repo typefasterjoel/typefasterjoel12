@@ -64,9 +64,9 @@ button {
   height: 10px;
 }
 ::-webkit-scrollbar-thumb {
-  background: color-mix(in oklab, var(--fg) 18%, transparent);
+  background: color-mix(in oklab, var(--ink) 18%, transparent);
   border-radius: var(--r-pill);
-  border: 3px solid var(--bg);
+  border: 3px solid var(--ground);
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -110,7 +110,7 @@ button {
   margin-bottom: var(--s-7);
 }
 .eyebrow {
-  color: var(--fg-2);
+  color: var(--ink-2);
 }
 .measure {
   max-width: 56ch;
@@ -136,10 +136,6 @@ button {
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-}
-
-[data-theme="dark"] .atmosphere::after {
-  opacity: 0.32;
 }
 
 @keyframes bloom-breathe {
@@ -201,7 +197,7 @@ button {
   font-size: 11px;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--fg-2);
+  color: var(--ink-2);
   white-space: nowrap;
   writing-mode: vertical-rl;
   transform: rotate(180deg);
@@ -269,7 +265,7 @@ button {
     padding var(--dur-3) var(--ease-out);
 }
 .site-nav[data-scrolled="true"] {
-  background: color-mix(in oklab, var(--bg) 80%, transparent);
+  background: color-mix(in oklab, var(--ground) 80%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom-color: var(--border);
@@ -279,7 +275,7 @@ button {
   display: inline-flex;
   align-items: center;
   gap: var(--s-3);
-  color: var(--fg);
+  color: var(--ink);
 }
 .nav-brand .logo {
   color: var(--accent);
@@ -300,12 +296,12 @@ button {
   font-size: 12px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--fg-1);
+  color: var(--ink-1);
   position: relative;
   transition: color var(--dur-1) var(--ease-out);
 }
 .nav-link:hover {
-  color: var(--fg);
+  color: var(--ink);
 }
 .nav-actions {
   display: flex;
@@ -321,7 +317,7 @@ button {
   border-radius: var(--r-pill);
   border: 1px solid var(--border);
   background: color-mix(in oklab, var(--surface) 70%, transparent);
-  color: var(--fg-1);
+  color: var(--ink-1);
   cursor: pointer;
   transition:
     color var(--dur-1) var(--ease-out),
@@ -329,7 +325,7 @@ button {
     background var(--dur-1) var(--ease-out);
 }
 .icon-btn:hover {
-  color: var(--fg);
+  color: var(--ink);
   border-color: var(--border-strong);
 }
 .nav-burger {
@@ -358,8 +354,8 @@ button {
   background: transparent;
   border: none;
   border-bottom: 1px solid var(--border);
-  color: var(--fg);
-  font-family: var(--font-sans);
+  color: var(--ink);
+  font-family: var(--font-body);
   font-size: 18px;
   cursor: pointer;
   transition:
@@ -371,10 +367,10 @@ button {
 }
 .nav-sheet-link:hover {
   padding-left: calc(var(--s-5) + 8px);
-  background: var(--sunken);
+  background: var(--surface-2);
 }
 .nav-sheet-link .arrow {
-  color: var(--accent-ink);
+  color: var(--accent);
 }
 
 @media (max-width: 760px) {
@@ -400,7 +396,7 @@ button {
   z-index: 200;
   display: grid;
   place-items: center;
-  background: var(--bg);
+  background: var(--ground);
   overflow: hidden;
 }
 .preloader[hidden] {
@@ -417,7 +413,7 @@ button {
 .preloader-logo {
   width: 40px;
   height: auto;
-  color: var(--fg-2);
+  color: var(--ink-2);
   opacity: 0.7;
 }
 .preloader-wordmark {
@@ -425,7 +421,7 @@ button {
   font-size: 12px;
   letter-spacing: 0.18em;
   text-transform: lowercase;
-  color: var(--fg-2);
+  color: var(--ink-2);
   will-change: opacity, transform;
 }
 /* "first light" — a fine warm ray draws across the horizon while a soft bloom
@@ -437,8 +433,8 @@ button {
   pointer-events: none;
   background: radial-gradient(
     125% 75% at 50% 118%,
-    color-mix(in oklab, var(--gold-300) 55%, transparent) 0%,
-    color-mix(in oklab, var(--gold-300) 14%, transparent) 34%,
+    color-mix(in oklab, var(--accent-strong) 55%, transparent) 0%,
+    color-mix(in oklab, var(--accent-strong) 14%, transparent) 34%,
     transparent 62%
   );
   opacity: 0;
@@ -461,7 +457,7 @@ button {
   max-width: 14ch;
 }
 .hero-title .accent {
-  color: var(--accent-ink);
+  color: var(--accent);
 }
 
 /* The horizon — the signature element. A hairline of golden light that draws in
@@ -473,8 +469,8 @@ button {
   margin-block: var(--s-5);
   background: linear-gradient(
     90deg,
-    var(--gold-500) 0%,
-    color-mix(in oklab, var(--gold-300) 60%, transparent) 65%,
+    var(--accent-strong) 0%,
+    color-mix(in oklab, var(--accent-strong) 60%, transparent) 65%,
     transparent 100%
   );
   transform-origin: left center;
@@ -484,7 +480,7 @@ button {
 .hero-byline {
   font-size: clamp(16px, 1.4vw, 18px);
   line-height: 1.75;
-  color: var(--fg-1);
+  color: var(--ink-1);
 }
 .hero-cta {
   margin-top: var(--s-6);
@@ -515,14 +511,14 @@ button {
   display: inline-flex;
   align-items: center;
   gap: var(--s-3);
-  color: var(--fg-2);
+  color: var(--ink-2);
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
 }
 .scroll-cue:hover {
-  color: var(--fg-1);
+  color: var(--ink-1);
 }
 .hero > .scroll-cue {
   z-index: 1;
@@ -597,10 +593,10 @@ button {
 }
 .path-body {
   margin: 0;
-  color: var(--fg-1);
+  color: var(--ink-1);
 }
 .accent-word {
-  color: var(--accent-ink);
+  color: var(--accent);
   font-weight: 600;
 }
 
@@ -627,8 +623,8 @@ button {
     background var(--dur-2) var(--ease-out);
 }
 .work-list-link:hover {
-  border-left-color: var(--gold-500);
-  background: var(--accent-soft);
+  border-left-color: var(--accent-strong);
+  background: color-mix(in oklab, var(--accent) 12%, var(--ground));
 }
 .work-list-row {
   display: flex;
@@ -639,27 +635,27 @@ button {
 .work-list-index {
   flex-shrink: 0;
   width: 2ch;
-  color: var(--fg-2);
+  color: var(--ink-2);
 }
 .work-list-title {
   flex: 1;
   font-size: clamp(20px, 2.6vw, 28px);
   font-weight: 500;
   letter-spacing: -0.02em;
-  color: var(--fg);
+  color: var(--ink);
   transition: color var(--dur-2) var(--ease-out);
 }
 .work-list-link:hover .work-list-title {
-  color: var(--accent-ink);
+  color: var(--accent);
 }
 .work-list-summary {
   flex: 1.5;
   font-size: 14px;
-  color: var(--fg-1);
+  color: var(--ink-1);
   line-height: 1.5;
 }
 .work-list-arrow {
-  color: var(--accent-ink);
+  color: var(--accent);
   opacity: 0;
   transform: translate(-2px, 2px);
   transition:
@@ -684,7 +680,7 @@ button {
   overflow: hidden;
   padding: 0 0 0 calc(2ch + var(--s-5));
   font-size: 14px;
-  color: var(--fg-1);
+  color: var(--ink-1);
   line-height: 1.6;
   max-width: 60ch;
   margin: 0;
@@ -723,13 +719,13 @@ button {
   font-family: var(--font-mono);
   font-size: 12px;
   letter-spacing: 0.04em;
-  color: var(--fg-1);
+  color: var(--ink-1);
   display: flex;
   align-items: center;
   gap: var(--s-2);
 }
 .skills-marker {
-  color: var(--gold-500);
+  color: var(--accent-strong);
   font-family: var(--font-mono);
 }
 
@@ -750,13 +746,13 @@ button {
   background:
     radial-gradient(
       100% 70% at 50% 120%,
-      color-mix(in oklab, var(--gold-300) 45%, transparent),
+      color-mix(in oklab, var(--accent-strong) 45%, transparent),
       transparent 60%
     ),
     var(--surface-2);
   display: grid;
   place-items: center;
-  color: var(--fg-2);
+  color: var(--ink-2);
   overflow: hidden;
 }
 
@@ -791,7 +787,7 @@ button {
   font-family: var(--font-mono);
   font-size: 12px;
   letter-spacing: 0.04em;
-  color: var(--fg-1);
+  color: var(--ink-1);
   border: 1px solid var(--border);
   background: color-mix(in oklab, var(--surface) 70%, transparent);
   padding: 8px 14px;
@@ -804,7 +800,7 @@ button {
     border-color var(--dur-1) var(--ease-out);
 }
 .chip:hover {
-  color: var(--fg);
+  color: var(--ink);
   border-color: var(--border-strong);
 }
 
@@ -815,7 +811,7 @@ button {
   border-top: 1px solid var(--border);
   padding-block: var(--s-7);
   margin-top: var(--s-9);
-  background: color-mix(in oklab, var(--bg) 80%, transparent);
+  background: color-mix(in oklab, var(--ground) 80%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
 }
@@ -847,7 +843,7 @@ button {
   gap: var(--s-5);
   z-index: 2;
   /* Frosted glass so the gallery drifts behind without a harsh block */
-  background: color-mix(in oklab, var(--bg) 60%, transparent);
+  background: color-mix(in oklab, var(--ground) 60%, transparent);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   border-radius: var(--r-lg);
@@ -866,13 +862,13 @@ button {
   background:
     radial-gradient(
       110% 80% at 50% 120%,
-      color-mix(in oklab, var(--gold-300) 38%, transparent),
+      color-mix(in oklab, var(--accent-strong) 38%, transparent),
       transparent 60%
     ),
     var(--surface-2);
   display: grid;
   place-items: center;
-  color: var(--fg-2);
+  color: var(--ink-2);
   margin-block: var(--s-6);
 }
 .case-prose {
@@ -880,7 +876,7 @@ button {
 }
 .case-prose p {
   margin-block: var(--s-4);
-  color: var(--fg-1);
+  color: var(--ink-1);
 }
 
 /* image figure — the img carries the frame, so the figure grows to fit a
@@ -947,8 +943,8 @@ button {
 .case-figure-trigger:hover::before,
 .case-figure-trigger:focus-visible::before {
   box-shadow:
-    inset 0 0 0 3px color-mix(in oklab, var(--gold-400) 55%, transparent),
-    inset 0 0 40px color-mix(in oklab, var(--gold-300) 40%, transparent);
+    inset 0 0 0 3px color-mix(in oklab, var(--accent-strong) 55%, transparent),
+    inset 0 0 40px color-mix(in oklab, var(--accent-strong) 40%, transparent);
 }
 
 /* Golden sheen — matches .case-gallery-slide-trigger's hover treatment so
@@ -960,7 +956,7 @@ button {
   background: linear-gradient(
     115deg,
     transparent 42%,
-    color-mix(in oklab, var(--gold-300) 55%, transparent) 50%,
+    color-mix(in oklab, var(--accent-strong) 55%, transparent) 50%,
     transparent 58%
   );
   transform: translateX(-160%);
@@ -1117,8 +1113,8 @@ button {
 .case-gallery-slide-trigger:hover::before,
 .case-gallery-slide-trigger:focus-visible::before {
   box-shadow:
-    inset 0 0 0 3px color-mix(in oklab, var(--gold-400) 55%, transparent),
-    inset 0 0 40px color-mix(in oklab, var(--gold-300) 40%, transparent);
+    inset 0 0 0 3px color-mix(in oklab, var(--accent-strong) 55%, transparent),
+    inset 0 0 40px color-mix(in oklab, var(--accent-strong) 40%, transparent);
 }
 
 /* Golden sheen — a diagonal gleam that sweeps once across the thumbnail on
@@ -1130,7 +1126,7 @@ button {
   background: linear-gradient(
     115deg,
     transparent 42%,
-    color-mix(in oklab, var(--gold-300) 55%, transparent) 50%,
+    color-mix(in oklab, var(--accent-strong) 55%, transparent) 50%,
     transparent 58%
   );
   transform: translateX(-160%);
@@ -1151,7 +1147,7 @@ button {
   position: absolute;
   bottom: var(--s-4);
   left: var(--s-5);
-  color: color-mix(in oklab, var(--fg) 60%, transparent);
+  color: color-mix(in oklab, var(--ink) 60%, transparent);
 }
 
 /* Left vignette — softens the edge that tucks behind the sidebar */
@@ -1160,7 +1156,7 @@ button {
   position: absolute;
   inset: 0 auto 0 0;
   width: 120px;
-  background: linear-gradient(to right, var(--bg) 0%, transparent 100%);
+  background: linear-gradient(to right, var(--ground) 0%, transparent 100%);
   z-index: 1;
   pointer-events: none;
 }
@@ -1188,12 +1184,12 @@ button {
   padding: 0;
   border: none;
   cursor: pointer;
-  background: color-mix(in oklab, var(--fg) 22%, transparent);
+  background: color-mix(in oklab, var(--ink) 22%, transparent);
   transition: background 0.25s, transform 0.25s;
 }
 
 .case-gallery-dot[aria-selected="true"] {
-  background: var(--gold-400);
+  background: var(--accent-strong);
   transform: scale(1.4);
 }
 
@@ -1205,8 +1201,8 @@ button {
   height: 32px;
   border-radius: 50%;
   border: 1px solid var(--border);
-  background: color-mix(in oklab, var(--bg) 70%, transparent);
-  color: var(--fg);
+  background: color-mix(in oklab, var(--ground) 70%, transparent);
+  color: var(--ink);
   cursor: pointer;
   transition: background 0.2s, opacity 0.2s;
   backdrop-filter: blur(8px);
@@ -1219,7 +1215,7 @@ button {
 }
 
 .case-gallery-arrow:not(:disabled):hover {
-  background: color-mix(in oklab, var(--bg) 90%, transparent);
+  background: color-mix(in oklab, var(--ground) 90%, transparent);
 }
 
 /* full-screen image lightbox — portaled to document.body */
@@ -1230,7 +1226,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: color-mix(in oklab, var(--bg) 88%, transparent);
+  background: color-mix(in oklab, var(--ground) 88%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   animation: image-modal-in var(--dur-2) var(--ease-out);
@@ -1270,7 +1266,7 @@ button {
   display: flex;
   align-items: center;
   gap: var(--s-4);
-  color: color-mix(in oklab, var(--fg) 60%, transparent);
+  color: color-mix(in oklab, var(--ink) 60%, transparent);
 }
 
 .image-modal-close {
@@ -1319,7 +1315,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: color-mix(in oklab, var(--bg) 88%, transparent);
+  background: color-mix(in oklab, var(--ground) 88%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   animation: image-modal-in var(--dur-2) var(--ease-out);
@@ -1374,7 +1370,7 @@ button {
   margin: 0;
 }
 .case-stat-value {
-  color: var(--fg);
+  color: var(--ink);
 }
 
 /* featured differentiator callout (the AI angle) */
@@ -1383,14 +1379,14 @@ button {
   padding: var(--s-6);
   border-radius: var(--r-lg);
   border: 1px solid color-mix(in oklab, var(--accent) 45%, transparent);
-  background: var(--accent-soft);
+  background: color-mix(in oklab, var(--accent) 12%, var(--ground));
 }
 .case-callout p {
   margin-top: var(--s-3);
   margin-bottom: 0;
 }
 .case-callout-eyebrow {
-  color: var(--accent-ink);
+  color: var(--accent);
 }
 
 /* ============================================================
@@ -1420,7 +1416,7 @@ button {
   top: 0;
   bottom: 0;
   width: 2px;
-  background: var(--gold-500);
+  background: var(--accent-strong);
   transform: scaleY(0);
   transform-origin: top;
   will-change: transform;
@@ -1432,8 +1428,8 @@ button {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: var(--gold-500);
-  box-shadow: 0 0 0 3px var(--bg);
+  background: var(--accent-strong);
+  box-shadow: 0 0 0 3px var(--ground);
 }
 .timeline-entry {
   position: relative;
@@ -1453,25 +1449,25 @@ button {
 .timeline-company {
   font-weight: 600;
   font-size: 17px;
-  color: var(--fg);
+  color: var(--ink);
 }
 .timeline-company small {
   font-weight: 400;
   font-size: 12px;
-  color: var(--ink-400);
+  color: var(--ink-2);
   margin-left: var(--s-2);
 }
 .timeline-dates {
   font-family: var(--font-mono);
   font-size: 11px;
-  color: var(--ink-400);
+  color: var(--ink-2);
   white-space: nowrap;
 }
 .timeline-role {
   display: block;
   font-family: var(--font-mono);
   font-size: 11px;
-  color: var(--gold-600);
+  color: var(--accent);
   margin-top: var(--s-1);
 }
 .timeline-bullets {
@@ -1486,13 +1482,13 @@ button {
   position: relative;
   padding-left: 14px;
   font-size: 13.5px;
-  color: var(--fg-1);
+  color: var(--ink-1);
   line-height: 1.65;
 }
 .timeline-bullets li span {
   position: absolute;
   left: 0;
-  color: var(--gold-500);
+  color: var(--accent-strong);
   font-family: var(--font-mono);
 }
 
@@ -1518,12 +1514,12 @@ button {
   font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--fg-2);
+  color: var(--ink-2);
   margin-bottom: var(--s-7);
   transition: color var(--dur-1) var(--ease-out);
 }
 .resume-back:hover {
-  color: var(--fg);
+  color: var(--ink);
 }
 .resume-section {
   padding-block: var(--s-8);
@@ -1549,7 +1545,7 @@ button {
   font-size: 9px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--gold-500);
+  color: var(--accent-strong);
   margin-bottom: var(--s-3);
 }
 .skill-list {
@@ -1557,7 +1553,7 @@ button {
   margin: 0;
   padding: 0;
   font-size: 13px;
-  color: var(--fg-1);
+  color: var(--ink-1);
   line-height: 1.9;
 }
 
@@ -1581,7 +1577,7 @@ button {
   .resume-print-btn {
     display: none !important;
   }
-  /* Force light ink on white regardless of data-theme */
+  /* Force dark ink on white paper regardless of the hour */
   html,
   body {
     background: #fff !important;

@@ -133,7 +133,7 @@ export function Contact() {
 								</label>
 								<input className="field" id="name" name="name" type="text" />
 								{errors.name && (
-									<span className="small" style={{ color: "var(--negative)" }}>
+									<span className="small" style={{ color: "#b3452f" }}>
 										{errors.name}
 									</span>
 								)}
@@ -150,7 +150,7 @@ export function Contact() {
 									placeholder="you@example.com"
 								/>
 								{errors.email && (
-									<span className="small" style={{ color: "var(--negative)" }}>
+									<span className="small" style={{ color: "#b3452f" }}>
 										{errors.email}
 									</span>
 								)}
@@ -167,7 +167,7 @@ export function Contact() {
 									placeholder="Tell me about it…"
 								/>
 								{errors.message && (
-									<span className="small" style={{ color: "var(--negative)" }}>
+									<span className="small" style={{ color: "#b3452f" }}>
 										{errors.message}
 									</span>
 								)}
