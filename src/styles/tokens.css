@@ -228,8 +228,9 @@
 	color: var(--ink-1);
 }
 
-/* The old .mono-label is gone. Section names and eyebrows are set in the
-   display face, italic — see .marker-label in app.css. Mono is code only. */
+/* The old uppercase-mono eyebrow class is gone. Section names and eyebrows
+   are set in the display face, italic — see .marker-label in app.css.
+   Mono is code only. */
 .mono {
 	font-family: var(--font-mono);
 	font-size: 13px;

@@ -22,7 +22,7 @@ export type CaseLink = {
 
 /** A featured differentiator callout (e.g. the AI angle). */
 export type CaseCallout = {
-  /** mono eyebrow, e.g. "// built for agents" */
+  /** eyebrow, e.g. "built for agents" */
   eyebrow: string;
   heading: string;
   body: string;
@@ -178,7 +178,7 @@ const allProjects: Project[] = [
       },
     ],
     callout: {
-      eyebrow: "// built for humans and machines",
+      eyebrow: "built for humans and machines",
       heading: "A Claude skill ships with the system",
       body: "Blueprint ships a Claude skill alongside the component library. Invoke it with /blueprint, mention a component, or describe a front-end task and it activates on its own. It looks up what's available, dispatches a sub-agent to pull the full component API, and makes sure whatever gets built actually uses Blueprint — not a copy-paste from somewhere else. The system doesn't wait to be rediscovered in a docs tab. It shows up where the work is happening.",
     },
@@ -288,7 +288,7 @@ const allProjects: Project[] = [
       { label: "Company", value: "Buildout · PropTech" },
     ],
     callout: {
-      eyebrow: "// no more tab archaeology",
+      eyebrow: "no more tab archaeology",
       heading: "The AI does the research so brokers can focus on the call",
       body: "Finding the real owner of a commercial property used to mean hours across public records, LLC databases, and search engines, with no guarantee the contact at the end was right. AI Contact Lookup replaced that with a single step. The agent searches, aggregates, matches against our records, and returns a ranked recommendation with every source attached. Brokers get the confidence to make the call and the receipts to back it up.",
     },

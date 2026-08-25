@@ -62,7 +62,7 @@ function Figure({
 				img
 			)}
 			{figure.caption && (
-				<figcaption className="mono-label">{figure.caption}</figcaption>
+				<figcaption className="marker-label">{figure.caption}</figcaption>
 			)}
 		</figure>
 	);
@@ -83,7 +83,7 @@ function CaseStudy() {
 		<article>
 			<section className="case-hero container">
 				<Reveal>
-					<Link to="/" hash="work" className="mono-label">
+					<Link to="/" hash="work" className="marker-label">
 						← back to the trail
 					</Link>
 				</Reveal>
@@ -106,7 +106,7 @@ function CaseStudy() {
 							{project.stats.map((s) => (
 								<div className="case-stat" key={s.label}>
 									<dt className="case-stat-value h3">{s.value}</dt>
-									<dd className="mono-label">{s.label}</dd>
+									<dd className="marker-label">{s.label}</dd>
 								</div>
 							))}
 						</dl>
@@ -119,7 +119,7 @@ function CaseStudy() {
 					<aside className="case-aside">
 						{project.facts.map((f) => (
 							<div className="case-meta-row" key={f.label}>
-								<span className="mono-label">{f.label}</span>
+								<span className="marker-label">{f.label}</span>
 								<span className="body">{f.value}</span>
 							</div>
 						))}
@@ -164,7 +164,7 @@ function CaseStudy() {
 								<Figure figure={project.cover} priority />
 							) : (
 								<div className="case-figure">
-									<span className="mono-label">figure · coming soon</span>
+									<span className="marker-label">figure · coming soon</span>
 								</div>
 							)}
 						</Reveal>
@@ -203,7 +203,7 @@ function CaseStudy() {
 									<Reveal>
 										<div className="case-gallery-intro">
 											{project.galleryIntro.caption && (
-												<p className="mono-label case-gallery-intro-caption">
+												<p className="marker-label case-gallery-intro-caption">
 													{project.galleryIntro.caption}
 												</p>
 											)}
@@ -237,7 +237,7 @@ function CaseStudy() {
 						{project.callout && (
 							<Reveal>
 								<aside className="case-callout">
-									<span className="mono-label case-callout-eyebrow">
+									<span className="marker-label case-callout-eyebrow">
 										{project.callout.eyebrow}
 									</span>
 									<h2 className="h3" style={{ marginTop: "var(--s-3)" }}>
@@ -269,7 +269,7 @@ function CaseStudy() {
 					style={{ marginTop: "var(--s-6)", alignItems: "center" }}
 				>
 					<div className="stack" style={{ gap: "4px" }}>
-						<span className="mono-label">{"// next destination"}</span>
+						<span className="marker-label">"next destination"</span>
 						<span className="h3">{next.title}</span>
 					</div>
 					<Link

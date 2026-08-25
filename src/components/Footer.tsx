@@ -16,7 +16,7 @@ export function Footer() {
 				</div>
 				<button
 					type="button"
-					className="mono-label"
+					className="marker-label"
 					style={{ background: "none", border: "none", cursor: "pointer" }}
 					onClick={() => scrollToTarget("body", { offset: 0 })}
 				>

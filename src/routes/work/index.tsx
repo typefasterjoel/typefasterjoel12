@@ -24,7 +24,7 @@ function WorkIndex() {
 		<article>
 			<section className="section container">
 				<Reveal>
-					<Link to="/" className="mono-label">
+					<Link to="/" className="marker-label">
 						← back home
 					</Link>
 				</Reveal>
@@ -35,8 +35,7 @@ function WorkIndex() {
 					</Reveal>
 					<Reveal delay={0.12}>
 						<p className="small">
-							({String(projects.length).padStart(2, "0")}) destinations · tap
-							one to travel in
+							({projects.length}) destinations · tap one to travel in
 						</p>
 					</Reveal>
 				</div>
@@ -50,9 +49,7 @@ function WorkIndex() {
 								className="work-card"
 							>
 								<div className="work-thumb">
-									<span className="mono-label work-index">
-										{String(i + 1).padStart(2, "0")}
-									</span>
+									<span className="marker-label work-index">{p.year}</span>
 									{p.cover ? (
 										<img
 											src={p.cover.src}
@@ -64,7 +61,7 @@ function WorkIndex() {
 										/>
 									) : (
 										<div className="work-thumb-placeholder">
-											<span className="mono-label">figure · coming soon</span>
+											<span className="marker-label">figure · coming soon</span>
 										</div>
 									)}
 								</div>
@@ -82,7 +79,7 @@ function WorkIndex() {
 										</div>
 									</div>
 									<span className="cluster" style={{ gap: "var(--s-2)" }}>
-										<span className="mono-label">{p.year}</span>
+										<span className="marker-label">{p.year}</span>
 										<span className="arrow" aria-hidden="true">
 											<ArrowRight size={16} />
 										</span>
@@ -96,7 +93,7 @@ function WorkIndex() {
 				{sideQuests.length > 0 && (
 					<div id="side-quests" style={{ marginTop: "var(--s-9)" }}>
 						<Reveal>
-							<p className="mono-label">{"// side quests"}</p>
+							<p className="marker-label">"side quests"</p>
 							<h2 className="h3" style={{ marginTop: "var(--s-2)" }}>
 								A few smaller detours.
 							</h2>

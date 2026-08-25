@@ -156,11 +156,11 @@ export function ImageModal({ figures, index, onIndexChange, onClose }: Props) {
 					decoding="async"
 				/>
 				<div className="image-modal-meta">
-					<span className="mono-label image-modal-counter">
+					<span className="marker-label image-modal-counter">
 						{index + 1} / {figures.length}
 					</span>
 					{figure.caption && (
-						<span className="mono-label image-modal-caption">
+						<span className="marker-label image-modal-caption">
 							{figure.caption}
 						</span>
 					)}
