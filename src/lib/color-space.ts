@@ -38,7 +38,7 @@ function toLinear(channel: number): number {
 	return c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
 }
 
-/** Linear 0-1 -> sRGB 0-255. */
+/** Linear 0-1 -> sRGB 0-255. Clamps, so out-of-gamut input loses its hue. */
 function fromLinear(c: number): number {
 	const v = c <= 0.0031308 ? c * 12.92 : 1.055 * c ** (1 / 2.4) - 0.055;
 	return clamp(v * 255, 0, 255);
@@ -64,7 +64,12 @@ export function rgbToOklab(rgb: Rgb): Oklab {
 	};
 }
 
-export function oklabToRgb(lab: Oklab): Rgb {
+/**
+ * OKLab -> linear sRGB, deliberately unclamped. A channel outside 0-1 means
+ * the colour sits outside the sRGB gamut, which is exactly what the gamut
+ * search below needs to know before `fromLinear` flattens the evidence.
+ */
+function oklabToLinearRgb(lab: Oklab): Rgb {
 	const l_ = lab.L + 0.3963377774 * lab.a + 0.2158037573 * lab.b;
 	const m_ = lab.L - 0.1055613458 * lab.a - 0.0638541728 * lab.b;
 	const s_ = lab.L - 0.0894841775 * lab.a - 1.291485548 * lab.b;
@@ -74,10 +79,15 @@ export function oklabToRgb(lab: Oklab): Rgb {
 	const s = s_ ** 3;
 
 	return {
-		r: fromLinear(4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s),
-		g: fromLinear(-1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s),
-		b: fromLinear(-0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s),
+		r: 4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+		g: -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+		b: -0.0041960863 * l - 0.7034186147 * m + 1.707614701 * s,
 	};
+}
+
+export function oklabToRgb(lab: Oklab): Rgb {
+	const lin = oklabToLinearRgb(lab);
+	return { r: fromLinear(lin.r), g: fromLinear(lin.g), b: fromLinear(lin.b) };
 }
 
 export function oklabToOklch(lab: Oklab): Oklch {
@@ -123,35 +133,75 @@ export function contrastRatio(a: Rgb, b: Rgb): number {
 }
 
 /**
- * Keep a colour's hue and chroma; move its lightness until it clears
- * `targetRatio` against `background`.
+ * True when every linear channel lands inside 0-1, so `fromLinear` will have
+ * nothing to clip.
  *
- * Direction is chosen by the background: on a light ground we darken, on a dark
- * ground we lighten. Binary search on L converges in ~20 iterations and is far
- * simpler to reason about than a closed form, since chroma has to be reduced
- * when the requested L cannot hold it in sRGB gamut.
+ * The bounds are tested with no tolerance on purpose. Float error can only
+ * push the answer a few ulps to the conservative side, costing chroma far
+ * below one 8-bit step; any tolerance in the other direction would let a
+ * channel out of gamut and hand `fromLinear` something to clip.
+ */
+function isInGamut(lch: Oklch): boolean {
+	const { r, g, b } = oklabToLinearRgb(oklchToOklab(lch));
+	const ok = (v: number) => v >= 0 && v <= 1;
+	return ok(r) && ok(g) && ok(b);
+}
+
+/**
+ * The most chroma sRGB will actually hold at this lightness and hue, never
+ * more than `maxC`.
+ *
+ * For a fixed L and h the in-gamut chromas form the interval [0, Cmax], so a
+ * binary search finds the edge. This is the real gamut clamp: it gives up
+ * chroma only where the display genuinely cannot show it, instead of
+ * discarding chroma on a guess. Any chroma past the edge would be silently
+ * clipped by `fromLinear`, and clipping one channel shifts the hue — a
+ * visibly wrong colour, which is worse than a slightly duller correct one.
+ */
+function chromaInGamut(L: number, h: number, maxC: number): number {
+	if (maxC <= 0) return 0;
+	if (isInGamut({ L, C: maxC, h })) return maxC;
+
+	let lo = 0;
+	let hi = maxC;
+	for (let i = 0; i < 32; i++) {
+		const mid = (lo + hi) / 2;
+		if (isInGamut({ L, C: mid, h })) lo = mid;
+		else hi = mid;
+	}
+	return lo;
+}
+
+/**
+ * Keep a colour's hue; move its lightness the smallest distance that clears
+ * `targetRatio` against `background`, then keep as much of its chroma as sRGB
+ * genuinely allows at that lightness.
+ *
+ * Direction is chosen by the background: on a light ground we darken, on a
+ * dark ground we lighten. Binary search on L converges in 24 iterations and is
+ * far simpler to reason about than a closed form. The search always keeps the
+ * *passing* bound nearest the original L, so the returned colour is the least
+ * altered one that still meets the floor.
  */
 export function solveLuminanceForContrast(
 	hue: Oklch,
 	background: Rgb,
 	targetRatio: number,
 ): Oklch {
+	const chromaAt = (L: number) => chromaInGamut(L, hue.h, hue.C);
 	const ratioAt = (L: number, C: number) =>
 		contrastRatio(oklabToRgb(oklchToOklab({ L, C, h: hue.h })), background);
 
-	if (ratioAt(hue.L, hue.C) >= targetRatio) return { ...hue };
+	const startC = chromaAt(hue.L);
+	if (ratioAt(hue.L, startC) >= targetRatio) {
+		return { L: hue.L, C: startC, h: hue.h };
+	}
 
 	const bgIsLight = relativeLuminance(background) > 0.18;
 	// Search between the starting L and the extreme in the darkening/lightening
 	// direction. The extreme always passes for our contrast floors.
 	let lo = bgIsLight ? 0 : hue.L;
 	let hi = bgIsLight ? hue.L : 1;
-
-	// Chroma cannot survive at the extremes of L; taper it with distance.
-	const chromaAt = (L: number) => {
-		const headroom = Math.min(L, 1 - L) / 0.5;
-		return hue.C * clamp(headroom, 0, 1);
-	};
 
 	for (let i = 0; i < 24; i++) {
 		const mid = (lo + hi) / 2;
