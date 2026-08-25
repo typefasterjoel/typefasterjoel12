@@ -620,6 +620,12 @@ button {
   padding: 0;
   margin: 0;
   border-top: 1px solid var(--border);
+	/* Single source of truth for the year column's width — referenced by
+	   .work-list-year and both .work-list-desc rules (desktop + mobile) so
+	   they cannot drift out of alignment with each other. Sized against the
+	   longest real value in projects.ts ("2025 – present", 14 characters)
+	   with headroom for proportional-font rendering. */
+	--work-list-year-w: 18ch;
 }
 .work-list-item {
   border-bottom: 1px solid var(--border);
@@ -647,6 +653,10 @@ button {
 /* The year, not an index. Case studies are not a sequence, so a
    counter encoded nothing true about them. */
 .work-list-year {
+	flex-shrink: 0;
+	min-width: var(--work-list-year-w);
+	text-align: right;
+	white-space: nowrap;
 	font-family: var(--font-body);
 	font-variation-settings: "wght" var(--body-wght);
 	font-size: 14px;
@@ -694,7 +704,7 @@ button {
 }
 .work-list-desc {
   overflow: hidden;
-  padding: 0 0 0 calc(2ch + var(--s-5));
+  padding: 0 0 0 calc(var(--work-list-year-w) + var(--s-5));
   font-size: 14px;
   color: var(--ink-1);
   line-height: 1.6;
@@ -1730,7 +1740,7 @@ button {
   .work-list-desc {
     opacity: 1;
     padding-bottom: var(--s-4);
-    padding-left: calc(2ch + var(--s-4));
+    padding-left: calc(var(--work-list-year-w) + var(--s-4));
   }
   .work-list-row {
     gap: var(--s-3);
