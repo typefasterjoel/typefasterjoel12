@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
 	contrastRatio,
 	hexToRgb,
+	oklabToOklch,
 	relativeLuminance,
 	rgbToOklab,
 } from "./color-space";
@@ -318,5 +319,132 @@ describe("output shape", () => {
 	it("wraps the clock", () => {
 		expect(getPaletteAtHour(25)).toEqual(getPaletteAtHour(1));
 		expect(getPaletteAtHour(-2)).toEqual(getPaletteAtHour(22));
+	});
+});
+
+describe("accent — the light source, made legible", () => {
+	it("clears 4.5:1 on the ground at every minute of the day", () => {
+		// THE headline invariant of the whole design. If this fails, the
+		// palette is not shippable at that hour.
+		const failures: string[] = [];
+		for (let m = 0; m < 1440; m++) {
+			const p = getPaletteAtHour(m / 60);
+			const r = contrastRatio(hexToRgb(p.accent), hexToRgb(p.ground));
+			if (r < 4.5) {
+				const hh = String(Math.floor(m / 60)).padStart(2, "0");
+				const mm = String(m % 60).padStart(2, "0");
+				failures.push(
+					`${hh}:${mm} ratio=${r.toFixed(2)} accent=${p.accent} ground=${p.ground}`,
+				);
+			}
+		}
+		expect(failures).toEqual([]);
+	});
+
+	it("clears 3:1 for accentStrong at every minute", () => {
+		for (let m = 0; m < 1440; m++) {
+			const p = getPaletteAtHour(m / 60);
+			expect(
+				contrastRatio(hexToRgb(p.accentStrong), hexToRgb(p.ground)),
+			).toBeGreaterThanOrEqual(3);
+		}
+	});
+
+	it("keeps the sun's hue and chroma — the accent is recognisably the light", () => {
+		// Swept across every minute, not sampled at a few hand-picked hours: a
+		// solve that drifts does it at the saturated hours, and four samples
+		// walk straight past them. Chroma is asserted alongside hue because
+		// only lightness is supposed to move — an accent that keeps the hue but
+		// washes the colour out is no longer the light source either.
+		for (let m = 0; m < 1440; m++) {
+			const p = getPaletteAtHour(m / 60);
+			const light = oklabToOklch(rgbToOklab(hexToRgb(p.light)));
+			const accent = oklabToOklch(rgbToOklab(hexToRgb(p.accent)));
+
+			// within 12 degrees; gamut clamping can nudge hue slightly
+			const delta = Math.abs(((light.h - accent.h + 540) % 360) - 180);
+			expect(delta).toBeLessThan(12);
+
+			// The gamut boundary legitimately costs a little chroma at low
+			// lightness, but only a little. Anything that clips channels in sRGB
+			// instead of clamping chroma in OKLab loses far more than this.
+			if (light.C > 0.02) {
+				expect(accent.C / light.C).toBeGreaterThan(0.8);
+			}
+		}
+	});
+
+	it("makes accentStrong a real second tier, nearer the light than accent", () => {
+		// accentStrong only owes 3:1, so it gets to stay closer to the sun
+		// colour. Reusing the 4.5:1 solve for both would satisfy every contrast
+		// floor in this file while quietly collapsing the palette to one accent.
+		for (let m = 0; m < 1440; m++) {
+			const p = getPaletteAtHour(m / 60);
+			const toLight = (c: string) =>
+				Math.abs(
+					oklabToOklch(rgbToOklab(hexToRgb(c))).L -
+						oklabToOklch(rgbToOklab(hexToRgb(p.light))).L,
+				);
+
+			if (p.accent === p.light) {
+				// night: the light already clears both floors, so they converge
+				expect(p.accentStrong).toBe(p.light);
+				continue;
+			}
+			expect(p.accentStrong).not.toBe(p.accent);
+			expect(toLight(p.accentStrong)).toBeLessThan(toLight(p.accent));
+			// and it must be the quieter of the two against the ground
+			expect(ratio(p.accentStrong, p.ground)).toBeLessThan(
+				ratio(p.accent, p.ground),
+			);
+		}
+	});
+
+	it("does NOT equal --light during the day", () => {
+		// #fff7e0 on pale stone is invisible; that is why accent exists.
+		expect(getPaletteAtHour(13).accent).not.toBe(getPaletteAtHour(13).light);
+	});
+
+	it("converges with --light at night, where moonlight already passes", () => {
+		const p = getPaletteAtHour(1);
+		const r = contrastRatio(hexToRgb(p.light), hexToRgb(p.ground));
+		expect(r).toBeGreaterThanOrEqual(4.5);
+		expect(p.accent).toBe(p.light);
+	});
+
+	it("picks an onAccent that is readable on the accent fill", () => {
+		for (let m = 0; m < 1440; m += 11) {
+			const p = getPaletteAtHour(m / 60);
+			expect(
+				contrastRatio(hexToRgb(p.onAccent), hexToRgb(p.accent)),
+			).toBeGreaterThanOrEqual(4.5);
+		}
+	});
+
+	it("moves smoothly — no visible accent jump between adjacent minutes", () => {
+		// The two ground crossfades are the only allowed discontinuities, and
+		// even they must not be violent. They are unavoidable: on day stone the
+		// accent has to be dark and on night basalt it has to be light, so the
+		// polarity inverts the instant the ground state flips. Everywhere else
+		// the accent must glide.
+		const jumps: number[] = [];
+		for (let m = 0; m < 1440; m++) {
+			const p = getPaletteAtHour(m / 60);
+			const q = getPaletteAtHour((m + 1) / 60);
+			const a = rgbToOklab(hexToRgb(p.accent));
+			const b = rgbToOklab(hexToRgb(q.accent));
+			const d = Math.hypot(a.L - b.L, a.a - b.a, a.b - b.b);
+
+			if (p.isNight !== q.isNight) {
+				jumps.push(m);
+				// the lamps coming on, not a strobe
+				expect(d).toBeLessThan(0.4);
+			} else {
+				expect(d).toBeLessThan(0.06);
+			}
+		}
+		// Exactly two, and only at the terminators. Without this the exemption
+		// above would excuse an accent that lurched all day long.
+		expect(jumps).toHaveLength(2);
 	});
 });

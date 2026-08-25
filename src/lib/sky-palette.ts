@@ -8,6 +8,7 @@
  * contrast guarantee structural rather than something to re-verify per hour.
  */
 import {
+	contrastRatio,
 	hexToRgb,
 	mixOklab,
 	type Oklch,
@@ -16,6 +17,7 @@ import {
 	oklchToOklab,
 	rgbToHex,
 	rgbToOklab,
+	solveLuminanceForContrast,
 } from "#/lib/color-space";
 import { skyColorsAtHour } from "#/lib/sky-stops";
 import { SUNRISE_HOUR, SUNSET_HOUR, solarStateAtHour } from "#/lib/solar-clock";
@@ -33,6 +35,9 @@ const SKY_TINT = 0.06;
 
 const MAX_SHADOW_DIST = 48;
 const MIN_SHADOW_DIST = 8;
+
+/** How far past a contrast floor to aim, to survive rounding to 8-bit hex. */
+const QUANTISATION_MARGIN = 0.05;
 
 export type SkyPalette = {
 	skyHigh: string;
@@ -92,6 +97,52 @@ function shiftL(hex: string, delta: number): string {
 	return rgbToHex(oklabToRgb(oklchToOklab(next)));
 }
 
+/**
+ * The accent IS the light source — but "#fff7e0 on pale stone" is invisible,
+ * so we keep the sun's hue and chroma and solve only its lightness against the
+ * current ground. At night, moonlight already passes and the two converge.
+ *
+ * This goes through the solver rather than `shiftL` on purpose: `shiftL` does
+ * not clamp chroma to the sRGB gamut, which is harmless on the near-neutral
+ * ground but silently clips a channel — and so shifts the hue — on a saturated
+ * sun colour.
+ */
+function accentFor(lightHex: string, groundHex: string, ratio: number): string {
+	const lightRgb = hexToRgb(lightHex);
+	const groundRgb = hexToRgb(groundHex);
+	if (contrastRatio(lightRgb, groundRgb) >= ratio) return lightHex;
+
+	const lch = oklabToOklch(rgbToOklab(lightRgb));
+	let solved = lightHex;
+	// The solver converges in continuous float RGB, but what ships is 8-bit
+	// hex, and rounding to the nearest channel moves the colour back TOWARD the
+	// ground — enough to drop a hair under the floor (measured worst case:
+	// 4.469 against a 4.5 target). So aim past the floor by a margin, and
+	// verify the QUANTISED colour, escalating if a stubborn hue still lands
+	// short. Without this the invariant fails at 404 of 1440 minutes, all of
+	// them by less than 0.04.
+	for (let i = 1; i <= 8; i++) {
+		const next = solveLuminanceForContrast(
+			lch,
+			groundRgb,
+			ratio + QUANTISATION_MARGIN * i,
+		);
+		solved = rgbToHex(oklabToRgb(oklchToOklab(next)));
+		if (contrastRatio(hexToRgb(solved), groundRgb) >= ratio) break;
+	}
+	return solved;
+}
+
+/** Black or white, whichever is readable on the given fill. */
+function onFill(fillHex: string): string {
+	const fill = hexToRgb(fillHex);
+	const black = { r: 0, g: 0, b: 0 };
+	const white = { r: 255, g: 255, b: 255 };
+	return contrastRatio(black, fill) >= contrastRatio(white, fill)
+		? "#000000"
+		: "#ffffff";
+}
+
 export function getPaletteAtHour(hour: number): SkyPalette {
 	const solar = solarStateAtHour(hour);
 	const sky = skyColorsAtHour(hour);
@@ -128,6 +179,10 @@ export function getPaletteAtHour(hour: number): SkyPalette {
 	const ink1 = shiftL(baseInk, inkDir * 0.16);
 	const ink2 = shiftL(baseInk, inkDir * 0.3);
 
+	// Solved once and reused for onAccent — the solve is a nested binary search,
+	// so calling it twice for the same pair is pure waste.
+	const accent = accentFor(sky.light, ground, 4.5);
+
 	// Shadows lengthen as the sun drops, capped so they never run away.
 	const shadowDist =
 		MIN_SHADOW_DIST +
@@ -145,11 +200,10 @@ export function getPaletteAtHour(hour: number): SkyPalette {
 		ink,
 		ink1,
 		ink2,
-		// Placeholders. The accent trio is solved against the ground in Task 5,
-		// the type axes are derived from the sun in Task 6.
-		accent: sky.light,
-		accentStrong: sky.light,
-		onAccent: "#000000",
+		accent,
+		accentStrong: accentFor(sky.light, ground, 3),
+		onAccent: onFill(accent),
+		// Placeholder. The type axes are derived from the sun in Task 6.
 		lightAngle: solar.azimuth,
 		shadowDist,
 		displayOpsz: 72,
