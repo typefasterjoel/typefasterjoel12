@@ -106,8 +106,19 @@ function shiftL(hex: string, delta: number): string {
  * not clamp chroma to the sRGB gamut, which is harmless on the near-neutral
  * ground but silently clips a channel — and so shifts the hue — on a saturated
  * sun colour.
+ *
+ * Exported only so that guarantee can be tested directly. Sweeping the real
+ * `SKY_STOPS` cannot prove it: the most saturated `--light` stop carries just
+ * C=0.1272, and at that little chroma the gamut barely binds, so a
+ * non-clamping implementation is nearly indistinguishable across the shipped
+ * palette. The test feeds this a deliberately saturated colour instead, where
+ * the difference is 80x. Not called from outside this module.
  */
-function accentFor(lightHex: string, groundHex: string, ratio: number): string {
+export function accentFor(
+	lightHex: string,
+	groundHex: string,
+	ratio: number,
+): string {
 	const lightRgb = hexToRgb(lightHex);
 	const groundRgb = hexToRgb(groundHex);
 	if (contrastRatio(lightRgb, groundRgb) >= ratio) return lightHex;

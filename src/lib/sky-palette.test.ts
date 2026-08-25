@@ -7,6 +7,7 @@ import {
 	rgbToOklab,
 } from "./color-space";
 import {
+	accentFor,
 	CROSSFADE_MINUTES,
 	GROUND_DAY,
 	GROUND_NIGHT,
@@ -366,11 +367,50 @@ describe("accent — the light source, made legible", () => {
 			expect(delta).toBeLessThan(12);
 
 			// The gamut boundary legitimately costs a little chroma at low
-			// lightness, but only a little. Anything that clips channels in sRGB
-			// instead of clamping chroma in OKLab loses far more than this.
+			// lightness, but only a little — the accent must stay coloured.
+			//
+			// This does NOT prove the derivation gamut-clamps. Across the real
+			// stops a non-clamping implementation scores ~0.959 retention and
+			// ~3deg drift, well inside these bounds, because the most saturated
+			// --light stop is only C=0.1272. That guarantee is tested directly,
+			// on a saturated input, in "clamps chroma to the gamut" below.
 			if (light.C > 0.02) {
 				expect(accent.C / light.C).toBeGreaterThan(0.8);
 			}
+		}
+	});
+
+	it("clamps chroma to the gamut rather than clipping channels in sRGB", () => {
+		// The structural guard on the derivation, deliberately independent of
+		// SKY_STOPS. Today's most saturated --light stop is only C=0.1272, and
+		// at that little chroma the gamut hardly binds, so sweeping the real
+		// palette cannot tell a clamping solve from a non-clamping one. Feed it
+		// genuinely saturated light instead, near the sRGB boundary, where
+		// darkening forces a real chroma decision.
+		//
+		// Hue is the discriminator, NOT chroma retention. Clipping channels in
+		// sRGB actually preserves *more* apparent chroma than clamping does
+		// (0.905 vs 0.702 on the orange below) — it just swings the hue while
+		// doing it, which is the visibly wrong outcome. So a chroma floor here
+		// would reward the bug.
+		//
+		// Measured drift for these four: this implementation 0.00-0.18deg;
+		// a shiftL-derived one 4.23-16.33deg; a shiftL bisect 3.17-16.86deg.
+		const SATURATED = ["#ff8a00", "#ffc400", "#ffff00", "#00ffff"];
+		const dayGround = getPaletteAtHour(13).ground;
+
+		for (const light of SATURATED) {
+			const solved = accentFor(light, dayGround, 4.5);
+			const before = oklabToOklch(rgbToOklab(hexToRgb(light)));
+			const after = oklabToOklch(rgbToOklab(hexToRgb(solved)));
+
+			// the solve must actually have engaged
+			expect(solved).not.toBe(light);
+			expect(ratio(solved, dayGround)).toBeGreaterThanOrEqual(4.5);
+
+			// and it must have moved lightness ONLY
+			const delta = Math.abs(((before.h - after.h + 540) % 360) - 180);
+			expect(delta).toBeLessThan(2);
 		}
 	});
 
