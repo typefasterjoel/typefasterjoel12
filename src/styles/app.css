@@ -111,26 +111,45 @@ button {
 }
 
 /* ============================================================
-   Atmosphere — the serene golden-hour field.
-   Pure-CSS base + the static fallback for the Phase-2 WebGL canvas.
+   The sky — the hour you arrived.
+   Fixed for the visit. Never responds to scroll or pointer:
+   the visitor moves along the ground, the sky does not move.
+   Part 2 mounts a WebGL canvas into .sky-root; these gradients
+   are the no-WebGL fallback and the pre-hydration paint.
    ============================================================ */
-.atmosphere {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
+.sky-root {
+	position: fixed;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+	overflow: hidden;
+	background: linear-gradient(
+		to bottom,
+		var(--sky-high) 0%,
+		var(--sky-low) 100%
+	);
+	transition: background var(--dur-sky) var(--ease-out);
 }
 
-@keyframes bloom-breathe {
-  from {
-    transform: translateY(0) scale(1);
-    opacity: 0.42;
-  }
-  to {
-    transform: translateY(-3vmax) scale(1.06);
-    opacity: 0.55;
-  }
+/* The light itself — a soft disc where the sun or moon actually is.
+   Horizontal position tracks --light-angle so it agrees with every
+   shadow on the page. */
+.sky-root::before {
+	content: "";
+	position: absolute;
+	left: calc(50% + var(--light-angle) * 0.4);
+	top: 22%;
+	width: 42vmax;
+	height: 42vmax;
+	transform: translate(-50%, -50%);
+	background: radial-gradient(
+		circle,
+		var(--light) 0%,
+		color-mix(in oklab, var(--light) 30%, transparent) 28%,
+		transparent 62%
+	);
+	opacity: 0.5;
+	transition: opacity var(--dur-sky) var(--ease-out);
 }
 
 /* The WebGL motes (Phase 2) lay over the CSS bloom; fade in once painted. */
@@ -151,54 +170,15 @@ button {
   }
 }
 
+/* Keep the old class alive as an alias so Atmosphere.tsx and SideRays.tsx
+   keep rendering through Part 1. Part 2 deletes both components and this. */
+.atmosphere,
 .side-rays {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-/* ============================================================
-   Section marker — fixed vertical label, lower-left.
-   Updates as the visitor scrolls between sections.
-   ============================================================ */
-.section-marker {
-  position: fixed;
-  left: var(--gutter);
-  bottom: var(--s-7);
-  z-index: 50;
-  pointer-events: none;
-  opacity: 1;
-  transition: opacity var(--dur-3) var(--ease-out);
-}
-.section-marker[data-hidden="true"] {
-  opacity: 0;
-}
-.section-marker-label {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink-2);
-  white-space: nowrap;
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  animation: marker-fade-in 0.5s var(--ease-out) both;
-}
-@keyframes marker-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-@media (max-width: 760px) {
-  .section-marker {
-    display: none;
-  }
+	position: fixed;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+	overflow: hidden;
 }
 
 /* App content sits above the atmosphere. */
@@ -444,9 +424,53 @@ button {
   color: var(--accent);
 }
 
-/* The horizon — the signature element. A hairline of golden light that draws in
-   after the hero crests, echoing the preloader ray. This is the "crest of the
-   hill" — a literal horizon made of light. */
+/* ============================================================
+   The horizon — the seam between when you came and where you are.
+   The hero's is the first instance; every section boundary is
+   another one, further away.
+   ============================================================ */
+.horizon {
+	width: 100%;
+	height: 1px;
+	border: 0;
+	margin: 0;
+	background: linear-gradient(
+		90deg,
+		var(--accent-strong) 0%,
+		color-mix(in oklab, var(--accent-strong) 45%, transparent) 55%,
+		transparent 100%
+	);
+	transform-origin: left center;
+}
+
+/* Sections further along the path read as further away. */
+.horizon[data-distance="near"] {
+	opacity: 1;
+}
+.horizon[data-distance="mid"] {
+	opacity: 0.72;
+}
+.horizon[data-distance="far"] {
+	opacity: 0.48;
+}
+
+/* The section name, sitting just above its horizon. Newsreader italic —
+   this is what replaces the "// UPPERCASE MONO" eyebrow. Mono is code only. */
+.marker-label {
+	display: block;
+	font-family: var(--font-display);
+	font-style: italic;
+	font-variation-settings:
+		"opsz" 18,
+		"wght" calc(var(--display-wght) + 60);
+	font-size: 15px;
+	letter-spacing: 0.01em;
+	color: var(--ink-2);
+	margin-bottom: var(--s-2);
+}
+
+/* The hero's horizon keeps its GSAP draw-in — the signature arrival beat.
+   It is now the first instance of a system rather than a one-off. */
 .hero-horizon {
   width: min(560px, 68vw);
   height: 1px;
@@ -1554,7 +1578,6 @@ button {
   .atmosphere-canvas,
   .side-rays,
   .preloader,
-  .section-marker,
   .scroll-cue,
   .icon-btn,
   .resume-back,
