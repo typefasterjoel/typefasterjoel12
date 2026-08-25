@@ -260,20 +260,6 @@
 		var(--surface-2);
 	color: var(--ink-2);
 }
-/* index badge — translucent pill, same recipe as .case-gallery-arrow,
-   so it stays legible over an arbitrary cover image */
-.work-index {
-	position: absolute;
-	top: var(--s-3);
-	left: var(--s-3);
-	z-index: 1;
-	padding: 4px 9px;
-	border-radius: var(--r-pill);
-	background: color-mix(in oklab, var(--ground) 70%, transparent);
-	backdrop-filter: blur(8px);
-	-webkit-backdrop-filter: blur(8px);
-	color: var(--ink);
-}
 .work-meta {
 	display: flex;
 	align-items: center;

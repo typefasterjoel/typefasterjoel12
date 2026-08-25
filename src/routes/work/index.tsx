@@ -49,7 +49,6 @@ function WorkIndex() {
 								className="work-card"
 							>
 								<div className="work-thumb">
-									<span className="marker-label work-index">{p.year}</span>
 									{p.cover ? (
 										<img
 											src={p.cover.src}
