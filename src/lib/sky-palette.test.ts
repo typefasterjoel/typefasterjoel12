@@ -488,3 +488,58 @@ describe("accent — the light source, made legible", () => {
 		expect(jumps).toHaveLength(2);
 	});
 });
+
+describe("type axes", () => {
+	it("hits the specified values at noon, dusk and night", () => {
+		expect(getPaletteAtHour(13).displayOpsz).toBeCloseTo(72, 0);
+		expect(getPaletteAtHour(13).displayWght).toBeCloseTo(300, 0);
+		expect(getPaletteAtHour(1).displayOpsz).toBeCloseTo(44, 0);
+		expect(getPaletteAtHour(1).displayWght).toBeCloseTo(520, 0);
+	});
+
+	it("thickens the display face as the light drops", () => {
+		// real typographic physics: thin strokes vanish in low light
+		expect(getPaletteAtHour(1).displayWght).toBeGreaterThan(
+			getPaletteAtHour(13).displayWght,
+		);
+		expect(getPaletteAtHour(1).displayOpsz).toBeLessThan(
+			getPaletteAtHour(13).displayOpsz,
+		);
+	});
+
+	it("moves the body face only slightly", () => {
+		const day = getPaletteAtHour(13).bodyWght;
+		const night = getPaletteAtHour(1).bodyWght;
+		expect(night).toBeGreaterThan(day);
+		expect(night - day).toBeLessThanOrEqual(60);
+	});
+
+	it("stays inside the faces' real axis ranges at every minute", () => {
+		for (let m = 0; m < 1440; m++) {
+			const p = getPaletteAtHour(m / 60);
+			expect(p.displayOpsz).toBeGreaterThanOrEqual(6);
+			expect(p.displayOpsz).toBeLessThanOrEqual(72);
+			expect(p.displayWght).toBeGreaterThanOrEqual(200);
+			expect(p.displayWght).toBeLessThanOrEqual(800);
+			expect(p.bodyWght).toBeGreaterThanOrEqual(400);
+			expect(p.bodyWght).toBeLessThanOrEqual(700);
+		}
+	});
+
+	it("does NOT jump when the ground crossfades", () => {
+		// axes follow continuous sky luminance, not the two-state ground
+		const half = CROSSFADE_MINUTES / 2 / 60;
+		const before = getPaletteAtHour(SUNSET_HOUR - half - 0.02).displayWght;
+		const after = getPaletteAtHour(SUNSET_HOUR + half + 0.02).displayWght;
+		expect(Math.abs(after - before)).toBeLessThan(120);
+	});
+
+	it("never steps sharply between adjacent minutes", () => {
+		for (let m = 0; m < 1440; m++) {
+			const a = getPaletteAtHour(m / 60);
+			const b = getPaletteAtHour((m + 1) / 60);
+			expect(Math.abs(b.displayWght - a.displayWght)).toBeLessThan(6);
+			expect(Math.abs(b.displayOpsz - a.displayOpsz)).toBeLessThan(2);
+		}
+	});
+});

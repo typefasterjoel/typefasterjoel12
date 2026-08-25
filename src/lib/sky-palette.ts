@@ -15,6 +15,7 @@ import {
 	oklabToOklch,
 	oklabToRgb,
 	oklchToOklab,
+	relativeLuminance,
 	rgbToHex,
 	rgbToOklab,
 	solveLuminanceForContrast,
@@ -144,6 +145,41 @@ export function accentFor(
 	return solved;
 }
 
+/** Axis endpoints. Bright end first, dark end second. */
+const DISPLAY_OPSZ = { bright: 72, dark: 44 } as const;
+const DISPLAY_WGHT = { bright: 300, dark: 520 } as const;
+const BODY_WGHT = { bright: 400, dark: 450 } as const;
+
+/**
+ * How bright the sky is, 0-1, measured off the horizon colour.
+ *
+ * Continuous by construction — this is deliberately NOT `nightness`, which
+ * snaps at the terminator. Type that jumped when the lamps came on would read
+ * as a bug rather than as optical compensation.
+ *
+ * The endpoints are the darkest and brightest `skyLow` in the ring, so the
+ * scalar uses its full 0-1 range instead of bunching in the middle.
+ */
+const SKY_LUM_MIN = relativeLuminance(hexToRgb("#101a30")); // midnight horizon
+const SKY_LUM_MAX = relativeLuminance(hexToRgb("#efe6d2")); // noon horizon
+
+function skyBrightness(skyLowHex: string): number {
+	const l = relativeLuminance(hexToRgb(skyLowHex));
+	const raw = clamp01((l - SKY_LUM_MIN) / (SKY_LUM_MAX - SKY_LUM_MIN));
+	// `relativeLuminance` applies the sRGB gamma curve, which is heavily
+	// compressive near black: an hour that has already moved a visible fifth
+	// of the way from the midnight stop toward dawn still measures under 1%
+	// of the way up the luminance range. Left linear, that reads as "still
+	// pinned to the night extreme" for longer than the sky actually looks
+	// that way. Easing with the same smoothstep used for the ground crossfade
+	// re-spends the range so type keeps approaching its poles smoothly
+	// (zero slope at both ends, same as the sky doesn't snap) while still
+	// reaching them close to where the sky actually does.
+	return smoothstep(raw);
+}
+
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+
 /** Black or white, whichever is readable on the given fill. */
 function onFill(fillHex: string): string {
 	const fill = hexToRgb(fillHex);
@@ -159,6 +195,7 @@ export function getPaletteAtHour(hour: number): SkyPalette {
 	const sky = skyColorsAtHour(hour);
 	const n = nightness(hour);
 	const isNight = n > 0.5;
+	const brightness = skyBrightness(sky.skyLow);
 
 	// Ground: pick a state, then tint it very slightly with the current sky.
 	const baseGround = isNight ? GROUND_NIGHT : GROUND_DAY;
@@ -214,12 +251,11 @@ export function getPaletteAtHour(hour: number): SkyPalette {
 		accent,
 		accentStrong: accentFor(sky.light, ground, 3),
 		onAccent: onFill(accent),
-		// Placeholder. The type axes are derived from the sun in Task 6.
 		lightAngle: solar.azimuth,
 		shadowDist,
-		displayOpsz: 72,
-		displayWght: 400,
-		bodyWght: 400,
+		displayOpsz: lerp(DISPLAY_OPSZ.dark, DISPLAY_OPSZ.bright, brightness),
+		displayWght: lerp(DISPLAY_WGHT.dark, DISPLAY_WGHT.bright, brightness),
+		bodyWght: lerp(BODY_WGHT.dark, BODY_WGHT.bright, brightness),
 		isNight,
 	};
 }
