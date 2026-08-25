@@ -165,17 +165,7 @@ const SKY_LUM_MAX = relativeLuminance(hexToRgb("#efe6d2")); // noon horizon
 
 function skyBrightness(skyLowHex: string): number {
 	const l = relativeLuminance(hexToRgb(skyLowHex));
-	const raw = clamp01((l - SKY_LUM_MIN) / (SKY_LUM_MAX - SKY_LUM_MIN));
-	// `relativeLuminance` applies the sRGB gamma curve, which is heavily
-	// compressive near black: an hour that has already moved a visible fifth
-	// of the way from the midnight stop toward dawn still measures under 1%
-	// of the way up the luminance range. Left linear, that reads as "still
-	// pinned to the night extreme" for longer than the sky actually looks
-	// that way. Easing with the same smoothstep used for the ground crossfade
-	// re-spends the range so type keeps approaching its poles smoothly
-	// (zero slope at both ends, same as the sky doesn't snap) while still
-	// reaching them close to where the sky actually does.
-	return smoothstep(raw);
+	return clamp01((l - SKY_LUM_MIN) / (SKY_LUM_MAX - SKY_LUM_MIN));
 }
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;

@@ -493,8 +493,11 @@ describe("type axes", () => {
 	it("hits the specified values at noon, dusk and night", () => {
 		expect(getPaletteAtHour(13).displayOpsz).toBeCloseTo(72, 0);
 		expect(getPaletteAtHour(13).displayWght).toBeCloseTo(300, 0);
-		expect(getPaletteAtHour(1).displayOpsz).toBeCloseTo(44, 0);
-		expect(getPaletteAtHour(1).displayWght).toBeCloseTo(520, 0);
+		// Luminance (not solar altitude) is what drives these axes, and it
+		// bottoms out on the midnight stop at hour 0 — not hour 1, which is
+		// already interpolating toward the 05:00 astro-dawn stop.
+		expect(getPaletteAtHour(0).displayOpsz).toBeCloseTo(44, 0);
+		expect(getPaletteAtHour(0).displayWght).toBeCloseTo(520, 0);
 	});
 
 	it("thickens the display face as the light drops", () => {
