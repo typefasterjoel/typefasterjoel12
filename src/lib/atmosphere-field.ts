@@ -29,7 +29,9 @@ const PALETTES: Record<ThemeName, Palette> = {
 };
 
 function currentTheme(): ThemeName {
-	return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+	return document.documentElement.dataset.skyState === "night"
+		? "dark"
+		: "light";
 }
 
 const HALF_X = 22;
@@ -203,7 +205,7 @@ export function createAtmosphereField(container: HTMLElement): () => void {
 	});
 	themeObserver.observe(document.documentElement, {
 		attributes: true,
-		attributeFilter: ["data-theme"],
+		attributeFilter: ["data-sky-state"],
 	});
 
 	// ---- resize ----

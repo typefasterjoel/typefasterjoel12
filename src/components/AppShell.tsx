@@ -2,7 +2,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect } from "react";
 import { IntroProvider } from "#/lib/intro";
 import { initSmoothScroll, registerGsap } from "#/lib/motion";
-import { ThemeProvider } from "#/lib/theme";
+import { SkyTimeProvider } from "#/lib/sky-time";
 import { Atmosphere } from "./Atmosphere";
 import { Footer } from "./Footer";
 import { Nav } from "./Nav";
@@ -24,7 +24,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 	}, []);
 
 	return (
-		<ThemeProvider>
+		<SkyTimeProvider>
 			<IntroProvider>
 				<Atmosphere />
 				<SideRays />
@@ -36,6 +36,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 					<Footer />
 				</div>
 			</IntroProvider>
-		</ThemeProvider>
+		</SkyTimeProvider>
 	);
 }

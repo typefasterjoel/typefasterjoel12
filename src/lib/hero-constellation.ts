@@ -43,7 +43,9 @@ const PALETTES: Record<ThemeName, Palette> = {
 };
 
 function currentTheme(): ThemeName {
-	return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+	return document.documentElement.dataset.skyState === "night"
+		? "dark"
+		: "light";
 }
 
 const STAR_COUNT = 48;
@@ -196,7 +198,7 @@ export function createHeroConstellation(
 	});
 	themeObserver.observe(document.documentElement, {
 		attributes: true,
-		attributeFilter: ["data-theme"],
+		attributeFilter: ["data-sky-state"],
 	});
 
 	// ---- per-frame logic ----

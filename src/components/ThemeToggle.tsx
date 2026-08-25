@@ -1,27 +1,32 @@
 import { Moon, Sun } from "lucide-react";
-import { type Theme, useTheme } from "#/lib/theme";
+import { useSkyTime } from "#/lib/sky-time";
+import { SOLAR_NOON_HOUR } from "#/lib/solar-clock";
 
 /**
- * Day ↔ dusk toggle.
+ * Interim control. Part 2 replaces this with the time scrubber, whose extremes
+ * are these same two ends of the cycle.
  *
- * Vocabulary convention: user-facing copy says "day"/"dusk" (golden hour has
- * no plain night); everything internal — the `Theme` type, `data-theme`, the
- * storage key — stays `light`/`dark`. This map is the only crossing point.
+ * Vocabulary convention: user-facing copy says "daylight"/"night"; the state
+ * underneath is an hour, not a theme name. Pressing this takes manual control
+ * of the clock for the rest of the session.
  */
-const THEME_LABEL: Record<Theme, string> = { light: "day", dark: "dusk" };
+const DAYLIGHT_HOUR = SOLAR_NOON_HOUR;
+const NIGHT_HOUR = 1;
 
 export function ThemeToggle() {
-	const { theme, toggleTheme } = useTheme();
-	const next = THEME_LABEL[theme === "dark" ? "light" : "dark"];
+	const { palette, setHour } = useSkyTime();
+	const isNight = palette.isNight;
+	const label = isNight ? "Switch to daylight" : "Switch to night";
+
 	return (
 		<button
 			type="button"
 			className="icon-btn"
-			onClick={toggleTheme}
-			aria-label={`Switch to ${next}`}
-			title={`Switch to ${next}`}
+			onClick={() => setHour(isNight ? DAYLIGHT_HOUR : NIGHT_HOUR)}
+			aria-label={label}
+			title={label}
 		>
-			{theme === "dark" ? (
+			{isNight ? (
 				<Sun size={18} strokeWidth={1.75} aria-hidden="true" />
 			) : (
 				<Moon size={18} strokeWidth={1.75} aria-hidden="true" />

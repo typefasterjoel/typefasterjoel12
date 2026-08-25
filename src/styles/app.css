@@ -23,22 +23,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Theme switch — briefly enables broad color transitions to prevent a jarring flash.
-   The class is added/removed by setTheme() in lib/theme.tsx. */
-@media (prefers-reduced-motion: no-preference) {
-  html.theme-transitioning,
-  html.theme-transitioning *,
-  html.theme-transitioning *::before,
-  html.theme-transitioning *::after {
-    transition:
-      background-color 0.5s var(--ease-out),
-      color 0.4s var(--ease-out),
-      border-color 0.4s var(--ease-out),
-      box-shadow 0.4s var(--ease-out) !important;
-    transition-delay: 0s !important;
-  }
-}
-
 /* Lenis owns scrolling; keep native smooth off to avoid double-easing. */
 html.lenis,
 html.lenis body {
