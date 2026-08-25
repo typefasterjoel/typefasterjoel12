@@ -644,10 +644,14 @@ button {
   gap: var(--s-5);
   padding-block: var(--s-5);
 }
-.work-list-index {
-  flex-shrink: 0;
-  width: 2ch;
-  color: var(--ink-2);
+/* The year, not an index. Case studies are not a sequence, so a
+   counter encoded nothing true about them. */
+.work-list-year {
+	font-family: var(--font-body);
+	font-variation-settings: "wght" var(--body-wght);
+	font-size: 14px;
+	font-variant-numeric: tabular-nums;
+	color: var(--ink-2);
 }
 .work-list-title {
   flex: 1;

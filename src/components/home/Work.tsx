@@ -36,9 +36,7 @@ export function Work() {
 								className="work-list-link"
 							>
 								<div className="work-list-row">
-									<span className="work-list-index mono-label">
-										{String(i + 1).padStart(2, "0")}
-									</span>
+									<span className="work-list-year">{p.year}</span>
 									<span className="work-list-title">{p.title}</span>
 									<span className="work-list-summary">{p.summary}</span>
 									<span className="work-list-arrow" aria-hidden="true">
