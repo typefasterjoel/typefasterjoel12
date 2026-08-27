@@ -152,6 +152,26 @@ button {
 	transition: opacity var(--dur-sky) var(--ease-out);
 }
 
+/* The WebGL sky lays over the CSS gradient; fade in once painted so there
+   is never a hard swap and never a blank frame. */
+.sky-canvas {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	display: block;
+	opacity: 0;
+	transition: opacity 1.2s var(--ease-out);
+}
+.sky-canvas[data-ready="true"] {
+	opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+	.sky-canvas {
+		transition: none;
+	}
+}
+
 /* The WebGL motes (Phase 2) lay over the CSS bloom; fade in once painted. */
 .atmosphere-canvas {
   position: absolute;
@@ -512,7 +532,7 @@ button {
   height: 100%;
 }
 /* content above the canvas — but never touch .scroll-cue's positioning */
-.hero > :not(.hero-constellation, .scroll-cue) {
+.hero > :not(.scroll-cue) {
   position: relative;
   z-index: 1;
 }
