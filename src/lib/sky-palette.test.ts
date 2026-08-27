@@ -546,3 +546,88 @@ describe("type axes", () => {
 		}
 	});
 });
+
+describe("sky geometry", () => {
+	it("puts the light overhead at solar noon and low at the terminators", () => {
+		expect(getPaletteAtHour(13).sunX).toBeCloseTo(0.5, 2);
+		expect(getPaletteAtHour(13).sunY).toBeLessThan(0.25);
+		expect(getPaletteAtHour(SUNRISE_HOUR).sunY).toBeGreaterThan(0.5);
+		expect(getPaletteAtHour(SUNSET_HOUR).sunY).toBeGreaterThan(0.5);
+	});
+
+	it("sweeps the light left to right across the day", () => {
+		expect(getPaletteAtHour(SUNRISE_HOUR).sunX).toBeLessThan(0.2);
+		expect(getPaletteAtHour(SUNSET_HOUR).sunX).toBeGreaterThan(0.8);
+	});
+
+	it("keeps the light on screen at every minute", () => {
+		for (let m = 0; m < 1440; m++) {
+			const p = getPaletteAtHour(m / 60);
+			expect(p.sunX).toBeGreaterThanOrEqual(0);
+			expect(p.sunX).toBeLessThanOrEqual(1);
+			expect(p.sunY).toBeGreaterThanOrEqual(0);
+			expect(p.sunY).toBeLessThanOrEqual(1);
+		}
+	});
+});
+
+describe("ray strength", () => {
+	it("is near zero at noon — short optical path, clean disc", () => {
+		expect(getPaletteAtHour(13).rayStrength).toBeLessThan(0.05);
+	});
+
+	it("is at full burst at sunrise and sunset", () => {
+		expect(getPaletteAtHour(SUNRISE_HOUR).rayStrength).toBeGreaterThan(0.9);
+		expect(getPaletteAtHour(SUNSET_HOUR).rayStrength).toBeGreaterThan(0.9);
+	});
+
+	it("is exactly zero all night — the moon gets no shafts", () => {
+		for (const h of [21, 23, 1, 3, 5]) {
+			expect(getPaletteAtHour(h).rayStrength).toBe(0);
+		}
+	});
+
+	it("rises monotonically as the sun drops through the afternoon", () => {
+		let prev = getPaletteAtHour(13).rayStrength;
+		for (let h = 13.5; h <= SUNSET_HOUR; h += 0.5) {
+			const now = getPaletteAtHour(h).rayStrength;
+			expect(now).toBeGreaterThanOrEqual(prev);
+			prev = now;
+		}
+	});
+
+	it("stays in 0..1 at every minute", () => {
+		for (let m = 0; m < 1440; m++) {
+			const r = getPaletteAtHour(m / 60).rayStrength;
+			expect(r).toBeGreaterThanOrEqual(0);
+			expect(r).toBeLessThanOrEqual(1);
+		}
+	});
+});
+
+describe("star opacity", () => {
+	it("shows no stars in daylight — a constellation at noon is a lie", () => {
+		for (const h of [8, 11, 13, 16, 18]) {
+			expect(getPaletteAtHour(h).starOpacity).toBe(0);
+		}
+	});
+
+	it("is fully out in the dead of night", () => {
+		expect(getPaletteAtHour(1).starOpacity).toBeCloseTo(1, 2);
+	});
+
+	it("fades in after sunset rather than snapping on", () => {
+		const justAfter = getPaletteAtHour(SUNSET_HOUR + 0.25).starOpacity;
+		const later = getPaletteAtHour(SUNSET_HOUR + 2).starOpacity;
+		expect(justAfter).toBeLessThan(later);
+		expect(justAfter).toBeLessThan(0.5);
+	});
+
+	it("stays in 0..1 at every minute", () => {
+		for (let m = 0; m < 1440; m++) {
+			const o = getPaletteAtHour(m / 60).starOpacity;
+			expect(o).toBeGreaterThanOrEqual(0);
+			expect(o).toBeLessThanOrEqual(1);
+		}
+	});
+});

@@ -37,6 +37,12 @@ const SKY_TINT = 0.06;
 const MAX_SHADOW_DIST = 48;
 const MIN_SHADOW_DIST = 8;
 
+/** How far either side of centre the light travels. */
+const SUN_X_SWING = 0.38;
+/** Screen height of the light at the horizon and at zenith. */
+const SUN_Y_HORIZON = 0.62;
+const SUN_Y_ZENITH = 0.17;
+
 /** How far past a contrast floor to aim, to survive rounding to 8-bit hex. */
 const QUANTISATION_MARGIN = 0.05;
 
@@ -62,6 +68,14 @@ export type SkyPalette = {
 	bodyWght: number;
 	/** Which of the two ground states is showing. Follows the crossfade. */
 	isNight: boolean;
+	/** 0–1 across the viewport, 0 = left. */
+	sunX: number;
+	/** 0–1 down the viewport, 0 = top. */
+	sunY: number;
+	/** 0–1. Zero at night and at zenith, 1 at the horizon. */
+	rayStrength: number;
+	/** 0–1. Zero in daylight, 1 well into night. */
+	starOpacity: number;
 };
 
 const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
@@ -226,6 +240,24 @@ export function getPaletteAtHour(hour: number): SkyPalette {
 		MIN_SHADOW_DIST +
 		(MAX_SHADOW_DIST - MIN_SHADOW_DIST) * (1 - Math.abs(solar.sunAltitude));
 
+	// Where the light actually is. The same azimuth drives --light-angle, so
+	// the disc in the sky and every shadow on the ground agree.
+	const sunX = 0.5 + (solar.azimuth / 70) * SUN_X_SWING;
+	const sunY =
+		SUN_Y_HORIZON -
+		Math.abs(solar.sunAltitude) * (SUN_Y_HORIZON - SUN_Y_ZENITH);
+
+	// Rays are strongest when the sun is low: the light is travelling through
+	// more atmosphere to reach the viewer. That is why dawn and dusk get
+	// shafts and midday does not — and it makes the effect self-limiting
+	// rather than an always-on glow.
+	const rayStrength = solar.isNight
+		? 0
+		: clamp01((1 - solar.sunAltitude) ** 1.6);
+
+	// Stars fade in after sunset rather than snapping on at the boundary.
+	const starOpacity = clamp01(-solar.sunAltitude * 1.6);
+
 	return {
 		skyHigh: sky.skyHigh,
 		skyLow: sky.skyLow,
@@ -247,5 +279,9 @@ export function getPaletteAtHour(hour: number): SkyPalette {
 		displayWght: lerp(DISPLAY_WGHT.dark, DISPLAY_WGHT.bright, brightness),
 		bodyWght: lerp(BODY_WGHT.dark, BODY_WGHT.bright, brightness),
 		isNight,
+		sunX,
+		sunY,
+		rayStrength,
+		starOpacity,
 	};
 }
