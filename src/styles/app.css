@@ -316,6 +316,69 @@ button {
   display: none;
 }
 
+/* ============================================================
+   Time scrubber — travel through the day.
+   Replaces the light/dark toggle: there are not two states,
+   there is an hour. No numerals; the light IS the readout.
+   ============================================================ */
+.time-scrubber {
+	display: flex;
+	align-items: center;
+	gap: var(--s-3);
+}
+
+.time-scrubber-track {
+	position: relative;
+	width: 96px;
+	height: 20px;
+	cursor: ew-resize;
+	touch-action: none;
+	display: flex;
+	align-items: center;
+}
+.time-scrubber-track::before {
+	content: "";
+	position: absolute;
+	inset-inline: 0;
+	height: 1px;
+	background: var(--border-strong);
+}
+.time-scrubber-track:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 4px;
+	border-radius: var(--r-xs);
+}
+
+.time-scrubber-thumb {
+	position: absolute;
+	width: 7px;
+	height: 7px;
+	border-radius: var(--r-pill);
+	background: var(--accent);
+	transform: translateX(-50%);
+	transition: background-color var(--dur-sky) var(--ease-out);
+}
+
+.time-scrubber-reset {
+	font-family: var(--font-display);
+	font-style: italic;
+	font-size: 13px;
+	color: var(--ink-2);
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+}
+.time-scrubber-reset:hover {
+	color: var(--ink-1);
+}
+
+@media (max-width: 620px) {
+	.time-scrubber-track {
+		width: 64px;
+	}
+}
+
 .nav-sheet {
   position: absolute;
   inset: 100% var(--gutter) auto var(--gutter);
