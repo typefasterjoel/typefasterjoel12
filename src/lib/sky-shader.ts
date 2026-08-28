@@ -47,6 +47,7 @@ uniform vec2  uSunPos;        // 0-1, y measured DOWN from the top
 uniform float uIsNight;       // 0 or 1
 uniform float uMotion;        // 1 normally, 0.1 under reduced motion
 uniform float uRayStrength;   // 0-1, already altitude-scaled
+uniform float uStarOpacity;   // 0-1
 
 // -- hashes -----------------------------------------------------------------
 
@@ -107,6 +108,29 @@ vec3 rays(vec2 uv, float aspect) {
   return uLight * shafts * falloff * uRayStrength * 0.32;
 }
 
+/** Hash-grid stars. Night only — a constellation in daylight is a lie. */
+vec3 stars(vec2 uv, float aspect) {
+  if (uStarOpacity <= 0.001) return vec3(0.0);
+
+  vec2 g = vec2(uv.x * aspect, uv.y) * 90.0;
+  vec2 cell = floor(g);
+  vec2 f = fract(g);
+
+  float h = hash21(cell);
+  if (h < 0.986) return vec3(0.0);
+
+  vec2 centre = vec2(hash21(cell + 3.1), hash21(cell + 7.7));
+  float d = length(f - centre);
+  float point = smoothstep(0.14, 0.0, d);
+
+  float twinkle = 0.65 + 0.35 * sin(uTime * 0.8 * uMotion + h * 40.0);
+
+  // Thin out toward the horizon, where the sky is brightest.
+  float height = smoothstep(0.75, 0.1, uv.y);
+
+  return vec3(0.92, 0.95, 1.0) * point * twinkle * height * uStarOpacity;
+}
+
 void main() {
   float aspect = uResolution.x / max(uResolution.y, 1.0);
   vec2 uv = vUv;
@@ -115,6 +139,7 @@ void main() {
   vec3 col = gradient(uv);
   col += disc(uv, aspect);
   col += rays(uv, aspect);
+  col += stars(uv, aspect);
 
   // Ordered-ish dither. Wide two-colour gradients band badly without it.
   float dither = (hash21(gl_FragCoord.xy) - 0.5) / 255.0;
