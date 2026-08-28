@@ -46,6 +46,7 @@ uniform vec3  uLight;         // sun/moon colour, sRGB 0-1
 uniform vec2  uSunPos;        // 0-1, y measured DOWN from the top
 uniform float uIsNight;       // 0 or 1
 uniform float uMotion;        // 1 normally, 0.1 under reduced motion
+uniform float uRayStrength;   // 0-1, already altitude-scaled
 
 // -- hashes -----------------------------------------------------------------
 
@@ -81,6 +82,31 @@ vec3 disc(vec2 uv, float aspect) {
   return uLight * amount;
 }
 
+/**
+ * Angular shafts. Two frequencies plus a slow drift so they never read as a
+ * clean starburst. Multiplied by uRayStrength, which is zero at night and
+ * near zero at noon — the effect limits itself.
+ */
+vec3 rays(vec2 uv, float aspect) {
+  if (uRayStrength <= 0.001) return vec3(0.0);
+
+  vec2 d = vec2((uv.x - uSunPos.x) * aspect, uv.y - uSunPos.y);
+  float r = length(d);
+  float a = atan(d.y, d.x);
+
+  float t = uTime * 0.03 * uMotion;
+  float s1 = 0.5 + 0.5 * sin(a * 9.0  + t);
+  float s2 = 0.5 + 0.5 * sin(a * 17.0 - t * 1.7);
+  float s3 = 0.5 + 0.5 * sin(a * 4.0  + t * 0.5);
+
+  float shafts = pow(s1 * 0.55 + s2 * 0.25 + s3 * 0.2, 2.2);
+
+  // Fade out from the disc, and never start inside it.
+  float falloff = smoothstep(0.9, 0.05, r) * smoothstep(0.02, 0.09, r);
+
+  return uLight * shafts * falloff * uRayStrength * 0.32;
+}
+
 void main() {
   float aspect = uResolution.x / max(uResolution.y, 1.0);
   vec2 uv = vUv;
@@ -88,6 +114,7 @@ void main() {
 
   vec3 col = gradient(uv);
   col += disc(uv, aspect);
+  col += rays(uv, aspect);
 
   // Ordered-ish dither. Wide two-colour gradients band badly without it.
   float dither = (hash21(gl_FragCoord.xy) - 0.5) / 255.0;
