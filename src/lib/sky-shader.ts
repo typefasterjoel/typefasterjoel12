@@ -48,11 +48,16 @@ uniform float uIsNight;       // 0 or 1
 uniform float uMotion;        // 1 normally, 0.1 under reduced motion
 uniform float uRayStrength;   // 0-1, already altitude-scaled
 uniform float uStarOpacity;   // 0-1
+uniform float uMoteCount;     // quality tier
 
 // -- hashes -----------------------------------------------------------------
 
 float hash21(vec2 p) {
   return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453123);
+}
+
+float hash11(float n) {
+  return fract(sin(n) * 43758.5453123);
 }
 
 // -- pieces -----------------------------------------------------------------
@@ -131,6 +136,33 @@ vec3 stars(vec2 uv, float aspect) {
   return vec3(0.92, 0.95, 1.0) * point * twinkle * height * uStarOpacity;
 }
 
+/** Drifting motes. Carried over from the old atmosphere — never the problem. */
+vec3 motes(vec2 uv, float aspect) {
+  vec3 acc = vec3(0.0);
+  vec2 p = vec2(uv.x * aspect, uv.y);
+
+  for (int i = 0; i < 48; i++) {
+    if (float(i) >= uMoteCount) break;
+
+    float fi = float(i);
+    float seed = hash11(fi * 12.7);
+
+    float speed = 0.006 + seed * 0.014;
+    float x = fract(hash11(fi * 3.3) + uTime * speed * 0.35 * uMotion);
+    float y = fract(hash11(fi * 9.1) - uTime * speed * uMotion);
+
+    vec2 c = vec2(x * aspect, y);
+    float d = length(p - c);
+
+    float size = 0.0016 + seed * 0.0028;
+    float point = smoothstep(size, 0.0, d);
+    float breathe = 0.5 + 0.5 * sin(uTime * 0.5 * uMotion + seed * 30.0);
+
+    acc += uLight * point * breathe * 0.7;
+  }
+  return acc;
+}
+
 void main() {
   float aspect = uResolution.x / max(uResolution.y, 1.0);
   vec2 uv = vUv;
@@ -140,6 +172,7 @@ void main() {
   col += disc(uv, aspect);
   col += rays(uv, aspect);
   col += stars(uv, aspect);
+  col += motes(uv, aspect);
 
   // Ordered-ish dither. Wide two-colour gradients band badly without it.
   float dither = (hash21(gl_FragCoord.xy) - 0.5) / 255.0;
