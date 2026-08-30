@@ -8,7 +8,17 @@
  *
  * Routes without a hero (a case study, the work index) are ground from their
  * first pixel — the visitor is already on the path.
+ *
+ * `.ground` (this outer div) carries the opaque background and never has its
+ * own opacity touched. `.ground-content` (the inner one) is what
+ * RouteTransition fades on navigation — CSS opacity makes an element's own
+ * background transparent too, so fading `.ground` itself would expose the
+ * fixed sky behind it for a frame. See RouteTransition.tsx.
  */
 export function Ground({ children }: { children: React.ReactNode }) {
-	return <div className="ground">{children}</div>;
+	return (
+		<div className="ground">
+			<div className="ground-content">{children}</div>
+		</div>
+	);
 }
