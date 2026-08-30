@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { Ground } from "#/components/Ground";
 import { About } from "#/components/home/About";
 import { Career } from "#/components/home/Career";
 import { Contact } from "#/components/home/Contact";
@@ -17,11 +18,13 @@ function Home() {
 	return (
 		<>
 			<Hero />
-			<Path />
-			<Work />
-			<About />
-			<Career />
-			<Contact />
+			<Ground>
+				<Path />
+				<Work />
+				<About />
+				<Career />
+				<Contact />
+			</Ground>
 		</>
 	);
 }

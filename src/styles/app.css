@@ -214,6 +214,45 @@ button {
 }
 
 /* ============================================================
+   The ground plane — everything below the horizon.
+   The sky is fixed behind the document; this is the opaque
+   surface that scrolls up over it. The top edge IS the horizon.
+   ============================================================ */
+.ground {
+	position: relative;
+	background: var(--ground);
+	/* Matches the ground crossfade in sky-palette.ts: the two states
+	   switch fast at each terminator, and this is what makes that read
+	   as the lamps coming on rather than as a flash. */
+	transition: background-color var(--dur-sky) var(--ease-out);
+}
+
+/* The seam. A hairline lit by the current sun, fading at both ends so it
+   reads as a horizon rather than as a border. */
+.ground::before {
+	content: "";
+	position: absolute;
+	inset-inline: 0;
+	top: 0;
+	height: 1px;
+	background: linear-gradient(
+		90deg,
+		transparent 0%,
+		var(--accent-strong) 18%,
+		var(--accent-strong) 82%,
+		transparent 100%
+	);
+	opacity: 0.5;
+}
+
+/* The footer is below the horizon too. */
+.site-footer {
+	position: relative;
+	background: var(--ground);
+	transition: background-color var(--dur-sky) var(--ease-out);
+}
+
+/* ============================================================
    Reveal staging — armed only when motion is allowed (set by the
    no-flash head script). No JS / reduced-motion => content visible.
    ============================================================ */
