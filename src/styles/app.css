@@ -172,34 +172,6 @@ button {
 	}
 }
 
-/* The WebGL motes (Phase 2) lay over the CSS bloom; fade in once painted. */
-.atmosphere-canvas {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  width: 100%;
-  height: 100%;
-  display: block;
-  opacity: 0;
-  transition: opacity 1.4s var(--ease-out);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .atmosphere-canvas {
-    transition: none;
-  }
-}
-
-/* Keep the old class alive as an alias so Atmosphere.tsx and SideRays.tsx
-   keep rendering through Part 1. Part 2 deletes both components and this. */
-.atmosphere,
-.side-rays {
-	position: fixed;
-	inset: 0;
-	z-index: 0;
-	pointer-events: none;
-	overflow: hidden;
-}
 
 /* App content sits above the atmosphere. */
 .app-shell {
@@ -620,19 +592,6 @@ button {
   margin-top: var(--s-6);
 }
 
-/* The constellation layer — stars live behind the hero's content */
-.hero-constellation {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-.hero-constellation-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
 /* content above the canvas — but never touch .scroll-cue's positioning */
 .hero > :not(.scroll-cue) {
   position: relative;
@@ -1714,9 +1673,8 @@ button {
   }
   .site-nav,
   .site-footer,
-  .atmosphere,
-  .atmosphere-canvas,
-  .side-rays,
+  .sky-root,
+  .sky-canvas,
   .preloader,
   .scroll-cue,
   .icon-btn,
