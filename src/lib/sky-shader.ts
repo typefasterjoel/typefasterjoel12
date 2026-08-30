@@ -136,8 +136,18 @@ vec3 stars(vec2 uv, float aspect) {
   return vec3(0.92, 0.95, 1.0) * point * twinkle * height * uStarOpacity;
 }
 
-/** Drifting motes. Carried over from the old atmosphere — never the problem. */
+/**
+ * Drifting motes. Carried over from the old atmosphere — never the problem.
+ *
+ * Gated by uStarOpacity, the same fade the stars use: zero in daylight,
+ * fading in from dusk, full by night. Motes are a night-sky effect same as
+ * the stars are, and sharing the uniform (rather than adding a dedicated
+ * one) keeps the two in lockstep by construction — there is no way for them
+ * to drift out of sync the way two independently-tuned fades could.
+ */
 vec3 motes(vec2 uv, float aspect) {
+  if (uStarOpacity <= 0.001) return vec3(0.0);
+
   vec3 acc = vec3(0.0);
   vec2 p = vec2(uv.x * aspect, uv.y);
 
@@ -160,7 +170,7 @@ vec3 motes(vec2 uv, float aspect) {
 
     acc += uLight * point * breathe * 0.7;
   }
-  return acc;
+  return acc * uStarOpacity;
 }
 
 void main() {
