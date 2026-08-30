@@ -65,6 +65,13 @@
 	--ink-1: #4a463f;
 	--ink-2: #6f6a61;
 
+	/* Ink for elements on the sky rather than the ground — the hero and the
+	   nav before it scrolls onto its own backdrop. See sky-palette.ts's
+	   inkForSky. Noon fallback happens to equal --ink at this hour. */
+	--ink-on-sky: #1a1815;
+	--ink-on-sky-1: #423f3c;
+	--ink-on-sky-2: #686662;
+
 	/* ---- Accent: the light source, made legible ---- */
 	--accent: #7a6320;
 	--accent-strong: #9c8030;

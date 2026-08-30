@@ -270,7 +270,10 @@ button {
   display: inline-flex;
   align-items: center;
   gap: var(--s-3);
-  color: var(--ink);
+  /* Unscrolled, the nav floats directly over the sky rather than the ground
+     — see --ink-on-sky in sky-palette.ts. Reverted to ground ink below,
+     once scrolled onto its own backdrop. */
+  color: var(--ink-on-sky);
 }
 .nav-brand .logo {
   color: var(--accent);
@@ -291,12 +294,12 @@ button {
   font-size: 12px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--ink-1);
+  color: var(--ink-on-sky-1);
   position: relative;
   transition: color var(--dur-1) var(--ease-out);
 }
 .nav-link:hover {
-  color: var(--ink);
+  color: var(--ink-on-sky);
 }
 .nav-actions {
   display: flex;
@@ -322,6 +325,26 @@ button {
 .icon-btn:hover {
   color: var(--ink);
   border-color: var(--border-strong);
+}
+/* `.icon-btn` is shared with the modal close/arrow buttons, which sit on the
+   ground — only the nav's own instance (the burger) floats over the sky. */
+.site-nav .icon-btn {
+  color: var(--ink-on-sky-1);
+}
+.site-nav .icon-btn:hover {
+  color: var(--ink-on-sky);
+}
+/* Once scrolled, the nav sits on its own ground-tinted backdrop rather than
+   open sky, so its ink switches back to ground-relative to match. Declared
+   after the rules above so the cascade order matches the specificity order. */
+.site-nav[data-scrolled="true"] .nav-brand,
+.site-nav[data-scrolled="true"] .nav-link:hover,
+.site-nav[data-scrolled="true"] .icon-btn:hover {
+  color: var(--ink);
+}
+.site-nav[data-scrolled="true"] .nav-link,
+.site-nav[data-scrolled="true"] .icon-btn {
+  color: var(--ink-1);
 }
 .nav-burger {
   display: none;
@@ -374,13 +397,20 @@ button {
 	font-family: var(--font-display);
 	font-style: italic;
 	font-size: 13px;
-	color: var(--ink-2);
+	/* Lives in the nav, which floats over the sky until scrolled. */
+	color: var(--ink-on-sky-2);
 	background: none;
 	border: none;
 	padding: 0;
 	cursor: pointer;
 }
 .time-scrubber-reset:hover {
+	color: var(--ink-on-sky-1);
+}
+.site-nav[data-scrolled="true"] .time-scrubber-reset {
+	color: var(--ink-2);
+}
+.site-nav[data-scrolled="true"] .time-scrubber-reset:hover {
 	color: var(--ink-1);
 }
 
@@ -510,6 +540,15 @@ button {
   flex-direction: column;
   justify-content: center;
   padding-block: clamp(var(--s-9), 18vh, 200px) var(--s-9);
+  /* The hero sits in the sky, not on the ground — its ink has to answer to
+     the sky's luminance, not the ground's. Redeclaring `color` here (not
+     just the custom properties) matters: anything below that does not set
+     its own colour, like the headline, inherits through THIS element's
+     resolved colour, not through a re-lookup of --ink further down. */
+  --ink: var(--ink-on-sky);
+  --ink-1: var(--ink-on-sky-1);
+  --ink-2: var(--ink-on-sky-2);
+  color: var(--ink);
 }
 .hero-title {
   max-width: 14ch;

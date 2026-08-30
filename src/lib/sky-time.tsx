@@ -50,9 +50,12 @@ const SSR_FALLBACK_HOUR = SOLAR_NOON_HOUR;
  *
  * This is a deliberately minimal duplicate of the palette maths: inlining the
  * full OKLab chain into a blocking script would cost more than it saves, so
- * the script sets only the two properties that would be most jarring to see
- * wrong (ground and ink), and hydration fills in the rest a moment later.
- * The constants are interpolated from the palette module so the two cannot
+ * the script sets only the properties that would be most jarring to see
+ * wrong (ground, ink, and the sky-relative ink the hero and nav use), and
+ * hydration fills in the rest a moment later. `--ink-on-sky` gets the same
+ * binary day/night placeholder as `--ink` here — it is only ever a flash
+ * guard; the real continuous solve arrives with the first palette. The
+ * constants are interpolated from the palette module so none of them can
  * drift apart.
  */
 const SKY_INIT_SCRIPT = `(function(){try{
@@ -66,6 +69,7 @@ const SKY_INIT_SCRIPT = `(function(){try{
   var night=(h>${SUNSET_HOUR}||h<${SUNRISE_HOUR});
   d.style.setProperty('--ground',night?'${GROUND_NIGHT}':'${GROUND_DAY}');
   d.style.setProperty('--ink',night?'${INK_NIGHT}':'${INK_DAY}');
+  d.style.setProperty('--ink-on-sky',night?'${INK_NIGHT}':'${INK_DAY}');
   d.dataset.skyState=night?'night':'day';
   if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){
     d.dataset.motion='on';
@@ -100,6 +104,9 @@ function applyPalette(p: SkyPalette): void {
 	s.setProperty("--ink", p.ink);
 	s.setProperty("--ink-1", p.ink1);
 	s.setProperty("--ink-2", p.ink2);
+	s.setProperty("--ink-on-sky", p.inkOnSky);
+	s.setProperty("--ink-on-sky-1", p.inkOnSky1);
+	s.setProperty("--ink-on-sky-2", p.inkOnSky2);
 	s.setProperty("--accent", p.accent);
 	s.setProperty("--accent-strong", p.accentStrong);
 	s.setProperty("--on-accent", p.onAccent);

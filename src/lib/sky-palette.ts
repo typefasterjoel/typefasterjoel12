@@ -58,6 +58,16 @@ export type SkyPalette = {
 	ink: string;
 	ink1: string;
 	ink2: string;
+	/**
+	 * Ink for elements that sit on the sky rather than the ground — the hero
+	 * copy, and the nav before it scrolls onto its own backdrop. Crosses over
+	 * as the zenith dims (see `inkForSky`), which happens well before the
+	 * ground's hard day/night snap — that gap is what made the nav go
+	 * dark-on-dark before dusk "officially" arrived.
+	 */
+	inkOnSky: string;
+	inkOnSky1: string;
+	inkOnSky2: string;
 	accent: string;
 	accentStrong: string;
 	onAccent: string;
@@ -159,6 +169,84 @@ export function accentFor(
 	return solved;
 }
 
+/**
+ * How bright the zenith is, 0-1 — the same idea as `skyBrightness` below, but
+ * keyed to `skyHigh` (the top of the viewport, where the nav and hero sit)
+ * rather than the horizon. The zenith dims well ahead of the horizon, which
+ * is still warmed by the low sun at dusk — that gap is exactly what made the
+ * nav go dark-on-dark before the ground ever changed state.
+ */
+const SKY_HIGH_LUM_MIN = relativeLuminance(hexToRgb("#070b16")); // midnight zenith
+const SKY_HIGH_LUM_MAX = relativeLuminance(hexToRgb("#7e9bb4")); // noon zenith
+
+function zenithBrightness(skyHighHex: string): number {
+	const l = relativeLuminance(hexToRgb(skyHighHex));
+	return clamp01(
+		(l - SKY_HIGH_LUM_MIN) / (SKY_HIGH_LUM_MAX - SKY_HIGH_LUM_MIN),
+	);
+}
+
+/**
+ * Where the sky-relative ink flips, in zenith-brightness units. A starting
+ * point to be judged with the scrubber, the same as the six SKY_STOPS
+ * colours — not a derived truth. (It was tuned against the real curve: 0.2
+ * moves the flip to roughly 18:46 in the evening and 07:33 in the morning,
+ * a little under an hour ahead of the ground's own ~19:50/~06:10 crossfade.)
+ */
+const SKY_INK_THRESHOLD = 0.2;
+
+/**
+ * Secondary/tertiary sky-ink tones. Offset the same way the ground's
+ * `ink1`/`ink2` step toward the ground — lighter off the day extreme, darker
+ * off the night one — so the sky ink family has the same internal contrast
+ * relationship the ground ink family does.
+ */
+const INK_DAY_ON_SKY_1 = shiftL(INK_DAY, 0.16);
+const INK_DAY_ON_SKY_2 = shiftL(INK_DAY, 0.3);
+const INK_NIGHT_ON_SKY_1 = shiftL(INK_NIGHT, -0.16);
+const INK_NIGHT_ON_SKY_2 = shiftL(INK_NIGHT, -0.3);
+
+/**
+ * Ink for elements that sit on the sky rather than the ground — the hero
+ * copy, and the nav before it scrolls onto its own backdrop.
+ *
+ * Two more careful-looking approaches were tried and both made things worse:
+ *
+ * 1. Solving a fixed dark hue's lightness against `skyHigh` directly, the way
+ *    `accentFor` solves the accent against the ground. Black and white have
+ *    EQUAL contrast against a background at ~18% luminance ("18% grey"), so
+ *    whichever one currently wins flips there — and unlike the ground,
+ *    `skyHigh` sweeps slowly through that exact luminance every ordinary
+ *    morning and afternoon. That produced a hard cut from white ink to black
+ *    ink mid-morning, in the middle of an unremarkable blue sky.
+ * 2. Blending INK_DAY and INK_NIGHT smoothly across a band of zenith
+ *    brightness, to avoid exactly that cut. But the background is ALSO
+ *    moving through that same band at the same time, and a medium ink over a
+ *    medium sky is worse than either extreme — measured worst case 1.04:1,
+ *    i.e. genuinely invisible, briefly worse than the bug this exists to fix.
+ *
+ * So this does what the ground itself does, for the same underlying reason
+ * (see the module docblock): stay at a settled extreme and flip between them
+ * with no interpolation in between, leaning on the CSS crossfade (a couple of
+ * seconds, not the minutes a colour blend would spend near the flip) to keep
+ * the flip itself from reading as a cut. The one difference from the ground
+ * is WHEN it flips: on `zenithBrightness` crossing `SKY_INK_THRESHOLD`,
+ * rather than on the sun crossing the horizon — because the zenith dims well
+ * before the ground does, which is the entire point.
+ *
+ * This does not chase a fixed contrast floor the way `accentFor` does — near
+ * the flip, `skyHigh` itself is a genuinely mid-luminance colour, and no
+ * fixed ink clears 7:1, or even 4.5:1, against a mid-luminance background;
+ * that is a property of the colours involved, not a bug. What this buys is
+ * comfortable contrast everywhere BUT that narrow neighbourhood, and it moves
+ * that neighbourhood to line up with when the zenith actually looks
+ * borderline, rather than leaving ground-ink parked on the wrong side of it
+ * for the better part of an hour into evening.
+ */
+export function inkForSky(skyHighHex: string): string {
+	return zenithBrightness(skyHighHex) < SKY_INK_THRESHOLD ? INK_NIGHT : INK_DAY;
+}
+
 /** Axis endpoints. Bright end first, dark end second. */
 const DISPLAY_OPSZ = { bright: 72, dark: 44 } as const;
 const DISPLAY_WGHT = { bright: 300, dark: 520 } as const;
@@ -235,6 +323,13 @@ export function getPaletteAtHour(hour: number): SkyPalette {
 	// so calling it twice for the same pair is pure waste.
 	const accent = accentFor(sky.light, ground, 4.5);
 
+	// Ink for the sky-floating elements (hero copy, the nav before it scrolls
+	// onto its own backdrop). See `inkForSky` for why this can't reuse `ink`.
+	const skyIsDark = zenithBrightness(sky.skyHigh) < SKY_INK_THRESHOLD;
+	const inkOnSky = skyIsDark ? INK_NIGHT : INK_DAY;
+	const inkOnSky1 = skyIsDark ? INK_NIGHT_ON_SKY_1 : INK_DAY_ON_SKY_1;
+	const inkOnSky2 = skyIsDark ? INK_NIGHT_ON_SKY_2 : INK_DAY_ON_SKY_2;
+
 	// Shadows lengthen as the sun drops, capped so they never run away.
 	const shadowDist =
 		MIN_SHADOW_DIST +
@@ -270,6 +365,9 @@ export function getPaletteAtHour(hour: number): SkyPalette {
 		ink,
 		ink1,
 		ink2,
+		inkOnSky,
+		inkOnSky1,
+		inkOnSky2,
 		accent,
 		accentStrong: accentFor(sky.light, ground, 3),
 		onAccent: onFill(accent),

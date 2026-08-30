@@ -14,6 +14,7 @@ import {
 	getPaletteAtHour,
 	INK_DAY,
 	INK_NIGHT,
+	inkForSky,
 	nightness,
 } from "./sky-palette";
 import { skyColorsAtHour } from "./sky-stops";
@@ -629,5 +630,79 @@ describe("star opacity", () => {
 			expect(o).toBeGreaterThanOrEqual(0);
 			expect(o).toBeLessThanOrEqual(1);
 		}
+	});
+});
+
+describe("inkOnSky — hero copy and the unscrolled nav", () => {
+	it("is always one of the two settled extremes, never a blend", () => {
+		// The whole point of the fix (see inkForSky's docblock): a colour blend
+		// through the middle is worse than either extreme, so there must not be
+		// a third value in between.
+		for (let m = 0; m < 1440; m++) {
+			const ink = getPaletteAtHour(m / 60).inkOnSky;
+			expect([INK_DAY, INK_NIGHT]).toContain(ink);
+		}
+	});
+
+	it("is day ink at noon and night ink at 1am, like the ground", () => {
+		expect(getPaletteAtHour(13).inkOnSky).toBe(INK_DAY);
+		expect(getPaletteAtHour(1).inkOnSky).toBe(INK_NIGHT);
+	});
+
+	it("flips to night ink before the ground does — the bug this exists to fix", () => {
+		// Regression test for the actual reported bug: at 19:54 the ground is
+		// still fully in its day state (nightness < 0.5, isNight false), because
+		// the ground doesn't move until its own crossfade window opens at
+		// SUNSET_HOUR. But the zenith behind the nav is already dark, so the
+		// regular ground-relative `ink` reads as almost invisible against it,
+		// while `inkOnSky` must have already moved.
+		const nearSunset = SUNSET_HOUR - 0.1;
+		const p = getPaletteAtHour(nearSunset);
+		expect(p.isNight).toBe(false);
+		expect(ratio(p.ink, p.skyHigh)).toBeLessThan(2);
+		expect(p.inkOnSky).toBe(INK_NIGHT);
+		expect(ratio(p.inkOnSky, p.skyHigh)).toBeGreaterThan(7);
+	});
+
+	it("settles back to day ink well before noon", () => {
+		// Symmetric morning check: by mid-morning the zenith is bright again and
+		// the nav should have settled back to dark ink.
+		expect(getPaletteAtHour(9).inkOnSky).toBe(INK_DAY);
+	});
+
+	it("clears a comfortable floor away from the flip, in both states", () => {
+		// Sampled a couple of hours clear of either crossover, where the zenith
+		// is unambiguously bright or dark — not swept minute-by-minute, because
+		// (see inkForSky's docblock) no fixed ink clears a floor in the narrow
+		// neighbourhood of the flip itself, by construction of the colours
+		// involved rather than by any bug.
+		for (const h of [10, 11, 13, 15, 16]) {
+			expect(
+				ratio(getPaletteAtHour(h).inkOnSky, getPaletteAtHour(h).skyHigh),
+			).toBeGreaterThanOrEqual(1.9);
+		}
+		for (const h of [0, 1, 2, 3, 22, 23, 20.5, 21, 5]) {
+			expect(
+				ratio(getPaletteAtHour(h).inkOnSky, getPaletteAtHour(h).skyHigh),
+			).toBeGreaterThanOrEqual(7);
+		}
+	});
+
+	it("never reads worse than the ground-relative ink would have, anywhere", () => {
+		// The floor this token has to clear isn't an absolute number — it's
+		// "not worse than what shipped before it existed." `ink` and `inkOnSky`
+		// are identical until the flip, so this only bites if the flip logic is
+		// backwards.
+		for (let m = 0; m < 1440; m++) {
+			const p = getPaletteAtHour(m / 60);
+			expect(ratio(p.inkOnSky, p.skyHigh)).toBeGreaterThanOrEqual(
+				ratio(p.ink, p.skyHigh) - 0.01,
+			);
+		}
+	});
+
+	it("inkForSky is the same function getPaletteAtHour uses internally", () => {
+		const p = getPaletteAtHour(19.9);
+		expect(inkForSky(p.skyHigh)).toBe(p.inkOnSky);
 	});
 });
