@@ -956,10 +956,14 @@ button {
 .site-footer {
   border-top: 1px solid var(--border);
   padding-block: var(--s-7);
-  margin-top: var(--s-9);
-  background: color-mix(in oklab, var(--ground) 80%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  /* No margin-top: the footer sits directly below the ground content, not
+     over the fixed sky, so it needs to be flush against it — a gap here
+     is a strip of raw sky showing through between the two. Opaque
+     background and its crossfade are declared once, on the earlier
+     .site-footer rule above (kept in step with .ground); this rule used to
+     duplicate that as a translucent blur left over from when the footer
+     still sat over the sky directly, which silently won the cascade and
+     let the sky bleed through here. */
 }
 .footer-inner {
   display: flex;
