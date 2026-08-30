@@ -1,18 +1,22 @@
 @import "tailwindcss";
 
-/* Design system (ported from design_handoff) */
+/* Design system */
 @import "./styles/fonts.css";
 @import "./styles/tokens.css";
 @import "./styles/components.css";
 
-/* "Golden Hour" app layer (atmosphere, preloader, nav, journey layout) */
+/* "The Hour You Arrive" app layer (sky, horizon, preloader, nav, journey) */
 @import "./styles/app.css";
 
-/* Bridge a few design tokens into Tailwind utilities (keep minimal). */
+/* Bridge the derived tokens into Tailwind utilities. These MUST reference the
+   custom properties rather than restating hex values — the whole point of this
+   system is that no fixed colour exists anywhere. A literal hex here would
+   survive the overhaul invisibly. */
 @theme {
-  --font-sans: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'Space Mono', ui-monospace, 'SF Mono', Menlo, monospace;
-  --color-accent: #C9A24A;
-  --color-ink: #16140F;
-  --color-paper: #FBFAF7;
+	--font-display: "Newsreader Variable", ui-serif, Georgia, serif;
+	--font-body: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
+	--font-mono: "Space Mono", ui-monospace, "SF Mono", Menlo, monospace;
+	--color-accent: var(--accent);
+	--color-ink: var(--ink);
+	--color-ground: var(--ground);
 }

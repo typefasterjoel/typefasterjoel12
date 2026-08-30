@@ -70,7 +70,7 @@ export function Preloader() {
 			<div className="preloader-dawn" ref={dawnRef} />
 			<div className="preloader-inner" ref={innerRef}>
 				<Logo className="preloader-logo" title="typefasterjoel" />
-				<span className="preloader-wordmark mono-label">typefasterjoel</span>
+				<span className="preloader-wordmark marker-label">typefasterjoel</span>
 			</div>
 		</div>
 	);

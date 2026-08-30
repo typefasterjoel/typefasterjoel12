@@ -1,45 +1,19 @@
-/* typefasterjoel — self-hosted fonts (Latin subset, from Google Fonts) */
+/* typefasterjoel — type
 
-@font-face {
-	font-family: "Space Grotesk";
-	font-style: normal;
-	font-weight: 400;
-	font-display: swap;
-	src: url("/fonts/space-grotesk-400.woff2") format("woff2");
-}
+   Newsreader carries a real `opsz` axis (6–72) alongside `wght` (200–800). That
+   axis is load-bearing: the display face's optical size and weight are driven by
+   the time of day, because thin strokes genuinely disappear in low light.
 
-@font-face {
-	font-family: "Space Grotesk";
-	font-style: normal;
-	font-weight: 500;
-	font-display: swap;
-	src: url("/fonts/space-grotesk-500.woff2") format("woff2");
-}
+   Import the AXIS-SPECIFIC entry points — the packages' default index.css ships
+   a reduced axis set, and a missing axis fails silently.
+   Italic is a separate file; the section markers need the real one, not a
+   synthesised slant. */
+@import "@fontsource-variable/newsreader/opsz.css";
+@import "@fontsource-variable/newsreader/opsz-italic.css";
+@import "@fontsource-variable/instrument-sans/wdth.css";
 
-@font-face {
-	font-family: "Space Grotesk";
-	font-style: normal;
-	font-weight: 600;
-	font-display: swap;
-	src: url("/fonts/space-grotesk-600.woff2") format("woff2");
-}
-
-@font-face {
-	font-family: "Space Grotesk";
-	font-style: normal;
-	font-weight: 700;
-	font-display: swap;
-	src: url("/fonts/space-grotesk-700.woff2") format("woff2");
-}
-
-@font-face {
-	font-family: "Space Mono";
-	font-style: italic;
-	font-weight: 400;
-	font-display: swap;
-	src: url("/fonts/space-mono-400-italic.woff2") format("woff2");
-}
-
+/* Space Mono is kept for ONE purpose: real code. It is never a label, never an
+   eyebrow, and never carries a leading "//". Mono means "this is code". */
 @font-face {
 	font-family: "Space Mono";
 	font-style: normal;
@@ -50,8 +24,8 @@
 
 @font-face {
 	font-family: "Space Mono";
-	font-style: normal;
-	font-weight: 700;
+	font-style: italic;
+	font-weight: 400;
 	font-display: swap;
-	src: url("/fonts/space-mono-700.woff2") format("woff2");
+	src: url("/fonts/space-mono-400-italic.woff2") format("woff2");
 }

@@ -2,6 +2,7 @@ import { ArrowRight } from "lucide-react";
 import { useRef, useState } from "react";
 import { btnClass } from "#/components/Button";
 import { Reveal } from "#/components/Reveal";
+import { SectionHorizon } from "#/components/SectionHorizon";
 import { contactSchema, sendContact } from "#/lib/contact";
 
 const SOCIALS = [
@@ -70,6 +71,7 @@ export function Contact() {
 
 	return (
 		<section className="section container" id="contact">
+			<SectionHorizon label="the send-off" distance="far" />
 			<div className="contact-grid">
 				<div>
 					<Reveal>
@@ -105,8 +107,11 @@ export function Contact() {
 				<Reveal delay={0.1}>
 					{done ? (
 						<div className="card card-pad" aria-live="polite">
-							<p className="mono-label" style={{ marginBottom: "var(--s-3)" }}>
-								{"// received"}
+							<p
+								className="marker-label"
+								style={{ marginBottom: "var(--s-3)" }}
+							>
+								received
 							</p>
 							{status === "sent" ? (
 								<>
@@ -133,7 +138,7 @@ export function Contact() {
 								</label>
 								<input className="field" id="name" name="name" type="text" />
 								{errors.name && (
-									<span className="small" style={{ color: "var(--negative)" }}>
+									<span className="small" style={{ color: "#b3452f" }}>
 										{errors.name}
 									</span>
 								)}
@@ -150,7 +155,7 @@ export function Contact() {
 									placeholder="you@example.com"
 								/>
 								{errors.email && (
-									<span className="small" style={{ color: "var(--negative)" }}>
+									<span className="small" style={{ color: "#b3452f" }}>
 										{errors.email}
 									</span>
 								)}
@@ -167,7 +172,7 @@ export function Contact() {
 									placeholder="Tell me about it…"
 								/>
 								{errors.message && (
-									<span className="small" style={{ color: "var(--negative)" }}>
+									<span className="small" style={{ color: "#b3452f" }}>
 										{errors.message}
 									</span>
 								)}

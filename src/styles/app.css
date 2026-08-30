@@ -23,22 +23,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Theme switch — briefly enables broad color transitions to prevent a jarring flash.
-   The class is added/removed by setTheme() in lib/theme.tsx. */
-@media (prefers-reduced-motion: no-preference) {
-  html.theme-transitioning,
-  html.theme-transitioning *,
-  html.theme-transitioning *::before,
-  html.theme-transitioning *::after {
-    transition:
-      background-color 0.5s var(--ease-out),
-      color 0.4s var(--ease-out),
-      border-color 0.4s var(--ease-out),
-      box-shadow 0.4s var(--ease-out) !important;
-    transition-delay: 0s !important;
-  }
-}
-
 /* Lenis owns scrolling; keep native smooth off to avoid double-easing. */
 html.lenis,
 html.lenis body {
@@ -64,9 +48,9 @@ button {
   height: 10px;
 }
 ::-webkit-scrollbar-thumb {
-  background: color-mix(in oklab, var(--fg) 18%, transparent);
+  background: color-mix(in oklab, var(--ink) 18%, transparent);
   border-radius: var(--r-pill);
-  border: 3px solid var(--bg);
+  border: 3px solid var(--ground);
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -110,7 +94,7 @@ button {
   margin-bottom: var(--s-7);
 }
 .eyebrow {
-  color: var(--fg-2);
+  color: var(--ink-2);
 }
 .measure {
   max-width: 56ch;
@@ -127,99 +111,67 @@ button {
 }
 
 /* ============================================================
-   Atmosphere — the serene golden-hour field.
-   Pure-CSS base + the static fallback for the Phase-2 WebGL canvas.
+   The sky — the hour you arrived.
+   Fixed for the visit. Never responds to scroll or pointer:
+   the visitor moves along the ground, the sky does not move.
+   Part 2 mounts a WebGL canvas into .sky-root; these gradients
+   are the no-WebGL fallback and the pre-hydration paint.
    ============================================================ */
-.atmosphere {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
+.sky-root {
+	position: fixed;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+	overflow: hidden;
+	background: linear-gradient(
+		to bottom,
+		var(--sky-high) 0%,
+		var(--sky-low) 100%
+	);
+	transition: background var(--dur-sky) var(--ease-out);
 }
 
-[data-theme="dark"] .atmosphere::after {
-  opacity: 0.32;
+/* The light itself — a soft disc where the sun or moon actually is.
+   Horizontal position tracks --light-angle so it agrees with every
+   shadow on the page. */
+.sky-root::before {
+	content: "";
+	position: absolute;
+	left: calc(50% + var(--light-angle) * 0.4);
+	top: 22%;
+	width: 42vmax;
+	height: 42vmax;
+	transform: translate(-50%, -50%);
+	background: radial-gradient(
+		circle,
+		var(--light) 0%,
+		color-mix(in oklab, var(--light) 30%, transparent) 28%,
+		transparent 62%
+	);
+	opacity: 0.5;
+	transition: opacity var(--dur-sky) var(--ease-out);
 }
 
-@keyframes bloom-breathe {
-  from {
-    transform: translateY(0) scale(1);
-    opacity: 0.42;
-  }
-  to {
-    transform: translateY(-3vmax) scale(1.06);
-    opacity: 0.55;
-  }
+/* The WebGL sky lays over the CSS gradient; fade in once painted so there
+   is never a hard swap and never a blank frame. */
+.sky-canvas {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	display: block;
+	opacity: 0;
+	transition: opacity 1.2s var(--ease-out);
 }
-
-/* The WebGL motes (Phase 2) lay over the CSS bloom; fade in once painted. */
-.atmosphere-canvas {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  width: 100%;
-  height: 100%;
-  display: block;
-  opacity: 0;
-  transition: opacity 1.4s var(--ease-out);
+.sky-canvas[data-ready="true"] {
+	opacity: 1;
 }
-
 @media (prefers-reduced-motion: reduce) {
-  .atmosphere-canvas {
-    transition: none;
-  }
+	.sky-canvas {
+		transition: none;
+	}
 }
 
-.side-rays {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-/* ============================================================
-   Section marker — fixed vertical label, lower-left.
-   Updates as the visitor scrolls between sections.
-   ============================================================ */
-.section-marker {
-  position: fixed;
-  left: var(--gutter);
-  bottom: var(--s-7);
-  z-index: 50;
-  pointer-events: none;
-  opacity: 1;
-  transition: opacity var(--dur-3) var(--ease-out);
-}
-.section-marker[data-hidden="true"] {
-  opacity: 0;
-}
-.section-marker-label {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--fg-2);
-  white-space: nowrap;
-  writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  animation: marker-fade-in 0.5s var(--ease-out) both;
-}
-@keyframes marker-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-@media (max-width: 760px) {
-  .section-marker {
-    display: none;
-  }
-}
 
 /* App content sits above the atmosphere. */
 .app-shell {
@@ -231,6 +183,45 @@ button {
 }
 .app-main {
   flex: 1 0 auto;
+}
+
+/* ============================================================
+   The ground plane — everything below the horizon.
+   The sky is fixed behind the document; this is the opaque
+   surface that scrolls up over it. The top edge IS the horizon.
+   ============================================================ */
+.ground {
+	position: relative;
+	background: var(--ground);
+	/* Matches the ground crossfade in sky-palette.ts: the two states
+	   switch fast at each terminator, and this is what makes that read
+	   as the lamps coming on rather than as a flash. */
+	transition: background-color var(--dur-sky) var(--ease-out);
+}
+
+/* The seam. A hairline lit by the current sun, fading at both ends so it
+   reads as a horizon rather than as a border. */
+.ground::before {
+	content: "";
+	position: absolute;
+	inset-inline: 0;
+	top: 0;
+	height: 1px;
+	background: linear-gradient(
+		90deg,
+		transparent 0%,
+		var(--accent-strong) 18%,
+		var(--accent-strong) 82%,
+		transparent 100%
+	);
+	opacity: 0.5;
+}
+
+/* The footer is below the horizon too. */
+.site-footer {
+	position: relative;
+	background: var(--ground);
+	transition: background-color var(--dur-sky) var(--ease-out);
 }
 
 /* ============================================================
@@ -269,7 +260,7 @@ button {
     padding var(--dur-3) var(--ease-out);
 }
 .site-nav[data-scrolled="true"] {
-  background: color-mix(in oklab, var(--bg) 80%, transparent);
+  background: color-mix(in oklab, var(--ground) 80%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom-color: var(--border);
@@ -279,7 +270,10 @@ button {
   display: inline-flex;
   align-items: center;
   gap: var(--s-3);
-  color: var(--fg);
+  /* Unscrolled, the nav floats directly over the sky rather than the ground
+     — see --ink-on-sky in sky-palette.ts. Reverted to ground ink below,
+     once scrolled onto its own backdrop. */
+  color: var(--ink-on-sky);
 }
 .nav-brand .logo {
   color: var(--accent);
@@ -300,12 +294,12 @@ button {
   font-size: 12px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--fg-1);
+  color: var(--ink-on-sky-1);
   position: relative;
   transition: color var(--dur-1) var(--ease-out);
 }
 .nav-link:hover {
-  color: var(--fg);
+  color: var(--ink-on-sky);
 }
 .nav-actions {
   display: flex;
@@ -321,7 +315,7 @@ button {
   border-radius: var(--r-pill);
   border: 1px solid var(--border);
   background: color-mix(in oklab, var(--surface) 70%, transparent);
-  color: var(--fg-1);
+  color: var(--ink-1);
   cursor: pointer;
   transition:
     color var(--dur-1) var(--ease-out),
@@ -329,11 +323,101 @@ button {
     background var(--dur-1) var(--ease-out);
 }
 .icon-btn:hover {
-  color: var(--fg);
+  color: var(--ink);
   border-color: var(--border-strong);
+}
+/* `.icon-btn` is shared with the modal close/arrow buttons, which sit on the
+   ground — only the nav's own instance (the burger) floats over the sky. */
+.site-nav .icon-btn {
+  color: var(--ink-on-sky-1);
+}
+.site-nav .icon-btn:hover {
+  color: var(--ink-on-sky);
+}
+/* Once scrolled, the nav sits on its own ground-tinted backdrop rather than
+   open sky, so its ink switches back to ground-relative to match. Declared
+   after the rules above so the cascade order matches the specificity order. */
+.site-nav[data-scrolled="true"] .nav-brand,
+.site-nav[data-scrolled="true"] .nav-link:hover,
+.site-nav[data-scrolled="true"] .icon-btn:hover {
+  color: var(--ink);
+}
+.site-nav[data-scrolled="true"] .nav-link,
+.site-nav[data-scrolled="true"] .icon-btn {
+  color: var(--ink-1);
 }
 .nav-burger {
   display: none;
+}
+
+/* ============================================================
+   Time scrubber — travel through the day.
+   Replaces the light/dark toggle: there are not two states,
+   there is an hour. No numerals; the light IS the readout.
+   ============================================================ */
+.time-scrubber {
+	display: flex;
+	align-items: center;
+	gap: var(--s-3);
+}
+
+.time-scrubber-track {
+	position: relative;
+	width: 96px;
+	height: 20px;
+	cursor: ew-resize;
+	touch-action: none;
+	display: flex;
+	align-items: center;
+}
+.time-scrubber-track::before {
+	content: "";
+	position: absolute;
+	inset-inline: 0;
+	height: 1px;
+	background: var(--border-strong);
+}
+.time-scrubber-track:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 4px;
+	border-radius: var(--r-xs);
+}
+
+.time-scrubber-thumb {
+	position: absolute;
+	width: 7px;
+	height: 7px;
+	border-radius: var(--r-pill);
+	background: var(--accent);
+	transform: translateX(-50%);
+	transition: background-color var(--dur-sky) var(--ease-out);
+}
+
+.time-scrubber-reset {
+	font-family: var(--font-display);
+	font-style: italic;
+	font-size: 13px;
+	/* Lives in the nav, which floats over the sky until scrolled. */
+	color: var(--ink-on-sky-2);
+	background: none;
+	border: none;
+	padding: 0;
+	cursor: pointer;
+}
+.time-scrubber-reset:hover {
+	color: var(--ink-on-sky-1);
+}
+.site-nav[data-scrolled="true"] .time-scrubber-reset {
+	color: var(--ink-2);
+}
+.site-nav[data-scrolled="true"] .time-scrubber-reset:hover {
+	color: var(--ink-1);
+}
+
+@media (max-width: 620px) {
+	.time-scrubber-track {
+		width: 64px;
+	}
 }
 
 .nav-sheet {
@@ -358,8 +442,8 @@ button {
   background: transparent;
   border: none;
   border-bottom: 1px solid var(--border);
-  color: var(--fg);
-  font-family: var(--font-sans);
+  color: var(--ink);
+  font-family: var(--font-body);
   font-size: 18px;
   cursor: pointer;
   transition:
@@ -371,10 +455,10 @@ button {
 }
 .nav-sheet-link:hover {
   padding-left: calc(var(--s-5) + 8px);
-  background: var(--sunken);
+  background: var(--surface-2);
 }
 .nav-sheet-link .arrow {
-  color: var(--accent-ink);
+  color: var(--accent);
 }
 
 @media (max-width: 760px) {
@@ -400,7 +484,7 @@ button {
   z-index: 200;
   display: grid;
   place-items: center;
-  background: var(--bg);
+  background: var(--ground);
   overflow: hidden;
 }
 .preloader[hidden] {
@@ -417,7 +501,7 @@ button {
 .preloader-logo {
   width: 40px;
   height: auto;
-  color: var(--fg-2);
+  color: var(--ink-2);
   opacity: 0.7;
 }
 .preloader-wordmark {
@@ -425,7 +509,7 @@ button {
   font-size: 12px;
   letter-spacing: 0.18em;
   text-transform: lowercase;
-  color: var(--fg-2);
+  color: var(--ink-2);
   will-change: opacity, transform;
 }
 /* "first light" — a fine warm ray draws across the horizon while a soft bloom
@@ -437,8 +521,8 @@ button {
   pointer-events: none;
   background: radial-gradient(
     125% 75% at 50% 118%,
-    color-mix(in oklab, var(--gold-300) 55%, transparent) 0%,
-    color-mix(in oklab, var(--gold-300) 14%, transparent) 34%,
+    color-mix(in oklab, var(--accent-strong) 55%, transparent) 0%,
+    color-mix(in oklab, var(--accent-strong) 14%, transparent) 34%,
     transparent 62%
   );
   opacity: 0;
@@ -456,25 +540,82 @@ button {
   flex-direction: column;
   justify-content: center;
   padding-block: clamp(var(--s-9), 18vh, 200px) var(--s-9);
+  /* The hero sits in the sky, not on the ground — its ink has to answer to
+     the sky's luminance, not the ground's. Redeclaring `color` here (not
+     just the custom properties) matters: anything below that does not set
+     its own colour, like the headline, inherits through THIS element's
+     resolved colour, not through a re-lookup of --ink further down. */
+  --ink: var(--ink-on-sky);
+  --ink-1: var(--ink-on-sky-1);
+  --ink-2: var(--ink-on-sky-2);
+  color: var(--ink);
 }
 .hero-title {
   max-width: 14ch;
 }
 .hero-title .accent {
-  color: var(--accent-ink);
+  color: var(--accent);
 }
 
-/* The horizon — the signature element. A hairline of golden light that draws in
-   after the hero crests, echoing the preloader ray. This is the "crest of the
-   hill" — a literal horizon made of light. */
+/* ============================================================
+   The horizon — the seam between when you came and where you are.
+   The hero's is the first instance; every section boundary is
+   another one, further away.
+   ============================================================ */
+.horizon {
+	width: 100%;
+	height: 1px;
+	border: 0;
+	margin: 0;
+	background: linear-gradient(
+		90deg,
+		var(--accent-strong) 0%,
+		color-mix(in oklab, var(--accent-strong) 45%, transparent) 55%,
+		transparent 100%
+	);
+	transform-origin: left center;
+}
+
+/* Sections further along the path read as further away. */
+.horizon[data-distance="near"] {
+	opacity: 1;
+}
+.horizon[data-distance="mid"] {
+	opacity: 0.72;
+}
+.horizon[data-distance="far"] {
+	opacity: 0.48;
+}
+
+/* The section name, sitting just above its horizon. Newsreader italic —
+   this is what replaces the "// UPPERCASE MONO" eyebrow. Mono is code only. */
+.marker-label {
+	display: block;
+	font-family: var(--font-display);
+	font-style: italic;
+	font-variation-settings:
+		"opsz" 18,
+		"wght" calc(var(--display-wght) + 60);
+	font-size: 15px;
+	letter-spacing: 0.01em;
+	color: var(--ink-2);
+	margin-bottom: var(--s-2);
+}
+
+.section-horizon {
+	margin-bottom: var(--s-6);
+}
+
+/* The hero's horizon keeps its GSAP draw-in — the signature arrival beat.
+   It is now the first instance of a system rather than a one-off. */
 .hero-horizon {
   width: min(560px, 68vw);
   height: 1px;
   margin-block: var(--s-5);
   background: linear-gradient(
     90deg,
-    var(--gold-500) 0%,
-    color-mix(in oklab, var(--gold-300) 60%, transparent) 65%,
+    var(--accent-strong) 0%,
+    color-mix(in oklab, var(--accent-strong) 60%, transparent) 65%,
     transparent 100%
   );
   transform-origin: left center;
@@ -484,27 +625,14 @@ button {
 .hero-byline {
   font-size: clamp(16px, 1.4vw, 18px);
   line-height: 1.75;
-  color: var(--fg-1);
+  color: var(--ink-1);
 }
 .hero-cta {
   margin-top: var(--s-6);
 }
 
-/* The constellation layer — stars live behind the hero's content */
-.hero-constellation {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-}
-.hero-constellation-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
 /* content above the canvas — but never touch .scroll-cue's positioning */
-.hero > :not(.hero-constellation, .scroll-cue) {
+.hero > :not(.scroll-cue) {
   position: relative;
   z-index: 1;
 }
@@ -515,14 +643,14 @@ button {
   display: inline-flex;
   align-items: center;
   gap: var(--s-3);
-  color: var(--fg-2);
+  color: var(--ink-2);
   background: none;
   border: none;
   padding: 0;
   cursor: pointer;
 }
 .scroll-cue:hover {
-  color: var(--fg-1);
+  color: var(--ink-1);
 }
 .hero > .scroll-cue {
   z-index: 1;
@@ -536,7 +664,7 @@ button {
 /* The cue is the destination the constellation points at — it breathes.
    Pulse + bob live on the label (not the button) so they never fight the
    GSAP crest entrance, which animates the button's opacity and transform. */
-.scroll-cue .mono-label {
+.scroll-cue .marker-label {
   display: inline-block; /* transform needs a box for the bob */
   animation: cue-pulse 4.2s ease-in-out infinite;
 }
@@ -544,7 +672,7 @@ button {
   .scroll-cue .line {
     animation: cue-trail 2.4s var(--ease-out) infinite;
   }
-  .scroll-cue .mono-label {
+  .scroll-cue .marker-label {
     animation:
       cue-pulse 4.2s ease-in-out infinite,
       cue-bob 4.2s ease-in-out infinite;
@@ -597,10 +725,10 @@ button {
 }
 .path-body {
   margin: 0;
-  color: var(--fg-1);
+  color: var(--ink-1);
 }
 .accent-word {
-  color: var(--accent-ink);
+  color: var(--accent);
   font-weight: 600;
 }
 
@@ -612,6 +740,12 @@ button {
   padding: 0;
   margin: 0;
   border-top: 1px solid var(--border);
+	/* Single source of truth for the year column's width — referenced by
+	   .work-list-year and both .work-list-desc rules (desktop + mobile) so
+	   they cannot drift out of alignment with each other. Sized against the
+	   longest real value in projects.ts ("2025 – present", 14 characters)
+	   with headroom for proportional-font rendering. */
+	--work-list-year-w: 18ch;
 }
 .work-list-item {
   border-bottom: 1px solid var(--border);
@@ -627,8 +761,8 @@ button {
     background var(--dur-2) var(--ease-out);
 }
 .work-list-link:hover {
-  border-left-color: var(--gold-500);
-  background: var(--accent-soft);
+  border-left-color: var(--accent-strong);
+  background: color-mix(in oklab, var(--accent) 12%, var(--ground));
 }
 .work-list-row {
   display: flex;
@@ -636,30 +770,38 @@ button {
   gap: var(--s-5);
   padding-block: var(--s-5);
 }
-.work-list-index {
-  flex-shrink: 0;
-  width: 2ch;
-  color: var(--fg-2);
+/* The year, not an index. Case studies are not a sequence, so a
+   counter encoded nothing true about them. */
+.work-list-year {
+	flex-shrink: 0;
+	min-width: var(--work-list-year-w);
+	text-align: right;
+	white-space: nowrap;
+	font-family: var(--font-body);
+	font-variation-settings: "wght" var(--body-wght);
+	font-size: 14px;
+	font-variant-numeric: tabular-nums;
+	color: var(--ink-2);
 }
 .work-list-title {
   flex: 1;
   font-size: clamp(20px, 2.6vw, 28px);
   font-weight: 500;
   letter-spacing: -0.02em;
-  color: var(--fg);
+  color: var(--ink);
   transition: color var(--dur-2) var(--ease-out);
 }
 .work-list-link:hover .work-list-title {
-  color: var(--accent-ink);
+  color: var(--accent);
 }
 .work-list-summary {
   flex: 1.5;
   font-size: 14px;
-  color: var(--fg-1);
+  color: var(--ink-1);
   line-height: 1.5;
 }
 .work-list-arrow {
-  color: var(--accent-ink);
+  color: var(--accent);
   opacity: 0;
   transform: translate(-2px, 2px);
   transition:
@@ -682,9 +824,9 @@ button {
 }
 .work-list-desc {
   overflow: hidden;
-  padding: 0 0 0 calc(2ch + var(--s-5));
+  padding: 0 0 0 calc(var(--work-list-year-w) + var(--s-5));
   font-size: 14px;
-  color: var(--fg-1);
+  color: var(--ink-1);
   line-height: 1.6;
   max-width: 60ch;
   margin: 0;
@@ -723,13 +865,13 @@ button {
   font-family: var(--font-mono);
   font-size: 12px;
   letter-spacing: 0.04em;
-  color: var(--fg-1);
+  color: var(--ink-1);
   display: flex;
   align-items: center;
   gap: var(--s-2);
 }
 .skills-marker {
-  color: var(--gold-500);
+  color: var(--accent-strong);
   font-family: var(--font-mono);
 }
 
@@ -750,13 +892,13 @@ button {
   background:
     radial-gradient(
       100% 70% at 50% 120%,
-      color-mix(in oklab, var(--gold-300) 45%, transparent),
+      color-mix(in oklab, var(--accent-strong) 45%, transparent),
       transparent 60%
     ),
     var(--surface-2);
   display: grid;
   place-items: center;
-  color: var(--fg-2);
+  color: var(--ink-2);
   overflow: hidden;
 }
 
@@ -791,7 +933,7 @@ button {
   font-family: var(--font-mono);
   font-size: 12px;
   letter-spacing: 0.04em;
-  color: var(--fg-1);
+  color: var(--ink-1);
   border: 1px solid var(--border);
   background: color-mix(in oklab, var(--surface) 70%, transparent);
   padding: 8px 14px;
@@ -804,7 +946,7 @@ button {
     border-color var(--dur-1) var(--ease-out);
 }
 .chip:hover {
-  color: var(--fg);
+  color: var(--ink);
   border-color: var(--border-strong);
 }
 
@@ -814,10 +956,14 @@ button {
 .site-footer {
   border-top: 1px solid var(--border);
   padding-block: var(--s-7);
-  margin-top: var(--s-9);
-  background: color-mix(in oklab, var(--bg) 80%, transparent);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  /* No margin-top: the footer sits directly below the ground content, not
+     over the fixed sky, so it needs to be flush against it — a gap here
+     is a strip of raw sky showing through between the two. Opaque
+     background and its crossfade are declared once, on the earlier
+     .site-footer rule above (kept in step with .ground); this rule used to
+     duplicate that as a translucent blur left over from when the footer
+     still sat over the sky directly, which silently won the cascade and
+     let the sky bleed through here. */
 }
 .footer-inner {
   display: flex;
@@ -847,7 +993,7 @@ button {
   gap: var(--s-5);
   z-index: 2;
   /* Frosted glass so the gallery drifts behind without a harsh block */
-  background: color-mix(in oklab, var(--bg) 60%, transparent);
+  background: color-mix(in oklab, var(--ground) 60%, transparent);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   border-radius: var(--r-lg);
@@ -866,13 +1012,13 @@ button {
   background:
     radial-gradient(
       110% 80% at 50% 120%,
-      color-mix(in oklab, var(--gold-300) 38%, transparent),
+      color-mix(in oklab, var(--accent-strong) 38%, transparent),
       transparent 60%
     ),
     var(--surface-2);
   display: grid;
   place-items: center;
-  color: var(--fg-2);
+  color: var(--ink-2);
   margin-block: var(--s-6);
 }
 .case-prose {
@@ -880,7 +1026,7 @@ button {
 }
 .case-prose p {
   margin-block: var(--s-4);
-  color: var(--fg-1);
+  color: var(--ink-1);
 }
 
 /* image figure — the img carries the frame, so the figure grows to fit a
@@ -947,8 +1093,8 @@ button {
 .case-figure-trigger:hover::before,
 .case-figure-trigger:focus-visible::before {
   box-shadow:
-    inset 0 0 0 3px color-mix(in oklab, var(--gold-400) 55%, transparent),
-    inset 0 0 40px color-mix(in oklab, var(--gold-300) 40%, transparent);
+    inset 0 0 0 3px color-mix(in oklab, var(--accent-strong) 55%, transparent),
+    inset 0 0 40px color-mix(in oklab, var(--accent-strong) 40%, transparent);
 }
 
 /* Golden sheen — matches .case-gallery-slide-trigger's hover treatment so
@@ -960,7 +1106,7 @@ button {
   background: linear-gradient(
     115deg,
     transparent 42%,
-    color-mix(in oklab, var(--gold-300) 55%, transparent) 50%,
+    color-mix(in oklab, var(--accent-strong) 55%, transparent) 50%,
     transparent 58%
   );
   transform: translateX(-160%);
@@ -1117,8 +1263,8 @@ button {
 .case-gallery-slide-trigger:hover::before,
 .case-gallery-slide-trigger:focus-visible::before {
   box-shadow:
-    inset 0 0 0 3px color-mix(in oklab, var(--gold-400) 55%, transparent),
-    inset 0 0 40px color-mix(in oklab, var(--gold-300) 40%, transparent);
+    inset 0 0 0 3px color-mix(in oklab, var(--accent-strong) 55%, transparent),
+    inset 0 0 40px color-mix(in oklab, var(--accent-strong) 40%, transparent);
 }
 
 /* Golden sheen — a diagonal gleam that sweeps once across the thumbnail on
@@ -1130,7 +1276,7 @@ button {
   background: linear-gradient(
     115deg,
     transparent 42%,
-    color-mix(in oklab, var(--gold-300) 55%, transparent) 50%,
+    color-mix(in oklab, var(--accent-strong) 55%, transparent) 50%,
     transparent 58%
   );
   transform: translateX(-160%);
@@ -1151,7 +1297,7 @@ button {
   position: absolute;
   bottom: var(--s-4);
   left: var(--s-5);
-  color: color-mix(in oklab, var(--fg) 60%, transparent);
+  color: color-mix(in oklab, var(--ink) 60%, transparent);
 }
 
 /* Left vignette — softens the edge that tucks behind the sidebar */
@@ -1160,7 +1306,7 @@ button {
   position: absolute;
   inset: 0 auto 0 0;
   width: 120px;
-  background: linear-gradient(to right, var(--bg) 0%, transparent 100%);
+  background: linear-gradient(to right, var(--ground) 0%, transparent 100%);
   z-index: 1;
   pointer-events: none;
 }
@@ -1188,12 +1334,12 @@ button {
   padding: 0;
   border: none;
   cursor: pointer;
-  background: color-mix(in oklab, var(--fg) 22%, transparent);
+  background: color-mix(in oklab, var(--ink) 22%, transparent);
   transition: background 0.25s, transform 0.25s;
 }
 
 .case-gallery-dot[aria-selected="true"] {
-  background: var(--gold-400);
+  background: var(--accent-strong);
   transform: scale(1.4);
 }
 
@@ -1205,8 +1351,8 @@ button {
   height: 32px;
   border-radius: 50%;
   border: 1px solid var(--border);
-  background: color-mix(in oklab, var(--bg) 70%, transparent);
-  color: var(--fg);
+  background: color-mix(in oklab, var(--ground) 70%, transparent);
+  color: var(--ink);
   cursor: pointer;
   transition: background 0.2s, opacity 0.2s;
   backdrop-filter: blur(8px);
@@ -1219,7 +1365,7 @@ button {
 }
 
 .case-gallery-arrow:not(:disabled):hover {
-  background: color-mix(in oklab, var(--bg) 90%, transparent);
+  background: color-mix(in oklab, var(--ground) 90%, transparent);
 }
 
 /* full-screen image lightbox — portaled to document.body */
@@ -1230,7 +1376,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: color-mix(in oklab, var(--bg) 88%, transparent);
+  background: color-mix(in oklab, var(--ground) 88%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   animation: image-modal-in var(--dur-2) var(--ease-out);
@@ -1270,7 +1416,7 @@ button {
   display: flex;
   align-items: center;
   gap: var(--s-4);
-  color: color-mix(in oklab, var(--fg) 60%, transparent);
+  color: color-mix(in oklab, var(--ink) 60%, transparent);
 }
 
 .image-modal-close {
@@ -1319,7 +1465,7 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: color-mix(in oklab, var(--bg) 88%, transparent);
+  background: color-mix(in oklab, var(--ground) 88%, transparent);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   animation: image-modal-in var(--dur-2) var(--ease-out);
@@ -1374,7 +1520,7 @@ button {
   margin: 0;
 }
 .case-stat-value {
-  color: var(--fg);
+  color: var(--ink);
 }
 
 /* featured differentiator callout (the AI angle) */
@@ -1383,14 +1529,14 @@ button {
   padding: var(--s-6);
   border-radius: var(--r-lg);
   border: 1px solid color-mix(in oklab, var(--accent) 45%, transparent);
-  background: var(--accent-soft);
+  background: color-mix(in oklab, var(--accent) 12%, var(--ground));
 }
 .case-callout p {
   margin-top: var(--s-3);
   margin-bottom: 0;
 }
 .case-callout-eyebrow {
-  color: var(--accent-ink);
+  color: var(--accent);
 }
 
 /* ============================================================
@@ -1420,7 +1566,7 @@ button {
   top: 0;
   bottom: 0;
   width: 2px;
-  background: var(--gold-500);
+  background: var(--accent-strong);
   transform: scaleY(0);
   transform-origin: top;
   will-change: transform;
@@ -1432,8 +1578,8 @@ button {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: var(--gold-500);
-  box-shadow: 0 0 0 3px var(--bg);
+  background: var(--accent-strong);
+  box-shadow: 0 0 0 3px var(--ground);
 }
 .timeline-entry {
   position: relative;
@@ -1453,25 +1599,25 @@ button {
 .timeline-company {
   font-weight: 600;
   font-size: 17px;
-  color: var(--fg);
+  color: var(--ink);
 }
 .timeline-company small {
   font-weight: 400;
   font-size: 12px;
-  color: var(--ink-400);
+  color: var(--ink-2);
   margin-left: var(--s-2);
 }
 .timeline-dates {
   font-family: var(--font-mono);
   font-size: 11px;
-  color: var(--ink-400);
+  color: var(--ink-2);
   white-space: nowrap;
 }
 .timeline-role {
   display: block;
   font-family: var(--font-mono);
   font-size: 11px;
-  color: var(--gold-600);
+  color: var(--accent);
   margin-top: var(--s-1);
 }
 .timeline-bullets {
@@ -1486,13 +1632,13 @@ button {
   position: relative;
   padding-left: 14px;
   font-size: 13.5px;
-  color: var(--fg-1);
+  color: var(--ink-1);
   line-height: 1.65;
 }
 .timeline-bullets li span {
   position: absolute;
   left: 0;
-  color: var(--gold-500);
+  color: var(--accent-strong);
   font-family: var(--font-mono);
 }
 
@@ -1518,12 +1664,12 @@ button {
   font-size: 11px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--fg-2);
+  color: var(--ink-2);
   margin-bottom: var(--s-7);
   transition: color var(--dur-1) var(--ease-out);
 }
 .resume-back:hover {
-  color: var(--fg);
+  color: var(--ink);
 }
 .resume-section {
   padding-block: var(--s-8);
@@ -1549,7 +1695,7 @@ button {
   font-size: 9px;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--gold-500);
+  color: var(--accent-strong);
   margin-bottom: var(--s-3);
 }
 .skill-list {
@@ -1557,7 +1703,7 @@ button {
   margin: 0;
   padding: 0;
   font-size: 13px;
-  color: var(--fg-1);
+  color: var(--ink-1);
   line-height: 1.9;
 }
 
@@ -1570,18 +1716,16 @@ button {
   }
   .site-nav,
   .site-footer,
-  .atmosphere,
-  .atmosphere-canvas,
-  .side-rays,
+  .sky-root,
+  .sky-canvas,
   .preloader,
-  .section-marker,
   .scroll-cue,
   .icon-btn,
   .resume-back,
   .resume-print-btn {
     display: none !important;
   }
-  /* Force light ink on white regardless of data-theme */
+  /* Force dark ink on white paper regardless of the hour */
   html,
   body {
     background: #fff !important;
@@ -1719,7 +1863,7 @@ button {
   .work-list-desc {
     opacity: 1;
     padding-bottom: var(--s-4);
-    padding-left: calc(2ch + var(--s-4));
+    padding-left: calc(var(--work-list-year-w) + var(--s-4));
   }
   .work-list-row {
     gap: var(--s-3);

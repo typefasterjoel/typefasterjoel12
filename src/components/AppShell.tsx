@@ -2,13 +2,12 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect } from "react";
 import { IntroProvider } from "#/lib/intro";
 import { initSmoothScroll, registerGsap } from "#/lib/motion";
-import { ThemeProvider } from "#/lib/theme";
-import { Atmosphere } from "./Atmosphere";
+import { SkyTimeProvider } from "#/lib/sky-time";
 import { Footer } from "./Footer";
 import { Nav } from "./Nav";
 import { Preloader } from "./Preloader";
 import { RouteTransition } from "./RouteTransition";
-import { SideRays } from "./SideRays";
+import { Sky } from "./Sky";
 
 /** Persistent app frame: providers, atmosphere, preloader, chrome + smooth scroll. */
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -24,10 +23,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 	}, []);
 
 	return (
-		<ThemeProvider>
+		<SkyTimeProvider>
 			<IntroProvider>
-				<Atmosphere />
-				<SideRays />
+				<Sky />
 				<Preloader />
 				<RouteTransition />
 				<div className="app-shell">
@@ -36,6 +34,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 					<Footer />
 				</div>
 			</IntroProvider>
-		</ThemeProvider>
+		</SkyTimeProvider>
 	);
 }

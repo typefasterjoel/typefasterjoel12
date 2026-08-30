@@ -145,7 +145,7 @@ export function CaseGallery({ figures, onSlideClick }: Props) {
 								/>
 							</button>
 							{f.caption && (
-								<span className="case-gallery-caption mono-label">
+								<span className="case-gallery-caption marker-label">
 									{f.caption}
 								</span>
 							)}

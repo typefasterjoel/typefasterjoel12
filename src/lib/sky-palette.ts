@@ -1,0 +1,385 @@
+/**
+ * Assembles the complete CSS custom-property map for a given hour.
+ *
+ * The ground deliberately does NOT interpolate. A smooth stone->basalt fade
+ * would pass through a mid-luminance window where neither dark nor light text
+ * has acceptable contrast, so instead there are two states with a fast
+ * crossfade at each terminator — the lamps come on at dusk. That makes the
+ * contrast guarantee structural rather than something to re-verify per hour.
+ */
+import {
+	contrastRatio,
+	hexToRgb,
+	mixOklab,
+	type Oklch,
+	oklabToOklch,
+	oklabToRgb,
+	oklchToOklab,
+	relativeLuminance,
+	rgbToHex,
+	rgbToOklab,
+	solveLuminanceForContrast,
+} from "#/lib/color-space";
+import { skyColorsAtHour } from "#/lib/sky-stops";
+import { SUNRISE_HOUR, SUNSET_HOUR, solarStateAtHour } from "#/lib/solar-clock";
+
+export const GROUND_DAY = "#ede7da";
+export const INK_DAY = "#1a1815";
+export const GROUND_NIGHT = "#101319";
+export const INK_NIGHT = "#ece6da";
+
+/** Width of each day<->night ground crossfade, in minutes. */
+export const CROSSFADE_MINUTES = 20;
+
+/** How much of the sky bleeds into the ground. Kept low so luminance holds. */
+const SKY_TINT = 0.06;
+
+const MAX_SHADOW_DIST = 48;
+const MIN_SHADOW_DIST = 8;
+
+/** How far either side of centre the light travels. */
+const SUN_X_SWING = 0.38;
+/** Screen height of the light at the horizon and at zenith. */
+const SUN_Y_HORIZON = 0.62;
+const SUN_Y_ZENITH = 0.17;
+
+/** How far past a contrast floor to aim, to survive rounding to 8-bit hex. */
+const QUANTISATION_MARGIN = 0.05;
+
+export type SkyPalette = {
+	skyHigh: string;
+	skyLow: string;
+	light: string;
+	ground: string;
+	surface: string;
+	surface2: string;
+	border: string;
+	borderStrong: string;
+	ink: string;
+	ink1: string;
+	ink2: string;
+	/**
+	 * Ink for elements that sit on the sky rather than the ground — the hero
+	 * copy, and the nav before it scrolls onto its own backdrop. Crosses over
+	 * as the zenith dims (see `inkForSky`), which happens well before the
+	 * ground's hard day/night snap — that gap is what made the nav go
+	 * dark-on-dark before dusk "officially" arrived.
+	 */
+	inkOnSky: string;
+	inkOnSky1: string;
+	inkOnSky2: string;
+	accent: string;
+	accentStrong: string;
+	onAccent: string;
+	lightAngle: number;
+	shadowDist: number;
+	displayOpsz: number;
+	displayWght: number;
+	bodyWght: number;
+	/** Which of the two ground states is showing. Follows the crossfade. */
+	isNight: boolean;
+	/** 0–1 across the viewport, 0 = left. */
+	sunX: number;
+	/** 0–1 down the viewport, 0 = top. */
+	sunY: number;
+	/** 0–1. Zero at night and at zenith, 1 at the horizon. */
+	rayStrength: number;
+	/** 0–1. Zero in daylight, 1 well into night. */
+	starOpacity: number;
+};
+
+const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
+const smoothstep = (t: number) => {
+	const u = clamp01(t);
+	return u * u * (3 - 2 * u);
+};
+
+/**
+ * 0 = full day, 1 = full night. Flat across the middle of the day and the
+ * middle of the night; all the movement is inside the two crossfade windows.
+ */
+export function nightness(hour: number): number {
+	const h = ((hour % 24) + 24) % 24;
+	const half = CROSSFADE_MINUTES / 2 / 60;
+
+	// distance in hours to each terminator, signed so positive means "after"
+	const afterSunset = h - SUNSET_HOUR;
+	const afterSunrise = h - SUNRISE_HOUR;
+
+	if (Math.abs(afterSunset) <= half) {
+		return smoothstep((afterSunset + half) / (half * 2));
+	}
+	if (Math.abs(afterSunrise) <= half) {
+		return 1 - smoothstep((afterSunrise + half) / (half * 2));
+	}
+	return h > SUNSET_HOUR || h < SUNRISE_HOUR ? 1 : 0;
+}
+
+/** Move a colour's lightness by `delta`, keeping hue and chroma. */
+function shiftL(hex: string, delta: number): string {
+	const lch = oklabToOklch(rgbToOklab(hexToRgb(hex)));
+	const next: Oklch = { ...lch, L: clamp01(lch.L + delta) };
+	return rgbToHex(oklabToRgb(oklchToOklab(next)));
+}
+
+/**
+ * The accent IS the light source — but "#fff7e0 on pale stone" is invisible,
+ * so we keep the sun's hue and chroma and solve only its lightness against the
+ * current ground. At night, moonlight already passes and the two converge.
+ *
+ * This goes through the solver rather than `shiftL` on purpose: `shiftL` does
+ * not clamp chroma to the sRGB gamut, which is harmless on the near-neutral
+ * ground but silently clips a channel — and so shifts the hue — on a saturated
+ * sun colour.
+ *
+ * Exported only so that guarantee can be tested directly. Sweeping the real
+ * `SKY_STOPS` cannot prove it: the most saturated `--light` stop carries just
+ * C=0.1272, and at that little chroma the gamut barely binds, so a
+ * non-clamping implementation is nearly indistinguishable across the shipped
+ * palette. The test feeds this a deliberately saturated colour instead, where
+ * the difference is 80x. Not called from outside this module.
+ */
+export function accentFor(
+	lightHex: string,
+	groundHex: string,
+	ratio: number,
+): string {
+	const lightRgb = hexToRgb(lightHex);
+	const groundRgb = hexToRgb(groundHex);
+	if (contrastRatio(lightRgb, groundRgb) >= ratio) return lightHex;
+
+	const lch = oklabToOklch(rgbToOklab(lightRgb));
+	let solved = lightHex;
+	// The solver converges in continuous float RGB, but what ships is 8-bit
+	// hex, and rounding to the nearest channel moves the colour back TOWARD the
+	// ground — enough to drop a hair under the floor (measured worst case:
+	// 4.469 against a 4.5 target). So aim past the floor by a margin, and
+	// verify the QUANTISED colour, escalating if a stubborn hue still lands
+	// short. Without this the invariant fails at 404 of 1440 minutes, all of
+	// them by less than 0.04.
+	for (let i = 1; i <= 8; i++) {
+		const next = solveLuminanceForContrast(
+			lch,
+			groundRgb,
+			ratio + QUANTISATION_MARGIN * i,
+		);
+		solved = rgbToHex(oklabToRgb(oklchToOklab(next)));
+		if (contrastRatio(hexToRgb(solved), groundRgb) >= ratio) break;
+	}
+	return solved;
+}
+
+/**
+ * How bright the zenith is, 0-1 — the same idea as `skyBrightness` below, but
+ * keyed to `skyHigh` (the top of the viewport, where the nav and hero sit)
+ * rather than the horizon. The zenith dims well ahead of the horizon, which
+ * is still warmed by the low sun at dusk — that gap is exactly what made the
+ * nav go dark-on-dark before the ground ever changed state.
+ */
+const SKY_HIGH_LUM_MIN = relativeLuminance(hexToRgb("#070b16")); // midnight zenith
+const SKY_HIGH_LUM_MAX = relativeLuminance(hexToRgb("#7e9bb4")); // noon zenith
+
+function zenithBrightness(skyHighHex: string): number {
+	const l = relativeLuminance(hexToRgb(skyHighHex));
+	return clamp01(
+		(l - SKY_HIGH_LUM_MIN) / (SKY_HIGH_LUM_MAX - SKY_HIGH_LUM_MIN),
+	);
+}
+
+/**
+ * Where the sky-relative ink flips, in zenith-brightness units. A starting
+ * point to be judged with the scrubber, the same as the six SKY_STOPS
+ * colours — not a derived truth. (It was tuned against the real curve: 0.2
+ * moves the flip to roughly 18:46 in the evening and 07:33 in the morning,
+ * a little under an hour ahead of the ground's own ~19:50/~06:10 crossfade.)
+ */
+const SKY_INK_THRESHOLD = 0.2;
+
+/**
+ * Secondary/tertiary sky-ink tones. Offset the same way the ground's
+ * `ink1`/`ink2` step toward the ground — lighter off the day extreme, darker
+ * off the night one — so the sky ink family has the same internal contrast
+ * relationship the ground ink family does.
+ */
+const INK_DAY_ON_SKY_1 = shiftL(INK_DAY, 0.16);
+const INK_DAY_ON_SKY_2 = shiftL(INK_DAY, 0.3);
+const INK_NIGHT_ON_SKY_1 = shiftL(INK_NIGHT, -0.16);
+const INK_NIGHT_ON_SKY_2 = shiftL(INK_NIGHT, -0.3);
+
+/**
+ * Ink for elements that sit on the sky rather than the ground — the hero
+ * copy, and the nav before it scrolls onto its own backdrop.
+ *
+ * Two more careful-looking approaches were tried and both made things worse:
+ *
+ * 1. Solving a fixed dark hue's lightness against `skyHigh` directly, the way
+ *    `accentFor` solves the accent against the ground. Black and white have
+ *    EQUAL contrast against a background at ~18% luminance ("18% grey"), so
+ *    whichever one currently wins flips there — and unlike the ground,
+ *    `skyHigh` sweeps slowly through that exact luminance every ordinary
+ *    morning and afternoon. That produced a hard cut from white ink to black
+ *    ink mid-morning, in the middle of an unremarkable blue sky.
+ * 2. Blending INK_DAY and INK_NIGHT smoothly across a band of zenith
+ *    brightness, to avoid exactly that cut. But the background is ALSO
+ *    moving through that same band at the same time, and a medium ink over a
+ *    medium sky is worse than either extreme — measured worst case 1.04:1,
+ *    i.e. genuinely invisible, briefly worse than the bug this exists to fix.
+ *
+ * So this does what the ground itself does, for the same underlying reason
+ * (see the module docblock): stay at a settled extreme and flip between them
+ * with no interpolation in between, leaning on the CSS crossfade (a couple of
+ * seconds, not the minutes a colour blend would spend near the flip) to keep
+ * the flip itself from reading as a cut. The one difference from the ground
+ * is WHEN it flips: on `zenithBrightness` crossing `SKY_INK_THRESHOLD`,
+ * rather than on the sun crossing the horizon — because the zenith dims well
+ * before the ground does, which is the entire point.
+ *
+ * This does not chase a fixed contrast floor the way `accentFor` does — near
+ * the flip, `skyHigh` itself is a genuinely mid-luminance colour, and no
+ * fixed ink clears 7:1, or even 4.5:1, against a mid-luminance background;
+ * that is a property of the colours involved, not a bug. What this buys is
+ * comfortable contrast everywhere BUT that narrow neighbourhood, and it moves
+ * that neighbourhood to line up with when the zenith actually looks
+ * borderline, rather than leaving ground-ink parked on the wrong side of it
+ * for the better part of an hour into evening.
+ */
+export function inkForSky(skyHighHex: string): string {
+	return zenithBrightness(skyHighHex) < SKY_INK_THRESHOLD ? INK_NIGHT : INK_DAY;
+}
+
+/** Axis endpoints. Bright end first, dark end second. */
+const DISPLAY_OPSZ = { bright: 72, dark: 44 } as const;
+const DISPLAY_WGHT = { bright: 300, dark: 520 } as const;
+const BODY_WGHT = { bright: 400, dark: 450 } as const;
+
+/**
+ * How bright the sky is, 0-1, measured off the horizon colour.
+ *
+ * Continuous by construction — this is deliberately NOT `nightness`, which
+ * snaps at the terminator. Type that jumped when the lamps came on would read
+ * as a bug rather than as optical compensation.
+ *
+ * The endpoints are the darkest and brightest `skyLow` in the ring, so the
+ * scalar uses its full 0-1 range instead of bunching in the middle.
+ */
+const SKY_LUM_MIN = relativeLuminance(hexToRgb("#101a30")); // midnight horizon
+const SKY_LUM_MAX = relativeLuminance(hexToRgb("#efe6d2")); // noon horizon
+
+function skyBrightness(skyLowHex: string): number {
+	const l = relativeLuminance(hexToRgb(skyLowHex));
+	return clamp01((l - SKY_LUM_MIN) / (SKY_LUM_MAX - SKY_LUM_MIN));
+}
+
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+
+/** Black or white, whichever is readable on the given fill. */
+function onFill(fillHex: string): string {
+	const fill = hexToRgb(fillHex);
+	const black = { r: 0, g: 0, b: 0 };
+	const white = { r: 255, g: 255, b: 255 };
+	return contrastRatio(black, fill) >= contrastRatio(white, fill)
+		? "#000000"
+		: "#ffffff";
+}
+
+export function getPaletteAtHour(hour: number): SkyPalette {
+	const solar = solarStateAtHour(hour);
+	const sky = skyColorsAtHour(hour);
+	const n = nightness(hour);
+	const isNight = n > 0.5;
+	const brightness = skyBrightness(sky.skyLow);
+
+	// Ground: pick a state, then tint it very slightly with the current sky.
+	const baseGround = isNight ? GROUND_NIGHT : GROUND_DAY;
+	const baseInk = isNight ? INK_NIGHT : INK_DAY;
+	const groundLab = mixOklab(
+		rgbToOklab(hexToRgb(baseGround)),
+		rgbToOklab(hexToRgb(sky.skyLow)),
+		SKY_TINT,
+	);
+	// Pin luminance back to the untinted ground so the tint moves hue only.
+	const untinted = oklabToOklch(rgbToOklab(hexToRgb(baseGround)));
+	const tinted = oklabToOklch(groundLab);
+	const ground = rgbToHex(
+		oklabToRgb(oklchToOklab({ ...tinted, L: untinted.L })),
+	);
+
+	// Surfaces and borders step away from the ground, direction set by state.
+	const dir = isNight ? 1 : -1; // lift surfaces on night ground, sink on day
+	const surface = shiftL(ground, dir * 0.03);
+	const surface2 = shiftL(ground, dir * 0.06);
+	const border = shiftL(ground, dir * 0.1);
+	const borderStrong = shiftL(ground, dir * 0.18);
+
+	// Ink steps TOWARD the ground. That is lighter on the day stone and darker
+	// on the night basalt, so the sign has to follow the state — a single sign
+	// reads fine in one state and destroys secondary text in the other.
+	const inkDir = isNight ? -1 : 1;
+	const ink = baseInk;
+	const ink1 = shiftL(baseInk, inkDir * 0.16);
+	const ink2 = shiftL(baseInk, inkDir * 0.3);
+
+	// Solved once and reused for onAccent — the solve is a nested binary search,
+	// so calling it twice for the same pair is pure waste.
+	const accent = accentFor(sky.light, ground, 4.5);
+
+	// Ink for the sky-floating elements (hero copy, the nav before it scrolls
+	// onto its own backdrop). See `inkForSky` for why this can't reuse `ink`.
+	const skyIsDark = zenithBrightness(sky.skyHigh) < SKY_INK_THRESHOLD;
+	const inkOnSky = skyIsDark ? INK_NIGHT : INK_DAY;
+	const inkOnSky1 = skyIsDark ? INK_NIGHT_ON_SKY_1 : INK_DAY_ON_SKY_1;
+	const inkOnSky2 = skyIsDark ? INK_NIGHT_ON_SKY_2 : INK_DAY_ON_SKY_2;
+
+	// Shadows lengthen as the sun drops, capped so they never run away.
+	const shadowDist =
+		MIN_SHADOW_DIST +
+		(MAX_SHADOW_DIST - MIN_SHADOW_DIST) * (1 - Math.abs(solar.sunAltitude));
+
+	// Where the light actually is. The same azimuth drives --light-angle, so
+	// the disc in the sky and every shadow on the ground agree.
+	const sunX = 0.5 + (solar.azimuth / 70) * SUN_X_SWING;
+	const sunY =
+		SUN_Y_HORIZON -
+		Math.abs(solar.sunAltitude) * (SUN_Y_HORIZON - SUN_Y_ZENITH);
+
+	// Rays are strongest when the sun is low: the light is travelling through
+	// more atmosphere to reach the viewer. That is why dawn and dusk get
+	// shafts and midday does not — and it makes the effect self-limiting
+	// rather than an always-on glow.
+	const rayStrength = solar.isNight
+		? 0
+		: clamp01((1 - solar.sunAltitude) ** 1.6);
+
+	// Stars fade in after sunset rather than snapping on at the boundary.
+	const starOpacity = clamp01(-solar.sunAltitude * 1.6);
+
+	return {
+		skyHigh: sky.skyHigh,
+		skyLow: sky.skyLow,
+		light: sky.light,
+		ground,
+		surface,
+		surface2,
+		border,
+		borderStrong,
+		ink,
+		ink1,
+		ink2,
+		inkOnSky,
+		inkOnSky1,
+		inkOnSky2,
+		accent,
+		accentStrong: accentFor(sky.light, ground, 3),
+		onAccent: onFill(accent),
+		lightAngle: solar.azimuth,
+		shadowDist,
+		displayOpsz: lerp(DISPLAY_OPSZ.dark, DISPLAY_OPSZ.bright, brightness),
+		displayWght: lerp(DISPLAY_WGHT.dark, DISPLAY_WGHT.bright, brightness),
+		bodyWght: lerp(BODY_WGHT.dark, BODY_WGHT.bright, brightness),
+		isNight,
+		sunX,
+		sunY,
+		rayStrength,
+		starOpacity,
+	};
+}

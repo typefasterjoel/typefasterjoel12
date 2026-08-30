@@ -1,9 +1,11 @@
 import { Reveal } from "#/components/Reveal";
+import { SectionHorizon } from "#/components/SectionHorizon";
 
 /** The path — a manifesto block that sets you moving. */
 export function Path() {
 	return (
 		<section className="section container" id="path">
+			<SectionHorizon label="the path" distance="near" />
 			<div className="path-manifesto">
 				<Reveal delay={0.08}>
 					<h2 className="h2">Design and build,<br />in the same breath.</h2>

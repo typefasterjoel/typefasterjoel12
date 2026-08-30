@@ -1,7 +1,6 @@
 import { gsap } from "gsap";
 import { useEffect, useRef } from "react";
 import { Button } from "#/components/Button";
-import { HeroConstellation } from "#/components/home/HeroConstellation";
 import { EXPERIENCE_LABEL } from "#/data/resume";
 import { useIntro } from "#/lib/intro";
 import {
@@ -68,9 +67,6 @@ export function Hero() {
 
 	return (
 		<section className="hero container" ref={rootRef} id="top">
-			{/* Stars that lean toward "wander down" when the cursor wanders */}
-			<HeroConstellation anchorRef={cueRef} />
-
 			{/* Option A (live): specific to Joel's dual role */}
 			<h1 className="display hero-title" data-crest>
 				Design and code,
@@ -109,7 +105,7 @@ export function Hero() {
 				aria-label="Scroll down"
 			>
 				<span className="line" aria-hidden="true" />
-				<span className="mono-label">wander down</span>
+				<span className="marker-label">wander down</span>
 			</button>
 		</section>
 	);

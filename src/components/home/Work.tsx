@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
 import { useState } from "react";
 import { Reveal } from "#/components/Reveal";
+import { SectionHorizon } from "#/components/SectionHorizon";
 import { SideQuestCard } from "#/components/SideQuestCard";
 import { SideQuestModal } from "#/components/SideQuestModal";
 import { projects } from "#/data/projects";
@@ -15,6 +16,7 @@ export function Work() {
 
 	return (
 		<section className="section container" id="work">
+			<SectionHorizon label="selected work" distance="near" />
 			<div className="section-head">
 				<Reveal>
 					<h2 className="h2">Places worth stopping.</h2>
@@ -34,9 +36,7 @@ export function Work() {
 								className="work-list-link"
 							>
 								<div className="work-list-row">
-									<span className="work-list-index mono-label">
-										{String(i + 1).padStart(2, "0")}
-									</span>
+									<span className="work-list-year">{p.year}</span>
 									<span className="work-list-title">{p.title}</span>
 									<span className="work-list-summary">{p.summary}</span>
 									<span className="work-list-arrow" aria-hidden="true">
@@ -62,8 +62,8 @@ export function Work() {
 							className="cluster"
 							style={{ justifyContent: "space-between", alignItems: "baseline" }}
 						>
-							<p className="mono-label">{"// a few side quests"}</p>
-							<Link to="/work" hash="side-quests" className="mono-label">
+							<p className="marker-label">a few side quests</p>
+							<Link to="/work" hash="side-quests" className="marker-label">
 								See all
 								<span className="arrow" aria-hidden="true">
 									<ArrowUpRight size={14} />

@@ -10,7 +10,7 @@ export function NotFound() {
 				className="stack"
 				style={{ gap: "var(--s-5)", alignItems: "center" }}
 			>
-				<p className="mono-label">{"// 404 · off the map"}</p>
+				<p className="marker-label">"404 · off the map"</p>
 				<h1 className="h1">This page types slower than I do.</h1>
 				<p className="body-lg measure" style={{ textAlign: "center" }}>
 					You've wandered past the edge of the trail. Nothing here yet. Let's

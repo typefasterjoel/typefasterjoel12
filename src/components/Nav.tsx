@@ -3,7 +3,7 @@ import { ArrowRight, Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { scrollToTarget } from "#/lib/motion";
 import { Logo } from "./Logo";
-import { ThemeToggle } from "./ThemeToggle";
+import { TimeScrubber } from "./TimeScrubber";
 
 const SECTIONS = [
 	{ id: "work", label: "Work" },
@@ -57,7 +57,7 @@ export function Nav() {
 			</nav>
 
 			<div className="nav-actions">
-				<ThemeToggle />
+				<TimeScrubber />
 				<button
 					type="button"
 					className="icon-btn nav-burger"

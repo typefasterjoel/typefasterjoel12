@@ -6,7 +6,7 @@
 
 /* ---------- Buttons ---------- */
 .btn {
-	font-family: var(--font-sans);
+	font-family: var(--font-body);
 	font-weight: 500;
 	font-size: 14px;
 	letter-spacing: -0.01em;
@@ -45,49 +45,48 @@
 	color: var(--on-accent);
 }
 .btn-primary:hover {
-	background: var(--accent-hover);
+	background: var(--accent-strong);
 }
 
 .btn-ink {
-	background: var(--fg);
-	color: var(--bg);
+	background: var(--ink);
+	color: var(--ground);
 }
+/* Hover lifts the fill a step off full ink, toward the ground. Works in
+   both ground states because --ink and --ground invert together. */
 .btn-ink:hover {
-	background: var(--ink-800);
-}
-[data-theme="dark"] .btn-ink:hover {
-	background: #e7e3da;
+	background: color-mix(in oklab, var(--ink) 88%, var(--ground));
 }
 
 /* ghost — no resting outline; reveals a soft fill on hover */
 .btn-ghost {
 	background: transparent;
-	color: var(--fg);
+	color: var(--ink);
 	border-color: transparent;
 }
 .btn-ghost:hover {
-	background: var(--sunken);
+	background: var(--surface-2);
 }
 
 /* outline — bordered alternative when a visible edge is wanted */
 .btn-outline {
 	background: transparent;
-	color: var(--fg);
+	color: var(--ink);
 	border-color: var(--border-strong);
 }
 .btn-outline:hover {
-	background: var(--sunken);
-	border-color: var(--fg-2);
+	background: var(--surface-2);
+	border-color: var(--ink-2);
 }
 
 .btn-quiet {
 	background: transparent;
-	color: var(--fg-1);
+	color: var(--ink-1);
 	padding-left: 6px;
 	padding-right: 6px;
 }
 .btn-quiet:hover {
-	color: var(--fg);
+	color: var(--ink);
 }
 
 .btn-sm {
@@ -113,7 +112,7 @@
 	font-size: 11px;
 	letter-spacing: 0.08em;
 	text-transform: uppercase;
-	color: var(--fg-1);
+	color: var(--ink-1);
 	border: 1px solid var(--border);
 	background: var(--surface);
 	padding: 5px 10px;
@@ -124,9 +123,9 @@
 	white-space: nowrap;
 }
 .tag-accent {
-	color: var(--accent-ink);
+	color: var(--accent);
 	border-color: color-mix(in oklab, var(--accent) 45%, transparent);
-	background: var(--accent-soft);
+	background: color-mix(in oklab, var(--accent) 12%, var(--ground));
 }
 .tag-dot::before {
 	content: "";
@@ -144,21 +143,21 @@
 	font-family: var(--font-mono);
 	font-size: 12px;
 	letter-spacing: 0.04em;
-	color: var(--fg-1);
+	color: var(--ink-1);
 }
 .status .led {
 	width: 8px;
 	height: 8px;
 	border-radius: 50%;
-	background: var(--positive);
-	box-shadow: 0 0 0 4px color-mix(in oklab, var(--positive) 22%, transparent);
+	background: #4f7a3a;
+	box-shadow: 0 0 0 4px color-mix(in oklab, #4f7a3a 22%, transparent);
 }
 
 /* ---------- Inputs ---------- */
 .field {
-	font-family: var(--font-sans);
+	font-family: var(--font-body);
 	font-size: 15px;
-	color: var(--fg);
+	color: var(--ink);
 	background: var(--surface);
 	border: 1px solid var(--border-strong);
 	border-radius: var(--r-sm);
@@ -170,7 +169,7 @@
 		box-shadow var(--dur-1) var(--ease-out);
 }
 .field::placeholder {
-	color: var(--fg-2);
+	color: var(--ink-2);
 }
 .field:focus {
 	outline: none;
@@ -182,7 +181,7 @@
 	font-size: 11px;
 	letter-spacing: 0.1em;
 	text-transform: uppercase;
-	color: var(--fg-2);
+	color: var(--ink-2);
 	display: block;
 	margin-bottom: 8px;
 }
@@ -227,7 +226,7 @@
 }
 .work-thumb {
 	aspect-ratio: 16 / 10;
-	background: var(--sunken);
+	background: var(--surface-2);
 	position: relative;
 	overflow: hidden;
 }
@@ -255,25 +254,11 @@
 	background:
 		radial-gradient(
 			110% 80% at 50% 120%,
-			color-mix(in oklab, var(--gold-300) 38%, transparent),
+			color-mix(in oklab, var(--accent-strong) 38%, transparent),
 			transparent 60%
 		),
 		var(--surface-2);
-	color: var(--fg-2);
-}
-/* index badge — translucent pill, same recipe as .case-gallery-arrow,
-   so it stays legible over an arbitrary cover image */
-.work-index {
-	position: absolute;
-	top: var(--s-3);
-	left: var(--s-3);
-	z-index: 1;
-	padding: 4px 9px;
-	border-radius: var(--r-pill);
-	background: color-mix(in oklab, var(--bg) 70%, transparent);
-	backdrop-filter: blur(8px);
-	-webkit-backdrop-filter: blur(8px);
-	color: var(--fg);
+	color: var(--ink-2);
 }
 .work-meta {
 	display: flex;
@@ -327,7 +312,7 @@
 }
 .side-quest-thumb {
 	aspect-ratio: 16 / 10;
-	background: var(--sunken);
+	background: var(--surface-2);
 	overflow: hidden;
 	display: block;
 	position: relative;
@@ -352,8 +337,8 @@
 .side-quest-card:hover .side-quest-thumb::before,
 .side-quest-card:focus-visible .side-quest-thumb::before {
 	box-shadow:
-		inset 0 0 0 3px color-mix(in oklab, var(--gold-400) 55%, transparent),
-		inset 0 0 40px color-mix(in oklab, var(--gold-300) 40%, transparent);
+		inset 0 0 0 3px color-mix(in oklab, var(--accent-strong) 55%, transparent),
+		inset 0 0 40px color-mix(in oklab, var(--accent-strong) 40%, transparent);
 }
 .side-quest-thumb::after {
 	content: "";
@@ -362,7 +347,7 @@
 	background: linear-gradient(
 		115deg,
 		transparent 42%,
-		color-mix(in oklab, var(--gold-300) 55%, transparent) 50%,
+		color-mix(in oklab, var(--accent-strong) 55%, transparent) 50%,
 		transparent 58%
 	);
 	transform: translateX(-160%);
@@ -394,23 +379,23 @@
 	font-size: 16px;
 	font-weight: 500;
 	letter-spacing: -0.01em;
-	color: var(--fg);
+	color: var(--ink);
 }
 .side-quest-blurb {
 	font-size: 13px;
-	color: var(--fg-1);
+	color: var(--ink-1);
 	line-height: 1.5;
 }
 .side-quest-arrow {
 	align-self: flex-end;
 	margin: 0 var(--s-5) var(--s-4);
-	color: var(--accent-ink);
+	color: var(--accent);
 }
 
 /* ---------- Link with animated underline ---------- */
 .ulink {
 	position: relative;
-	color: var(--fg);
+	color: var(--ink);
 }
 .ulink::after {
 	content: "";
