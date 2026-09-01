@@ -34,6 +34,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 	// so it keeps dragging the page back toward the stale target and the
 	// route can land scrolled instead of at the top. Re-sync Lenis to wherever
 	// the router just put the scrollbar and cancel any leftover animation.
+	// biome-ignore lint/correctness/useExhaustiveDependencies: pathname is a trigger only, not read in the body
 	useEffect(() => {
 		getLenis()?.scrollTo(window.scrollY, { immediate: true });
 	}, [pathname]);

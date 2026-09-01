@@ -32,6 +32,17 @@ export type CaseCallout = {
 /** A punchy hero stat, distinct from the sidebar facts. */
 export type CaseStat = { value: string; label: string };
 
+/**
+ * Promotes a project into the home hero's featured band. At most one project
+ * should carry this. `hook` is the single sentence that has to earn a hiring
+ * manager's attention before they scroll — the stats below it do the
+ * answering, so the hook only has to state the problem.
+ */
+export type CaseFeature = {
+  hook: string;
+  figure: CaseFigure;
+};
+
 /** Small context grid shown just before the gallery carousel — e.g. legacy
  * screens contrasted against the system that replaced them. Kept deliberately
  * quiet so it reads as an aside, not a second before/after reveal. */
@@ -70,6 +81,8 @@ export type Project = {
   callout?: CaseCallout;
   /** lead figure that replaces the "coming soon" placeholder */
   cover?: CaseFigure;
+  /** promotes this project into the home hero's featured band */
+  featured?: CaseFeature;
   /** full-bleed carousel; rendered after sections[galleryAfterSection] */
   gallery?: CaseFigure[];
   galleryAfterSection?: number;
@@ -134,6 +147,22 @@ const allProjects: Project[] = [
       alt: "Blueprint mascot — an otter in a hard hat, alongside the Blueprint wordmark",
       width: 1920,
       height: 1080,
+    },
+    // The hero band. The hook is lifted from "The problem" below rather than
+    // written fresh — it is the best sentence in the case study, and the
+    // stats beside it are the answer, so the hook only states the problem.
+    // The figure is the pipeline screen, not the mascot cover: cover.webp is
+    // a saturated cobalt slab that fights the hour-derived palette, and the
+    // pipeline's coloured status bands stay legible at aperture scale where
+    // a denser screen turns to grey.
+    featured: {
+      hook: "Four teams, four codebases, four products that looked like they came from four different companies.",
+      figure: {
+        src: "/work/blueprint/mc-pipeline-after.png",
+        alt: "Manage & Close deal pipeline rebuilt in Blueprint — a value strip across the top and a deal table banded by pipeline status",
+        width: 1440,
+        height: 1024,
+      },
     },
     galleryAfterSection: 2,
     galleryIntro: {

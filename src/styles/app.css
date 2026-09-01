@@ -538,20 +538,67 @@ button {
   min-height: 100svh;
   display: flex;
   flex-direction: column;
+  /* Three zones: the sky takes the slack, the shelf is the seam, the band
+     sits under it and runs past the fold. `center` is gone — the sky zone's
+     own flex-grow does that job now, and keeps the band pinned low. */
+  padding-block: 0;
+}
+
+/* The sky zone. It absorbs the leftover height, which is what pins the
+   horizon and the band to the bottom of the viewport at any window size.
+
+   The sky ink override lives HERE rather than on `.hero`, because the hero
+   now ends in ground: everything under the horizon must inherit :root's
+   ground ink instead. Redeclaring `color` (not just the custom properties)
+   matters: anything below that does not set its own colour, like the
+   headline, inherits through THIS element's resolved colour, not through a
+   re-lookup of --ink further down. */
+.hero-sky {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
   justify-content: center;
-  padding-block: clamp(var(--s-9), 18vh, 200px) var(--s-9);
-  /* The hero sits in the sky, not on the ground — its ink has to answer to
-     the sky's luminance, not the ground's. Redeclaring `color` here (not
-     just the custom properties) matters: anything below that does not set
-     its own colour, like the headline, inherits through THIS element's
-     resolved colour, not through a re-lookup of --ink further down. */
+  min-height: 0;
+  padding-block: clamp(var(--s-7), 10vh, 112px) var(--s-7);
   --ink: var(--ink-on-sky);
   --ink-1: var(--ink-on-sky-1);
   --ink-2: var(--ink-on-sky-2);
   color: var(--ink);
 }
+
+/* ============================================================
+   The hero's ground — the horizon as a real edge.
+
+   The ground plane starts inside the hero and runs past the fold straight
+   into `.ground`, so the two read as one continuous surface. That is what
+   makes the featured band legible at every hour: ink on --ground clears
+   7:1 across all 1,440 minutes, while ink on horizon sky does not.
+
+   Its top edge must stay clear of the disc: sky-palette.ts parks the
+   sun/moon at SUN_Y_HORIZON = 0.62 with a core radius of ~0.028, so the
+   edge is held below 0.66 of the viewport. Moving that constant means
+   revisiting the short-viewport block further down.
+   ============================================================ */
+.hero-ground {
+  position: relative;
+  flex: 0 0 auto;
+  background: var(--ground);
+  padding-bottom: var(--s-6);
+  transition: background-color var(--dur-sky) var(--ease-out);
+}
+
+/* `.ground` draws its own seam hairline at its top edge. When it follows a
+   hero, that edge is mid-surface — the hero already drew the horizon. */
+.hero + .ground::before {
+  display: none;
+}
+
 .hero-title {
   max-width: 14ch;
+  /* Smaller than the old free-standing hero: the band below now carries part
+     of the weight, and the headline no longer has the viewport to itself. */
+  font-size: clamp(46px, 7.4vw, 96px);
+  margin: 0;
 }
 .hero-title .accent {
   color: var(--accent);
@@ -606,108 +653,305 @@ button {
 	margin-bottom: var(--s-6);
 }
 
-/* The hero's horizon keeps its GSAP draw-in — the signature arrival beat.
-   It is now the first instance of a system rather than a one-off. */
+/* The lit seam along the ground's top edge. Keeps its GSAP draw-in — the
+   signature arrival beat — and matches the hairline every section horizon
+   uses, so the hero's is the first instance of a system, not a one-off. */
 .hero-horizon {
-  width: min(560px, 68vw);
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
   height: 1px;
-  margin-block: var(--s-5);
   background: linear-gradient(
     90deg,
     var(--accent-strong) 0%,
-    color-mix(in oklab, var(--accent-strong) 60%, transparent) 65%,
-    transparent 100%
+    color-mix(in oklab, var(--accent-strong) 60%, transparent) 72%,
+    color-mix(in oklab, var(--accent-strong) 22%, transparent) 100%
   );
   transform-origin: left center;
   will-change: transform, opacity;
 }
+.hero-ground [data-band] {
+  padding-top: var(--s-6);
+}
 
 .hero-byline {
   font-size: clamp(16px, 1.4vw, 18px);
-  line-height: 1.75;
+  line-height: 1.65;
   color: var(--ink-1);
+  max-width: 44ch;
+  margin: var(--s-4) 0 0;
 }
 .hero-cta {
-  margin-top: var(--s-6);
+  margin-top: var(--s-5);
 }
 
-/* content above the canvas — but never touch .scroll-cue's positioning */
-.hero > :not(.scroll-cue) {
+/* Hero content rides above the fixed sky canvas. */
+.hero > * {
   position: relative;
   z-index: 1;
 }
-.scroll-cue {
+
+/* ============================================================
+   The featured band — the first destination, standing on the ground.
+
+   No surface fill and no border box: it already sits on the ground, so a
+   card here would be a plane on a plane. Only the aperture is opaque.
+   ============================================================ */
+.featured {
+  /* Registered in tokens.css so GSAP can tween it; drives the aperture
+     scrim. Declared here too so the band renders resolved without JS. */
+  --featured-reveal: 1;
+}
+
+.featured-link {
+  display: grid;
+  grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr);
+  gap: clamp(var(--s-5), 3.5vw, var(--s-7));
+  align-items: center;
+  color: inherit;
+}
+
+/* The aperture — a window onto real software, not a card. */
+.featured-aperture {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border-radius: var(--r-lg);
+  border: 1px solid color-mix(in oklab, var(--ink) 12%, transparent);
+  /* --shadow-md, not --shadow-lg: the large shadow's 40px spread tinted the
+     ground behind the adjacent copy, and --accent is solved to land at
+     exactly 4.5:1 on an untinted ground, so it measured 3.98:1 there. A
+     window in a surface wants less elevation than a card anyway. */
+  box-shadow: var(--shadow-md);
+  background: var(--surface);
+}
+.featured-aperture img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Top-left crop: the value strip and the first status bands are the part
+     that still reads at this size. */
+  object-position: left top;
+  display: block;
+  /* Held back at rest so a bright product screenshot cannot fight an amber
+     dusk or a moon-silver night ground. Resolves as the band lands, and
+     again on hover. --featured-reveal goes 0 -> 1 on the entrance beat. */
+  filter: saturate(calc(0.5 + 0.5 * var(--featured-reveal)))
+    contrast(calc(0.94 + 0.06 * var(--featured-reveal)));
+  transition:
+    filter var(--dur-3) var(--ease-out),
+    transform var(--dur-3) var(--ease-out);
+}
+/* The scrim is mixed from --light, so it re-derives with the hour and never
+   becomes a hardcoded colour. */
+.featured-aperture::after {
+  content: "";
   position: absolute;
-  right: var(--gutter);
-  bottom: var(--s-7);
+  inset: 0;
+  pointer-events: none;
+  background: color-mix(in oklab, var(--light) 60%, transparent);
+  opacity: calc(0.42 * (1 - var(--featured-reveal)) + 0.16);
+  transition: opacity var(--dur-3) var(--ease-out);
+}
+.featured-link:hover .featured-aperture img,
+.featured-link:focus-visible .featured-aperture img {
+  filter: saturate(1) contrast(1);
+  transform: scale(1.02);
+}
+.featured-link:hover .featured-aperture::after,
+.featured-link:focus-visible .featured-aperture::after {
+  opacity: 0;
+}
+
+.featured-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--s-3);
+  min-width: 0;
+}
+
+.featured-title {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  margin: 0;
+}
+.featured-name {
+  font-family: var(--font-display);
+  font-variation-settings:
+    "opsz" var(--display-opsz),
+    "wght" calc(var(--display-wght) + 40);
+  font-size: clamp(28px, 3.4vw, 40px);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+}
+.featured-year {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-variation-settings:
+    "opsz" 18,
+    "wght" calc(var(--display-wght) + 60);
+  font-size: 15px;
+  color: var(--ink-2);
+}
+
+.featured-hook {
+  margin: 0;
+  font-size: clamp(16px, 1.5vw, 19px);
+  line-height: 1.5;
+  color: var(--ink-1);
+  max-width: 46ch;
+  text-wrap: pretty;
+}
+
+/* Numbers first, label under. No card, no fill — the hairline above each
+   column is the only structure they need. */
+.featured-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s-4);
+  width: 100%;
+  margin: var(--s-2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.featured-stats li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: var(--s-3);
+  border-top: 1px solid color-mix(in oklab, var(--ink) 16%, transparent);
+}
+.featured-stat-value {
+  font-family: var(--font-display);
+  font-variation-settings:
+    "opsz" 32,
+    "wght" calc(var(--display-wght) + 120);
+  font-size: clamp(22px, 2.2vw, 30px);
+  line-height: 1;
+  color: var(--accent);
+}
+.featured-stat-label {
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--ink-2);
+}
+
+.featured-cta {
   display: inline-flex;
   align-items: center;
-  gap: var(--s-3);
-  color: var(--ink-2);
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
+  gap: var(--s-2);
+  font-size: 15px;
+  color: var(--accent);
+  border-bottom: 1px solid color-mix(in oklab, var(--accent) 40%, transparent);
+  padding-bottom: 2px;
+  transition: border-color var(--dur-1) var(--ease-out);
 }
-.scroll-cue:hover {
-  color: var(--ink-1);
+.featured-cta .arrow {
+  display: inline-flex;
+  transition: transform var(--dur-2) var(--ease-out);
 }
-.hero > .scroll-cue {
-  z-index: 1;
+.featured-link:hover .featured-cta {
+  border-bottom-color: var(--accent);
 }
-.scroll-cue .line {
-  width: 1px;
-  height: 40px;
-  background: linear-gradient(var(--accent), transparent);
-  transform-origin: top;
+.featured-link:hover .featured-cta .arrow {
+  transform: translateX(3px);
 }
-/* The cue is the destination the constellation points at — it breathes.
-   Pulse + bob live on the label (not the button) so they never fight the
-   GSAP crest entrance, which animates the button's opacity and transform. */
-.scroll-cue .marker-label {
-  display: inline-block; /* transform needs a box for the bob */
-  animation: cue-pulse 4.2s ease-in-out infinite;
+.featured-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 6px;
+  border-radius: var(--r-lg);
 }
-@media (prefers-reduced-motion: no-preference) {
-  .scroll-cue .line {
-    animation: cue-trail 2.4s var(--ease-out) infinite;
+
+/* Under reduced motion the band is simply there, in full colour: no scrim
+   to lift, no scale on hover. */
+@media (prefers-reduced-motion: reduce) {
+  .featured {
+    --featured-reveal: 1;
   }
-  .scroll-cue .marker-label {
-    animation:
-      cue-pulse 4.2s ease-in-out infinite,
-      cue-bob 4.2s ease-in-out infinite;
+  .featured-aperture img {
+    filter: none;
+    transition: none;
   }
-}
-@keyframes cue-trail {
-  0% {
-    transform: scaleY(0);
-    opacity: 0;
+  .featured-aperture::after {
+    opacity: 0.16;
+    transition: none;
   }
-  40% {
-    transform: scaleY(1);
-    opacity: 1;
-  }
-  100% {
-    transform: scaleY(1);
-    opacity: 0;
+  .featured-link:hover .featured-aperture img {
+    transform: none;
   }
 }
-@keyframes cue-pulse {
-  0%,
-  100% {
-    opacity: 0.7;
+
+/* ---- Hero, short viewports ----
+   On a 720px-tall laptop the band's natural height pushes its top edge up to
+   ~0.61 of the viewport, which is inside the sun's reach (the disc's core
+   reaches 0.648 at the horizon hour). The band is what has to give: the sky
+   zone flex-grows, so a shorter band is a lower band. These trims buy back
+   the ~35px needed to clear the disc. */
+@media (min-width: 861px) and (max-height: 820px) {
+  .hero-ground {
+    padding-bottom: var(--s-4);
   }
-  50% {
-    opacity: 1;
+  .hero-ground [data-band] {
+    padding-top: var(--s-4);
+  }
+  .featured-body {
+    gap: var(--s-2);
+  }
+  .featured-stats {
+    margin-top: 0;
+  }
+  .hero-title {
+    font-size: clamp(44px, 6.4vw, 76px);
+  }
+  .hero-sky {
+    padding-bottom: var(--s-6);
+  }
+  /* A shorter crop rather than a smaller one: the value strip and the first
+     status bands still read, and it buys the last few pixels the horizon
+     needs to stay under the sun on a 720px-tall screen. */
+  .featured-aperture {
+    aspect-ratio: 2 / 1;
   }
 }
-@keyframes cue-bob {
-  0%,
-  100% {
-    transform: translateY(0);
+
+/* ---- Hero, small screens ----
+   The band stacks and stops bleeding: on a phone the fold is doing enough
+   work already, and a cropped band under a full-height headline would just
+   look truncated. */
+@media (max-width: 860px) {
+  .hero {
+    min-height: auto;
   }
-  50% {
-    transform: translateY(3px);
+  .hero-sky {
+    /* Still a full sky moment on a phone: the headline and the horizon get
+       their own screen, and the band begins just under the fold. */
+    min-height: 78svh;
+    justify-content: center;
+    padding-block: clamp(var(--s-8), 14vh, 132px) var(--s-7);
+  }
+  .featured-link {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s-5);
+    align-items: stretch;
+  }
+  .hero-ground {
+    padding-bottom: var(--s-7);
+  }
+}
+
+@media (max-width: 560px) {
+  .featured-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  /* Three stats into two columns leaves an odd one out — let it span rather
+     than sit beside an empty cell. */
+  .featured-stats li:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
   }
 }
 
@@ -1719,7 +1963,6 @@ button {
   .sky-root,
   .sky-canvas,
   .preloader,
-  .scroll-cue,
   .icon-btn,
   .resume-back,
   .resume-print-btn {
@@ -1867,11 +2110,5 @@ button {
   }
   .work-list-row {
     gap: var(--s-3);
-  }
-  /* Hero: scroll cue below byline on small screens */
-  .scroll-cue {
-    position: static;
-    margin-top: var(--s-7);
-    align-self: flex-end;
   }
 }

@@ -42,6 +42,15 @@
 	inherits: true;
 	initial-value: 8px;
 }
+/* 0 = the featured band's aperture is held under its scrim, 1 = fully
+   resolved. GSAP tweens this on the hero's arrival beat; registering it as a
+   number is what lets the scrim's calc() interpolate instead of snapping.
+   Defaults to 1 so the band is never stuck dimmed without JS. */
+@property --featured-reveal {
+	syntax: "<number>";
+	inherits: true;
+	initial-value: 1;
+}
 
 :root {
 	/* ---- Font families ---- */
