@@ -1,7 +1,8 @@
+import { useRouterState } from "@tanstack/react-router";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect } from "react";
 import { IntroProvider } from "#/lib/intro";
-import { initSmoothScroll, registerGsap } from "#/lib/motion";
+import { getLenis, initSmoothScroll, registerGsap } from "#/lib/motion";
 import { SkyTimeProvider } from "#/lib/sky-time";
 import { Footer } from "./Footer";
 import { Nav } from "./Nav";
@@ -11,6 +12,8 @@ import { Sky } from "./Sky";
 
 /** Persistent app frame: providers, atmosphere, preloader, chrome + smooth scroll. */
 export function AppShell({ children }: { children: React.ReactNode }) {
+	const pathname = useRouterState({ select: (s) => s.location.pathname });
+
 	useEffect(() => {
 		registerGsap();
 		const cleanup = initSmoothScroll();
@@ -21,6 +24,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 			cleanup();
 		};
 	}, []);
+
+	// Lenis tracks scroll independently of the DOM: a section link (e.g. Nav's
+	// "Contact") starts a *programmatic* Lenis animation toward a target Y that
+	// belongs to the page being left. The router's scroll restoration then
+	// resets native scroll on the new route (`onRendered`, a layout effect —
+	// runs before this), but Lenis never hears about it while that animation
+	// is still in flight (`onNativeScroll` only syncs when idle or user-driven),
+	// so it keeps dragging the page back toward the stale target and the
+	// route can land scrolled instead of at the top. Re-sync Lenis to wherever
+	// the router just put the scrollbar and cancel any leftover animation.
+	useEffect(() => {
+		getLenis()?.scrollTo(window.scrollY, { immediate: true });
+	}, [pathname]);
 
 	return (
 		<SkyTimeProvider>
