@@ -1731,7 +1731,7 @@ button {
 .side-quest-modal-stage img {
   display: block;
   width: 100%;
-  aspect-ratio: 16 / 10;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
 }
 
@@ -1951,8 +1951,8 @@ button {
   line-height: 1.9;
 }
 
-/* Print — a clean one-page resume from either theme.
-   "Print / Save as PDF" on /resume is the intended path to a PDF. */
+/* Print — a clean one-page resume from either theme, for anyone who
+   Ctrl+P's the page instead of using the "Download PDF" link on /resume. */
 @media print {
   @page {
     size: letter;

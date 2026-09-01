@@ -311,7 +311,7 @@
 	border-color: var(--border-strong);
 }
 .side-quest-thumb {
-	aspect-ratio: 16 / 10;
+	aspect-ratio: 16 / 9;
 	background: var(--surface-2);
 	overflow: hidden;
 	display: block;

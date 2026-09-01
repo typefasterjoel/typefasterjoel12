@@ -13,10 +13,6 @@ export const Route = createFileRoute("/resume")({
 });
 
 function ResumePage() {
-	const handlePrint = () => {
-		window.print();
-	};
-
 	return (
 		<article className="resume-page container">
 			<header className="resume-header">
@@ -40,16 +36,17 @@ function ResumePage() {
 				</Reveal>
 				<Reveal delay={0.14}>
 					<div className="resume-print-btn">
-						<button
-							type="button"
-							onClick={handlePrint}
+						<a
+							href="/resume.pdf"
+							target="_blank"
+							rel="noreferrer"
 							className={btnClass({ variant: "outline", size: "sm" })}
 						>
-							Print / Save as PDF
+							Download PDF
 							<span className="arrow" aria-hidden="true">
 								<ArrowRight size={16} />
 							</span>
-						</button>
+						</a>
 					</div>
 				</Reveal>
 			</header>
