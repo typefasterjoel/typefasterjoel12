@@ -316,11 +316,43 @@ const allProjects: Project[] = [
       },
       { label: "Company", value: "Buildout · PropTech" },
     ],
+    cover: {
+      src: "/work/prospect/cover.webp",
+      alt: "",
+    },
     callout: {
       eyebrow: "no more tab archaeology",
       heading: "The AI does the research so brokers can focus on the call",
       body: "Finding the real owner of a commercial property used to mean hours across public records, LLC databases, and search engines, with no guarantee the contact at the end was right. AI Contact Lookup replaced that with a single step. The agent searches, aggregates, matches against our records, and returns a ranked recommendation with every source attached. Brokers get the confidence to make the call and the receipts to back it up.",
     },
+    galleryAfterSection: 2,
+    gallery: [
+      {
+        src: "/work/prospect/search.webp",
+        alt: "Prospect property search screen — filterable list with algorithm confidence badges",
+        caption: "Property search",
+      },
+      {
+        src: "/work/prospect/owner-unlock.webp",
+        alt: "Property ownership tab before AI Contact Lookup runs — owner name and address visible, contacts locked behind a credit",
+        caption: "AI Contact Lookup — before",
+      },
+      {
+        src: "/work/prospect/owner-unlocked.webp",
+        alt: "Property ownership tab after AI Contact Lookup — legal entity and two AI-verified contacts with phone and email surfaced",
+        caption: "AI Contact Lookup — after",
+      },
+      {
+        src: "/work/prospect/owner-phones.webp",
+        alt: "Full contact list for a property owner — 24 contacts with AI-verified badges, phone numbers, and email addresses",
+        caption: "Verified owner contacts",
+      },
+      {
+        src: "/work/prospect/activity-console.webp",
+        alt: "The Console — property and contact details alongside a call-logging panel with tasks assigned to teammates",
+        caption: "The Console",
+      },
+    ],
     sections: [
       {
         heading: "The pivot",
@@ -351,6 +383,23 @@ const allProjects: Project[] = [
         body: [
           "When Buildout acquired ProspectNow, 400 customers needed a new home. Prospect was it. Before the migration started, I went through the ProspectNow feature set and identified anything that was missing in Prospect. Mailers was the main one. We got those gaps closed before anyone moved over.",
           "400 customers migrated. 12 churned. The rest stayed and moved to the new plans. A 97% retention rate through an acquisition migration is not something that happens by accident. The product had to be ready, and it was.",
+        ],
+        figureLayout: "pair",
+        figures: [
+          {
+            src: "/work/prospect/prospectnow-old.webp",
+            alt: "Old ProspectNow property search screen, pre-acquisition",
+            caption: "ProspectNow",
+            width: 1440,
+            height: 1024,
+          },
+          {
+            src: "/work/prospect/search.webp",
+            alt: "Prospect property search screen — filterable list with algorithm confidence badges",
+            caption: "Prospect",
+            width: 1440,
+            height: 1024,
+          },
         ],
       },
       {
