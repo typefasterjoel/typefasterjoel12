@@ -13,3 +13,6 @@ __unconfig*
 todos.json
 design_handoff
 docs/superpowers
+
+# Local Netlify folder
+.netlify
