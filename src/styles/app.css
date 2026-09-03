@@ -246,9 +246,9 @@ button {
   position: fixed;
   inset: 0 0 auto 0;
   z-index: 60;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   gap: var(--s-5);
   padding: var(--s-4) var(--gutter);
   background: transparent;
@@ -269,6 +269,7 @@ button {
 .nav-brand {
   display: inline-flex;
   align-items: center;
+  justify-self: start;
   gap: var(--s-3);
   /* Unscrolled, the nav floats directly over the sky rather than the ground
      — see --ink-on-sky in sky-palette.ts. Reverted to ground ink below,
@@ -287,6 +288,7 @@ button {
 .nav-links {
   display: flex;
   align-items: center;
+  justify-self: center;
   gap: var(--s-5);
 }
 .nav-link {
@@ -304,6 +306,7 @@ button {
 .nav-actions {
   display: flex;
   align-items: center;
+  justify-self: end;
   gap: var(--s-3);
 }
 
