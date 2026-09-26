@@ -125,6 +125,7 @@ export const skills: SkillGroup[] = [
 			"Next.js",
 			"React Router 7 · TanStack Start",
 			"PHP · Laravel",
+			"Claude Code",
 		],
 	},
 	{
