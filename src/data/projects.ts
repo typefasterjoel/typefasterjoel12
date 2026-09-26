@@ -132,7 +132,7 @@ const allProjects: Project[] = [
     links: [
       {
         label: "Read the docs",
-        href: "https://buildoutinc.github.io/blueprint/docs",
+        href: "https://buildoutinc.github.io/blueprint",
         note: "buildoutinc.github.io",
         kind: "docs",
       },
