@@ -70,10 +70,7 @@ export const sendContact = createServerFn({ method: "POST" })
 			}),
 		});
 		if (!res.ok) {
-			const body = await res.text();
-			console.error("[contact] Resend rejected send", res.status, body);
-			throw new Error(`Resend responded ${res.status}: ${body}`);
+			throw new Error(`Resend responded ${res.status}: ${await res.text()}`);
 		}
-		console.log("[contact] Resend accepted send", await res.json());
 		return { status: "sent" };
 	});
