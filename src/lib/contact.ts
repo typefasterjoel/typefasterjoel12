@@ -46,6 +46,10 @@ export const sendContact = createServerFn({ method: "POST" })
 		// Bots fill hidden fields and submit instantly. Either way, claim
 		// success and send nothing — never tip them off.
 		if (data.company || Date.now() - data.startedAt < 3000) {
+			console.log("[contact] honeypot tripped", {
+				company: data.company,
+				elapsedMs: Date.now() - data.startedAt,
+			});
 			return { status: "sent" };
 		}
 
@@ -67,7 +71,10 @@ export const sendContact = createServerFn({ method: "POST" })
 			}),
 		});
 		if (!res.ok) {
-			throw new Error(`Resend responded ${res.status}`);
+			const body = await res.text();
+			console.error("[contact] Resend rejected send", res.status, body);
+			throw new Error(`Resend responded ${res.status}: ${body}`);
 		}
+		console.log("[contact] Resend accepted send", await res.json());
 		return { status: "sent" };
 	});
