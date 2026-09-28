@@ -352,6 +352,25 @@ describe("accent — the light source, made legible", () => {
 		}
 	});
 
+	it("clears 4.5:1 on the sky at every minute — the hero title's accent word", () => {
+		// `.hero-title .accent` sits in `.hero-sky`, not on `--ground`, so the
+		// floor above says nothing about it. Same headline invariant, against
+		// `skyHigh` instead.
+		const failures: string[] = [];
+		for (let m = 0; m < 1440; m++) {
+			const p = getPaletteAtHour(m / 60);
+			const r = contrastRatio(hexToRgb(p.accentOnSky), hexToRgb(p.skyHigh));
+			if (r < 4.5) {
+				const hh = String(Math.floor(m / 60)).padStart(2, "0");
+				const mm = String(m % 60).padStart(2, "0");
+				failures.push(
+					`${hh}:${mm} ratio=${r.toFixed(2)} accentOnSky=${p.accentOnSky} skyHigh=${p.skyHigh}`,
+				);
+			}
+		}
+		expect(failures).toEqual([]);
+	});
+
 	it("keeps the sun's hue and chroma — the accent is recognisably the light", () => {
 		// Swept across every minute, not sampled at a few hand-picked hours: a
 		// solve that drifts does it at the saturated hours, and four samples

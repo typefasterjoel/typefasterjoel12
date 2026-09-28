@@ -85,6 +85,11 @@
 	--accent: #7a6320;
 	--accent-strong: #9c8030;
 	--on-accent: #ffffff;
+	/* Accent for elements on the sky — see --ink-on-sky above and
+	   sky-palette.ts's accentOnSky. --accent-on-sky-halo is onFill() of that,
+	   i.e. always the opposite flat extreme. */
+	--accent-on-sky: #36301d;
+	--accent-on-sky-halo: #ffffff;
 
 	/* ---- Light direction ---- */
 	--light-angle: 0deg;

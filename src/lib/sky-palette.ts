@@ -68,6 +68,34 @@ export type SkyPalette = {
 	inkOnSky: string;
 	inkOnSky1: string;
 	inkOnSky2: string;
+	/**
+	 * Accent for elements that sit on the sky rather than the ground — namely
+	 * `.hero-title .accent`. `accent` is solved against `--ground` and the
+	 * hero title sits on the sky, so reusing it carries no contrast guarantee
+	 * there at all (see `inkOnSky` for the same problem, already solved for
+	 * ink). Solved against `skyHigh` for the same reason `inkOnSky` is: that
+	 * is the reference the hero copy and nav already share.
+	 *
+	 * That solve alone is not sufficient, though: `skyHigh` is a single point
+	 * at the top of the viewport, and the actual pixels behind the title are a
+	 * blend toward `skyLow` (brighter) plus the sun's additive bloom and rays
+	 * (brighter still) — never darker than the flat gradient this is solved
+	 * against. Around sunset/sunrise, `skyHigh` and `skyLow` sit in different
+	 * luminance regimes entirely (one dark, one still glowing), so no single
+	 * hue-preserving lightness clears 4.5:1 against the whole span — the same
+	 * sandwich `inkForSky` documents. `accentOnSkyHalo` below is what actually
+	 * carries the guarantee against the real, moving background.
+	 */
+	accentOnSky: string;
+	/**
+	 * A flat black-or-white halo behind `accentOnSky`, via `onFill` — the
+	 * thing that actually keeps the hero title's accent word legible. A
+	 * solved colour can only promise contrast against the one background it
+	 * was solved for; a halo drawn in whichever of black/white contrasts more
+	 * with the text ITSELF reads against any pixel behind it, because the
+	 * separation comes from the outline, not from matching the backdrop.
+	 */
+	accentOnSkyHalo: string;
 	accent: string;
 	accentStrong: string;
 	onAccent: string;
@@ -322,6 +350,9 @@ export function getPaletteAtHour(hour: number): SkyPalette {
 	// Solved once and reused for onAccent — the solve is a nested binary search,
 	// so calling it twice for the same pair is pure waste.
 	const accent = accentFor(sky.light, ground, 4.5);
+	// Same solve, against the sky instead of the ground — see `accentOnSky`.
+	const accentOnSky = accentFor(sky.light, sky.skyHigh, 4.5);
+	const accentOnSkyHalo = onFill(accentOnSky);
 
 	// Ink for the sky-floating elements (hero copy, the nav before it scrolls
 	// onto its own backdrop). See `inkForSky` for why this can't reuse `ink`.
@@ -368,6 +399,8 @@ export function getPaletteAtHour(hour: number): SkyPalette {
 		inkOnSky,
 		inkOnSky1,
 		inkOnSky2,
+		accentOnSky,
+		accentOnSkyHalo,
 		accent,
 		accentStrong: accentFor(sky.light, ground, 3),
 		onAccent: onFill(accent),

@@ -566,6 +566,7 @@ button {
   --ink: var(--ink-on-sky);
   --ink-1: var(--ink-on-sky-1);
   --ink-2: var(--ink-on-sky-2);
+  --accent: var(--accent-on-sky);
   color: var(--ink);
 }
 
@@ -603,8 +604,18 @@ button {
   font-size: clamp(46px, 7.4vw, 96px);
   margin: 0;
 }
+/* The accent word's colour is solved against skyHigh (see accentOnSky), but
+   the sun's own bloom and rays brighten the sky well past that single point,
+   and at sunset/sunrise skyHigh and skyLow sit in different luminance regimes
+   entirely — no solved colour clears every pixel that can end up behind it.
+   The halo (flat black or white, via onFill — always the opposite extreme
+   from the text) is what actually guarantees the word reads, everywhere. */
 .hero-title .accent {
   color: var(--accent);
+  text-shadow:
+    0 0 1px var(--accent-on-sky-halo),
+    0 1px 2px color-mix(in oklab, var(--accent-on-sky-halo) 65%, transparent),
+    0 1px 5px color-mix(in oklab, var(--accent-on-sky-halo) 40%, transparent);
 }
 
 /* ============================================================

@@ -108,6 +108,8 @@ function applyPalette(p: SkyPalette): void {
 	s.setProperty("--ink-on-sky-1", p.inkOnSky1);
 	s.setProperty("--ink-on-sky-2", p.inkOnSky2);
 	s.setProperty("--accent", p.accent);
+	s.setProperty("--accent-on-sky", p.accentOnSky);
+	s.setProperty("--accent-on-sky-halo", p.accentOnSkyHalo);
 	s.setProperty("--accent-strong", p.accentStrong);
 	s.setProperty("--on-accent", p.onAccent);
 	s.setProperty("--light-angle", `${p.lightAngle}deg`);
