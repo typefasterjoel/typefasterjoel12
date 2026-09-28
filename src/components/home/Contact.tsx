@@ -51,7 +51,7 @@ export function Contact() {
 			const res = await sendContact({
 				data: {
 					...result.data,
-					company: typeof data.company === "string" ? data.company : "",
+					company: typeof data.hp_note === "string" ? data.hp_note : "",
 					startedAt: startedAtRef.current,
 				},
 			});
@@ -177,12 +177,16 @@ export function Contact() {
 									</span>
 								)}
 							</div>
-							{/* Honeypot — humans never see or reach this field */}
+							{/* Honeypot — humans never see or reach this field. Name/label
+							    deliberately meaningless: "company" + "Company" label reads as
+							    an organization field to browser/password-manager autofill,
+							    which then fills it for real users and silently trips the bot
+							    check below. */}
 							<div className="hp-field" aria-hidden="true">
-								<label htmlFor="company">Company</label>
+								<label htmlFor="hp-note">Leave this field blank</label>
 								<input
-									id="company"
-									name="company"
+									id="hp-note"
+									name="hp_note"
 									type="text"
 									tabIndex={-1}
 									autoComplete="off"
