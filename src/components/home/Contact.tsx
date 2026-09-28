@@ -30,7 +30,7 @@ function mailtoHref(name: string, message: string): string {
 export function Contact() {
 	const [errors, setErrors] = useState<Errors>({});
 	const [status, setStatus] = useState<Status>("idle");
-	const startedAtRef = useRef(Date.now());
+	const mountedAtRef = useRef(performance.now());
 
 	const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
@@ -52,7 +52,7 @@ export function Contact() {
 				data: {
 					...result.data,
 					company: typeof data.hp_note === "string" ? data.hp_note : "",
-					startedAt: startedAtRef.current,
+					elapsedMs: performance.now() - mountedAtRef.current,
 				},
 			});
 			if (res.status === "fallback") {

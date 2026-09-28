@@ -12,8 +12,11 @@ export const contactSchema = z.object({
 const contactInput = contactSchema.extend({
 	/** honeypot — humans never see the field; non-empty means bot (checked in the handler, not here, so bots get a fake success instead of a validation error) */
 	company: z.string().optional(),
-	/** time-trap — when the form was first rendered (epoch ms) */
-	startedAt: z.number(),
+	/** time-trap — ms between the form rendering and submit, measured
+	 * client-side (performance.now()); never diff this against the
+	 * server's own clock, client/server epoch clocks can disagree by
+	 * seconds and falsely trip this as a bot */
+	elapsedMs: z.number(),
 });
 
 export type ContactResult = {
@@ -45,11 +48,7 @@ export const sendContact = createServerFn({ method: "POST" })
 
 		// Bots fill hidden fields and submit instantly. Either way, claim
 		// success and send nothing — never tip them off.
-		if (data.company || Date.now() - data.startedAt < 3000) {
-			console.log("[contact] honeypot tripped", {
-				company: data.company,
-				elapsedMs: Date.now() - data.startedAt,
-			});
+		if (data.company || data.elapsedMs < 3000) {
 			return { status: "sent" };
 		}
 
