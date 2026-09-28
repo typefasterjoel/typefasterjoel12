@@ -35,7 +35,9 @@ export function initSmoothScroll(): () => void {
 	lenis = new Lenis({
 		duration: 1.1,
 		easing: (t) => Math.min(1, 1.001 - 2 ** (-10 * t)),
-		smoothWheel: true,
+		// Wheel/touch scroll stays native; Lenis is only used for the
+		// programmatic scrollTo() nav-link jumps (see scrollToTarget below).
+		smoothWheel: false,
 	});
 
 	lenis.on("scroll", ScrollTrigger.update);
