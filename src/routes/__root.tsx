@@ -6,6 +6,11 @@ import { AppShell } from "#/components/AppShell";
 import { NotFound } from "#/components/NotFound";
 import appCss from "../styles.css?url";
 
+// ponytail: OG images must be absolute URLs; set VITE_SITE_URL if the domain differs.
+const SITE_URL = import.meta.env.VITE_SITE_URL ?? "https://typefasterjoel.com";
+const OG_IMAGE = `${SITE_URL}/brand/social-banner.png`;
+const OG_ALT = "typefasterjoel: a keyboard-typewriter mark over an isometric workspace illustration";
+
 export const Route = createRootRoute({
 	notFoundComponent: NotFound,
 	head: () => ({
@@ -25,8 +30,23 @@ export const Route = createRootRoute({
 				content: "A short journey through the work of Joel, senior design engineer.",
 			},
 			{ property: "og:type", content: "website" },
+			{ property: "og:site_name", content: "typefasterjoel" },
+			{ property: "og:url", content: SITE_URL },
+			{ property: "og:image", content: OG_IMAGE },
+			{ property: "og:image:width", content: "1200" },
+			{ property: "og:image:height", content: "630" },
+			{ property: "og:image:alt", content: OG_ALT },
+			{ name: "twitter:card", content: "summary_large_image" },
+			{ name: "twitter:title", content: "typefasterjoel | senior design engineer" },
+			{
+				name: "twitter:description",
+				content: "A short journey through the work of Joel, senior design engineer.",
+			},
+			{ name: "twitter:image", content: OG_IMAGE },
+			{ name: "twitter:image:alt", content: OG_ALT },
 		],
 		links: [
+			{ rel: "canonical", href: SITE_URL },
 			{ rel: "stylesheet", href: appCss },
 			{ rel: "icon", href: "/favicon.ico", sizes: "32x32" },
 			{
