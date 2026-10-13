@@ -316,6 +316,14 @@ const allProjects: Project[] = [
       },
       { label: "Company", value: "Buildout · PropTech" },
     ],
+    links: [
+      {
+        label: "AI Contact Search case study",
+        href: "/work/prospect-ai-search",
+        note: "the full story behind AI Contact Lookup",
+        kind: "site",
+      },
+    ],
     cover: {
       src: "/work/prospect/cover.webp",
       alt: "",
@@ -407,6 +415,129 @@ const allProjects: Project[] = [
         body: [
           "Prospect ended up being more than a redesigned product. Because we had more freedom to build it the way we wanted, it became a testing ground for what a shared design language across all of Buildout could look like. The patterns we established here, the components, the decisions we kept making the same way across screens, those became the foundation for Blueprint.",
           "It was also the first Buildout product to be converted to Blueprint once the system was ready. In a way, Prospect both inspired it and got to prove it.",
+        ],
+      },
+    ],
+  },
+  // ── Prospect: AI Contact Search ───────────────────────────────────────
+  {
+    slug: "prospect-ai-search",
+    title: "AI Contact Search",
+    year: "2025",
+    role: "Product designer · user research",
+    summary:
+      "Brokers were re-verifying our owner data by hand. I watched how they did it, and we taught an AI agent to do the same thing.",
+    tags: ["Product design", "AI", "UX research", "PropTech"],
+    intro:
+      "Our vendor data was good, but good isn't verified, and a broker about to cold-call an owner needs verified. So brokers double-checked everything by hand. We didn't add another data source. We automated the habit brokers already had.",
+    stats: [
+      { value: "~2–3K", label: "AI lookups per 30 days" },
+      { value: "70–100", label: "Quick Lookups per 30 days" },
+      { value: "1", label: "credit per lookup" },
+    ],
+    facts: [
+      { label: "Role", value: "Product designer · user research" },
+      { label: "Year", value: "2025" },
+      { label: "Timeline", value: "Sept – Nov 2025" },
+      {
+        label: "Scope",
+        value: "Research · AI interaction design · trust patterns · adoption",
+      },
+      { label: "Company", value: "Buildout · Prospect team" },
+    ],
+    links: [
+      {
+        label: "Part of Prospect",
+        href: "/work/prospect",
+        note: "the product this feature lives in",
+        kind: "site",
+      },
+    ],
+    cover: {
+      src: "/work/prospect-ai-search/contact-ai-search-cover.webp",
+      alt: "AI Contact Search by Prospect — title card on a blue gradient with the Prospect logo",
+      width: 1920,
+      height: 1080,
+    },
+    galleryAfterSection: 3,
+    gallery: [
+      {
+        src: "/work/prospect-ai-search/contact-ai-prompt.webp",
+        alt: "Property ownership tab with two options: Quick Lookup and In-Depth Owner Lookup, which uses AI and takes longer",
+        caption: "Two ways in",
+        width: 1460,
+        height: 1080,
+      },
+      {
+        src: "/work/prospect-ai-search/contact-ai-searching.webp",
+        alt: "The lookup in progress — a short status line reading 'Researching… Searching the web for owner contact information'",
+        caption: "The lookup, in progress",
+        width: 1460,
+        height: 1080,
+      },
+      {
+        src: "/work/prospect-ai-search/contact-ai-results.webp",
+        alt: "Lookup results — a related company with an AI research summary, and highest-confidence contacts marked AI Verified, Assessor Match or Legal Entity Officer",
+        caption: "Results, ranked by confidence",
+        width: 1460,
+        height: 1080,
+      },
+      {
+        src: "/work/prospect-ai-search/contact-ai-results-evidence.webp",
+        alt: "An AI Research popup open over a contact, listing the source links the agent found, with a note that AI can make mistakes and results should be reviewed",
+        caption: "The receipts, on hover",
+        width: 1460,
+        height: 1080,
+      },
+    ],
+    sections: [
+      {
+        heading: "Good data isn't verified data",
+        body: [
+          "We had solid data partners. They still got things wrong sometimes, and a wrong owner means a wasted call or a burned relationship. So brokers did what brokers do: opened a pile of tabs. The company's website, public records, news articles. They were validating our data by hand, every time.",
+          "The obvious fix was another data source. I didn't think that was the problem. The brokers had already figured out how to verify an owner. We just weren't in that flow.",
+        ],
+      },
+      {
+        heading: "I watched them work",
+        body: [
+          "I spent the research phase watching brokers do the job. Where do they look first? What makes them believe a contact? What makes them stop trusting one?",
+          "Brokers are hard to get ahold of. They're on the phone, in the field, or both. We landed about five interviews, and I took every one of them. Five is small. But they described the same loop, almost step for step.",
+          "That flow became the prompt. The agent searches the web the way a broker would, then compares what it finds against our vendor data and property records. Matches get ranked by how much evidence backs them up.",
+          "The research didn't inform the feature. It was the feature.",
+        ],
+      },
+      {
+        heading: "Two buttons, on purpose",
+        body: [
+          "We shipped In-Depth Owner Lookup next to the existing Quick Lookup, and we left both there for months. Some brokers already knew who the owner was and only needed a confirmation. Others wanted to see if the AI would do better. I didn't want to force the answer. I wanted to watch it.",
+          "Both cost one credit, whether or not the search finds anyone. We pay for the lookup either way, so a refund-on-empty model wasn't on the table.",
+          "The waiting state is quiet on purpose. The agent finishes fast, so a progress theatre of steps and spinners would have taken longer than the work. The status text changes as the lookup moves along, with a small animation. That's it.",
+        ],
+      },
+      {
+        heading: "Trust is receipts",
+        body: [
+          "A broker is going to pick up the phone based on this screen. \"The AI said so\" isn't good enough.",
+          "So we compare everything the agent finds against vendor data and property records. When a contact matches legal documents or assessor records, it earns a badge (AI Verified, Assessor Match, Legal Entity Officer) and floats into Highest Confidence. The evidence is the ranking.",
+          "The AI summary and the contacts show their sources on hover, so a broker can see exactly which links the agent found. The agent didn't search once and grab the first thing it saw. It checked several places, and the broker can see every one.",
+          "The popup also says, right at the bottom: \"AI can make mistakes. Please review the information provided below thoroughly.\" I wanted that there. A tool that admits it can be wrong gets trusted more than one that doesn't.",
+        ],
+      },
+      {
+        heading: "Watching clicks instead of asking",
+        body: [
+          "Early on, brokers were hesitant, and they weren't going to tell us why. I'd planned on thumbs up and down to measure quality. Nobody clicked them.",
+          "So I stopped asking and started watching. In Pendo I tracked clicks per account. If someone tried the AI lookup and then went back to Quick Lookup, that was the answer: the prompt wasn't good enough yet. We tuned it with about 20 users at a time, a couple of rounds, until the trend flipped.",
+          "It flipped hard. Quick Lookup was getting about 70–100 clicks every 30 days. The AI button was getting around 2–3 thousand. In January 2026, we took Quick Lookup out.",
+        ],
+      },
+      {
+        heading: "What I got wrong",
+        body: [
+          "I assumed people would rate the results. They didn't. I should have planned a short survey for after the feature had been used for a while.",
+          "That said, the usage data got us to the same conclusion a survey would have. People vote with their clicks.",
+          "Next time I'd still build the survey. I just wouldn't wait on it.",
         ],
       },
     ],

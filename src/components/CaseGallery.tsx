@@ -10,6 +10,8 @@ const AUTO_ADVANCE_MS = 4500;
 // disables. Repeating the source figures pads the DOM with enough slides for
 // a genuinely seamless loop; dots/clicks still map back to the real indices.
 const MIN_LOOP_SLIDES = 6;
+// Up to this many figures the gallery is static: no loop, no auto-advance.
+const MAX_STATIC_FIGURES = 3;
 
 interface Props {
 	figures: CaseFigure[];
@@ -18,11 +20,12 @@ interface Props {
 
 export function CaseGallery({ figures, onSlideClick }: Props) {
 	const wrapRef = useRef<HTMLElement>(null);
+	const animated = figures.length > MAX_STATIC_FIGURES;
 	const pausedRef = useRef(false);
 	const [emblaRef, emblaApi] = useEmblaCarousel({
 		align: "start",
 		slidesToScroll: "auto",
-		loop: true,
+		loop: animated,
 		watchDrag: true,
 	});
 	const [selected, setSelected] = useState(0);
@@ -30,10 +33,10 @@ export function CaseGallery({ figures, onSlideClick }: Props) {
 	const [canNext, setCanNext] = useState(false);
 
 	const loopFigures = useMemo(() => {
-		if (figures.length === 0 || figures.length >= MIN_LOOP_SLIDES) return figures;
+		if (!animated || figures.length >= MIN_LOOP_SLIDES) return figures;
 		const copies = Math.ceil(MIN_LOOP_SLIDES / figures.length);
 		return Array.from({ length: copies }, () => figures).flat();
-	}, [figures]);
+	}, [figures, animated]);
 
 	// Break out of the prose column to the full viewport width.
 	// Measure the element's left offset from the viewport and negate it.
@@ -87,14 +90,14 @@ export function CaseGallery({ figures, onSlideClick }: Props) {
 
 	// Auto-advance, paused on hover/focus, skipped under reduced motion.
 	useEffect(() => {
-		if (!emblaApi || figures.length <= 1 || prefersReducedMotion()) return;
+		if (!emblaApi || !animated || prefersReducedMotion()) return;
 		const id = setInterval(() => {
 			if (pausedRef.current) return;
 			if (emblaApi.canScrollNext()) emblaApi.scrollNext();
 			else emblaApi.scrollTo(0);
 		}, AUTO_ADVANCE_MS);
 		return () => clearInterval(id);
-	}, [emblaApi, figures.length]);
+	}, [emblaApi, animated]);
 
 	// Keyboard navigation, scoped to the gallery (not global).
 	const onKeyDown = useCallback(
