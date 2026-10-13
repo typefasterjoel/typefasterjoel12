@@ -542,31 +542,6 @@ const allProjects: Project[] = [
       },
     ],
   },
-  // ── Gamer's Hive TV (draft) ───────────────────────────────────────────
-  // TODO(joel): answer design_handoff/project-content-questionnaire.md, then
-  // write real copy in the house voice and flip `draft` off. Imagery goes in
-  // /public/work/gamers-hive-tv/.
-  {
-    slug: "gamers-hive-tv",
-    title: "Gamer's Hive TV",
-    draft: true,
-    year: "TODO(joel)",
-    role: "TODO(joel)",
-    summary: "TODO(joel): one-line summary for the work list.",
-    tags: ["TODO(joel)"],
-    intro: "TODO(joel): case-study intro — the problem in one breath.",
-    facts: [
-      { label: "Role", value: "TODO(joel)" },
-      { label: "Year", value: "TODO(joel)" },
-      { label: "Scope", value: "TODO(joel)" },
-      { label: "Stack", value: "TODO(joel)" },
-    ],
-    sections: [
-      { heading: "The problem", body: ["TODO(joel)"] },
-      { heading: "The approach", body: ["TODO(joel)"] },
-      { heading: "The outcome", body: ["TODO(joel)"] },
-    ],
-  },
 ];
 
 /** Published projects only — drafts never reach the UI or the router. */

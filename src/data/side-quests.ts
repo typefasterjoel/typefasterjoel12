@@ -58,6 +58,29 @@ const allSideQuests: SideQuest[] = [
       },
     ],
   },
+  // ── Gamer's Hive TV ───────────────────────────────────────────────────
+  {
+    slug: "gamers-hive-tv",
+    title: "Gamer's Hive TV",
+    draft: false,
+    year: "2024",
+    blurb:
+      "A curated directory of inclusive Twitch streamers, built to put them in front of more people and to teach me Next.js and Payload CMS. I subscribed to Twitch's API hooks so the site knows the moment someone on the list goes live. That updates the database, shows them on the homepage, and triggers a bot to post in Discord.",
+    tags: ["Next.js", "Payload CMS", "Discord bot", "Twitch"],
+    thumbnail: {
+      src: "/work/gamershive-tv/thumb.webp",
+      alt: "Gamer's Hive TV homepage — a dark hero reading Inclusive Streamers and Content Creators on Twitch, above a row of live streamer cards",
+      width: 1920,
+      height: 1080,
+    },
+    links: [
+      {
+        label: "gamershive.tv",
+        href: "https://gamershive.tv",
+        kind: "site",
+      },
+    ],
+  },
 ];
 
 /** Published side quests only — drafts never reach the UI. */
