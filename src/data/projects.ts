@@ -58,6 +58,8 @@ export type CaseSection = {
   figures?: CaseFigure[];
   /** how multiple figures in this section are laid out; defaults to "stack" */
   figureLayout?: "stack" | "pair" | "grid";
+  /** live component rendered after this section's prose and figures */
+  demo?: { component: "researching-banner"; caption?: string };
 };
 
 export type Project = {
@@ -514,6 +516,10 @@ const allProjects: Project[] = [
           "Both cost one credit, whether or not the search finds anyone. We pay for the lookup either way, so a refund-on-empty model wasn't on the table.",
           "The waiting state is quiet on purpose. The agent finishes fast, so a progress theatre of steps and spinners would have taken longer than the work. The status text changes as the lookup moves along, with a small animation. That's it.",
         ],
+        demo: {
+          component: "researching-banner",
+          caption: "The waiting state, live",
+        },
       },
       {
         heading: "Trust is receipts",
