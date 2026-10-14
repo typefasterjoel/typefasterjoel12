@@ -1292,6 +1292,8 @@ button {
 .case-figure--img {
   aspect-ratio: auto;
   display: block;
+  /* block layout honours justify-items now — undo .case-figure's centring */
+  place-items: normal;
   padding: 0;
   border: 0;
   background: none;

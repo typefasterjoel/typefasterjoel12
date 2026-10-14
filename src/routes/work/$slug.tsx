@@ -6,6 +6,7 @@ import { CaseGallery } from "#/components/CaseGallery";
 import { Ground } from "#/components/Ground";
 import { ImageModal } from "#/components/ImageModal";
 import { LinkChip } from "#/components/LinkChip";
+import { ResearchingBanner } from "#/components/ResearchingBanner";
 import { Reveal } from "#/components/Reveal";
 import { Tag } from "#/components/Tag";
 import { type CaseFigure, getProject, projects } from "#/data/projects";
@@ -178,6 +179,16 @@ function CaseStudy() {
 											{s.body.map((para) => (
 												<p key={para.slice(0, 24)}>{para}</p>
 											))}
+											{s.demo && (
+												<figure className="case-figure case-figure--img">
+													<ResearchingBanner />
+													{s.demo.caption && (
+														<figcaption className="marker-label">
+															{s.demo.caption}
+														</figcaption>
+													)}
+												</figure>
+											)}
 											{s.figures && s.figures.length > 0 && (
 												<div
 													className={

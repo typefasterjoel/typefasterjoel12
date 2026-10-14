@@ -430,3 +430,133 @@
 	border: none;
 	margin: 0;
 }
+
+/* ---------- Researching banner (Prospect AI loading demo) ----------
+   Hardcoded on purpose: these are Prospect's product tokens from Figma,
+   a light-UI mock that sits on the ground, not part of the sky palette. */
+.researching {
+	--rb-blue: rgb(32 66 167);
+	--rb-purple: rgb(146 79 220);
+	display: flex;
+	gap: 12px;
+	align-items: flex-start;
+	padding: 12px;
+	border: 1px solid #eeeef2;
+	border-radius: 4px;
+	color: #1c1d21;
+	font-family: "Figtree Variable", sans-serif;
+	/* body's sky-driven wght variation would override font-weight */
+	font-variation-settings: normal;
+	background: linear-gradient(90deg, #f7f8f8, #fff 28%, #f7f8f8 57%, #fff 85%, #f7f8f8);
+	background-size: 200% 100%;
+}
+.researching-icon {
+	display: grid;
+	place-items: center;
+	padding: 8px;
+	border: 1px solid #c192f3;
+	border-radius: 6px;
+	background: #f2eafd;
+	color: #1c1d21;
+}
+.researching-text {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-width: 0;
+}
+.researching-title {
+	font-size: 19px;
+	line-height: 25px;
+	font-weight: 700;
+	color: var(--rb-blue);
+	background: linear-gradient(
+		100deg,
+		var(--rb-blue) 0%,
+		var(--rb-purple) 25%,
+		var(--rb-blue) 50%,
+		var(--rb-purple) 75%,
+		var(--rb-blue) 100%
+	);
+	background-size: 200% 100%;
+	-webkit-background-clip: text;
+	background-clip: text;
+	-webkit-text-fill-color: transparent;
+}
+.researching-sub {
+	position: relative;
+	height: 21px;
+	font-size: 16px;
+	line-height: 21px;
+	font-style: italic;
+}
+/* three stages stacked; only the first shows unless motion is allowed */
+.researching-stage {
+	position: absolute;
+	inset: 0;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	opacity: 0;
+}
+.researching-stage:first-child {
+	opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.researching {
+		animation: researching-drift 12s linear infinite;
+	}
+	.researching-title {
+		animation: researching-shimmer 2.4s linear infinite;
+	}
+	.researching-stage {
+		animation: researching-stage 9s ease-in-out infinite both;
+	}
+	.researching-stage:nth-child(2) {
+		animation-delay: 3s;
+	}
+	.researching-stage:nth-child(3) {
+		animation-delay: 6s;
+	}
+	.researching-icon svg {
+		animation: researching-spin 4s var(--ease-out, ease-out) infinite;
+	}
+}
+@keyframes researching-drift {
+	to {
+		background-position: -200% 0;
+	}
+}
+@keyframes researching-shimmer {
+	to {
+		background-position: -200% 0;
+	}
+}
+/* fade/slide in, hold, fade/slide out upward; each stage owns a third of the loop */
+@keyframes researching-stage {
+	0% {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	5%,
+	28% {
+		opacity: 1;
+		transform: translateY(0);
+	}
+	33%,
+	100% {
+		opacity: 0;
+		transform: translateY(-8px);
+	}
+}
+/* still for most of the loop, then one turn */
+@keyframes researching-spin {
+	0%,
+	65% {
+		transform: rotate(0);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}

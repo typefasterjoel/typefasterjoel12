@@ -11,6 +11,9 @@
 @import "@fontsource-variable/newsreader/opsz.css";
 @import "@fontsource-variable/newsreader/opsz-italic.css";
 @import "@fontsource-variable/instrument-sans/wdth.css";
+/* Figtree: scoped to .researching only (the Prospect UI mock). Never site type. */
+@import "@fontsource-variable/figtree/wght.css";
+@import "@fontsource-variable/figtree/wght-italic.css";
 
 /* Space Mono is kept for ONE purpose: real code. It is never a label, never an
    eyebrow, and never carries a leading "//". Mono means "this is code". */
